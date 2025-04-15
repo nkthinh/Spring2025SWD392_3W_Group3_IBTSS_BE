@@ -1,4 +1,8 @@
 
+using IBTSS.API.Mapper;
+using IBTSS.Repository;
+using Microsoft.EntityFrameworkCore;
+
 namespace IBTSS.API
 {
     public class Program
@@ -10,9 +14,27 @@ namespace IBTSS.API
             // Add services to the container.
 
             builder.Services.AddControllers();
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+
+            builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(
+                builder.Configuration.GetConnectionString("IBTSSDatabase")));
+
+            builder.Services.AddAuthorization();
+            builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
+
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAll", policy =>
+                {
+                    policy.AllowAnyOrigin()
+                          .AllowAnyHeader()
+                          .AllowAnyMethod();
+                });
+            });
+
+            builder.Services.AddSignalR();
 
             var app = builder.Build();
 
@@ -23,13 +45,10 @@ namespace IBTSS.API
                 app.UseSwaggerUI();
             }
 
+            app.UseCors("AllowAll");
             app.UseHttpsRedirection();
-
             app.UseAuthorization();
-
-
             app.MapControllers();
-
             app.Run();
         }
     }

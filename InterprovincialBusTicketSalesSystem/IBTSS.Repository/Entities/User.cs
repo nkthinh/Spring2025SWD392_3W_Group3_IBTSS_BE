@@ -11,7 +11,7 @@ namespace IBTSS.Repository.Entities
     public class User
     {
         [Key]
-        public string UserId { get; set; } = string.Empty;
+        public string UserId { get; set; } = string.Empty; //
 
         [Required]
         public string Username { get; set; } = string.Empty;

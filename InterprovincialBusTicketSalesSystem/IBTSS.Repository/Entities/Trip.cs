@@ -32,6 +32,7 @@ namespace IBTSS.Repository.Entities
         public bool IsDelete { get; set; }
 
         public int Price { get; set; }
+        public string Status { get; set; }
 
         public virtual Route? Route { get; set; }
         public virtual Bus? Bus { get; set; }

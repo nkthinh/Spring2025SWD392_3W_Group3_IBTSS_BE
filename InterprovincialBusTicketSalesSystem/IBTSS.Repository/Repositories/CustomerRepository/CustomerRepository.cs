@@ -19,9 +19,36 @@ namespace IBTSS.Repository.Repositories.CustomerRepository
 
         public async Task AddAsync(Customer c)
         {
+            // Lấy Customer có Id lớn nhất (theo thứ tự giảm dần)
+            var lastCustomer = await _context.Customers
+                .OrderByDescending(cu => cu.CustomerId)
+                .FirstOrDefaultAsync();
+
+            string newId = "C001";
+
+            if (lastCustomer != null)
+            {
+                string lastId = lastCustomer.CustomerId; // ví dụ: "C005"
+                int number = int.Parse(lastId.Substring(1)); // lấy số => 5
+                number++;
+                newId = "C" + number.ToString("D3"); // => "C006"
+            }
+
+            c.CustomerId = newId;
+
             await _context.Customers.AddAsync(c);
-            await _context.SaveChangesAsync();
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                Console.WriteLine(ex.InnerException?.Message);
+                throw; // hoặc return lỗi ra response nếu dùng API
+            }
         }
+
         public async Task<IEnumerable<Customer>> GetAllAsync()
         {
             return await _context.Customers

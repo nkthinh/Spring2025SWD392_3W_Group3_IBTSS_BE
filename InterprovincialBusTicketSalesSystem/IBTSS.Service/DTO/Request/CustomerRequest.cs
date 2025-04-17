@@ -10,7 +10,6 @@ namespace IBTSS.Service.DTO.Request
 {
     public class CustomerRequest
     {
-        public string CustomerId { get; set; } = string.Empty;
 
         public string PhoneNumber { get; set; } = string.Empty;
 

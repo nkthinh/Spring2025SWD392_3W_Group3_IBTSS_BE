@@ -36,6 +36,8 @@ namespace IBTSS.API
 
             builder.Services.AddSignalR();
 
+            builder.Services.AddApplicationServices();
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.

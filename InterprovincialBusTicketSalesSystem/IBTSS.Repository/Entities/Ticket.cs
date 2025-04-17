@@ -29,7 +29,7 @@ namespace IBTSS.Repository.Entities
         public bool IsDelete { get; set; }
 
         public int Price { get; set; }
-        public string Status { get; set; }
+        public string Status { get; set; } = string.Empty;
 
         public virtual Trip? Trip { get; set; }
         public virtual Customer? Customer { get; set; }

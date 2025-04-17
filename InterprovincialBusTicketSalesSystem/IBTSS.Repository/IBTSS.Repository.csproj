@@ -24,6 +24,7 @@
   <ItemGroup>
     <Folder Include="Migrations\" />
     <Folder Include="Repositories\UserRepository\" />
+    <Folder Include="Repositories\UserRepository\" />
   </ItemGroup>
 
 </Project>

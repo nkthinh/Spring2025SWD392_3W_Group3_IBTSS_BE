@@ -15,6 +15,7 @@ namespace IBTSS.Repository.Repositories.CustomerRepository
         Task UpdateAsync(Customer c);
         Task DeleteAsync(string id);
         Task<bool> GetByPhoneNumberAsync(string phoneNumber); // ✅ Trả về bool
+        Task<Customer?> LoginByPhoneAsync(string phoneNumber);
         //Task SoftDeleteAsync(string id);
     }
 }

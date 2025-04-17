@@ -3,6 +3,7 @@ using IBTSS.Repository.Entities;
 using IBTSS.Service.DTO.Request;
 using IBTSS.Service.DTO.Response;
 using IBTSS.Service.Services.CustomerService;
+using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 
 namespace IBTSS.API.Controllers
@@ -30,7 +31,7 @@ namespace IBTSS.API.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
-        [HttpPost]
+        [HttpPost("register")]
         public async Task<IActionResult> Resgister([FromBody] CustomerRequest customerrequest)
         {
             try
@@ -55,5 +56,25 @@ namespace IBTSS.API.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] CustomerLoginRequest customerLoginRequest)
+        {
+            try
+            {
+                var customer = await customerService.LoginByPhoneAsync(customerLoginRequest.PhoneNumber);
+                if (customer == null)
+                {
+                    return Unauthorized(new { message = "Invalid phone number." });
+                }
+
+                var customerResponse = mapper.Map<CustomerResponse>(customer);
+                return Ok(customerResponse);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
     }
 }

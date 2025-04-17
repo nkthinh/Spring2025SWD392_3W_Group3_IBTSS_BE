@@ -77,11 +77,25 @@ namespace IBTSS.Repository.Repositories.CustomerRepository
         }
         public async Task<bool> GetByPhoneNumberAsync(string phoneNumber)
         {
-            var existingUser = await _context.Users
+            var existingUser = await _context.Customers
                 .FirstOrDefaultAsync(u => u.PhoneNumber == phoneNumber);
 
             return existingUser == null; // Trả về true nếu không trùng
         }
+        public async Task<Customer?> LoginByPhoneAsync(string phoneNumber)
+        {
+            try
+            {
+                return await _context.Customers
+                    .FirstOrDefaultAsync(c => c.PhoneNumber == phoneNumber);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"PhoneNumber is not exist!");
+                throw;
+            }
+        }
+
 
         //public async Task SoftDeleteAsync(string id)
         //{

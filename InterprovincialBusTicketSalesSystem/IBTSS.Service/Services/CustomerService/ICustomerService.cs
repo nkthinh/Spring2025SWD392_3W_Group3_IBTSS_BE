@@ -12,5 +12,6 @@ namespace IBTSS.Service.Services.CustomerService
         Task<IEnumerable<Customer>> GetAllAsync();
         Task AddAsync(Customer c);
         Task <bool> GetByPhoneNumberAsync(string phoneNumber);
+        Task<Customer?> LoginByPhoneAsync(string phoneNumber);
     }
 }

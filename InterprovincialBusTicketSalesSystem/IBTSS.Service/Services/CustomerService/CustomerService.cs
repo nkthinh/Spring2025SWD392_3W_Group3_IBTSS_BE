@@ -53,5 +53,19 @@ namespace IBTSS.Service.Services.CustomerService
             }
         }
 
+        public async Task<Customer?> LoginByPhoneAsync(string phoneNumber)
+        {
+            try
+            {
+                var customers = await _unitOfWork.Customers.GetAllAsync();
+                return customers.FirstOrDefault(c => c.PhoneNumber == phoneNumber);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "PhoneNumber is not exist!");
+                throw;
+            }
+        }
+
     }
 }

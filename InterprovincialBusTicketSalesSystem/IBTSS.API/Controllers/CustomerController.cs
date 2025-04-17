@@ -31,7 +31,7 @@ namespace IBTSS.API.Controllers
             }
         }
         [HttpPost]
-        public async Task<IActionResult> Add([FromBody] CustomerRequest customerrequest)
+        public async Task<IActionResult> Resgister([FromBody] CustomerRequest customerrequest)
         {
             try
             {

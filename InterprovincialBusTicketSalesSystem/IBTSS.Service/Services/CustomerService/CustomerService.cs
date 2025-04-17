@@ -40,9 +40,18 @@ namespace IBTSS.Service.Services.CustomerService
             
         }
 
-        public async Task <bool>GetByPhoneNumberAsync(string phoneNumber)
+        public async Task<bool> GetByPhoneNumberAsync(string phoneNumber)
         {
-            throw new NotImplementedException();
+            try
+            {
+                return await _unitOfWork.Customers.GetByPhoneNumberAsync(phoneNumber);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error checking phone number");
+                throw;
+            }
         }
+
     }
 }

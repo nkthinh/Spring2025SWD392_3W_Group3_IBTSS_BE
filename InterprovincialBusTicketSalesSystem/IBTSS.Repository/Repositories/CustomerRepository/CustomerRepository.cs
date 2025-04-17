@@ -75,12 +75,14 @@ namespace IBTSS.Repository.Repositories.CustomerRepository
                 await _context.SaveChangesAsync();
             }
         }
-        public async Task<Customer?> GetByPhoneNumberAsync(string phoneNumber)
+        public async Task<bool> GetByPhoneNumberAsync(string phoneNumber)
         {
-            return await _context.Customers
-                .Include(c => c.Membership)
-                .FirstOrDefaultAsync(c => c.PhoneNumber == phoneNumber);
+            var existingUser = await _context.Users
+                .FirstOrDefaultAsync(u => u.PhoneNumber == phoneNumber);
+
+            return existingUser == null; // Trả về true nếu không trùng
         }
+
         //public async Task SoftDeleteAsync(string id)
         //{
         //    var customer = await _context.Customers.FindAsync(id);

@@ -37,6 +37,12 @@ namespace IBTSS.Service.Services.CustomerService
                 _logger.LogError(ex, "Error adding Customer");
                 throw;
             }
+            
+        }
+
+        public async Task <bool>GetByPhoneNumberAsync(string phoneNumber)
+        {
+            throw new NotImplementedException();
         }
     }
 }

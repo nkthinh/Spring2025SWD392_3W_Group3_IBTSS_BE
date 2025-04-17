@@ -40,6 +40,12 @@ namespace IBTSS.API.Controllers
                 {
                     return BadRequest("Customer is null");
                 }
+                // Kiểm tra số điện thoại đã tồn tại chưa
+                var isUnique = await customerService.GetByPhoneNumberAsync(customer.PhoneNumber);
+                if (!isUnique)
+                {
+                    return BadRequest(new { message = "PhoneNumber is extisted." });
+                }
                 await customerService.AddAsync(customer);
                 var customerResponse = mapper.Map<CustomerResponse>(customer);
                 return Ok(customerResponse);

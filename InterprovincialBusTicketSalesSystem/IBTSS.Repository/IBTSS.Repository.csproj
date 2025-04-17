@@ -23,8 +23,7 @@
 	
   <ItemGroup>
     <Folder Include="Migrations\" />
-    <Folder Include="UnitOfWork\" />
-    <Folder Include="Repositories\" />
+    <Folder Include="Repositories\UserRepository\" />
   </ItemGroup>
 
 </Project>

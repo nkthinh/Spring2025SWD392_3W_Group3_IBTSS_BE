@@ -13,10 +13,6 @@
 		<PackageReference Include="Otp.NET" Version="1.4.0" />
 		<PackageReference Include="VNPAY.NET" Version="8.5.0" />
 	</ItemGroup>
-	
-  <ItemGroup>
-    <Folder Include="Services\" />
-  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\IBTSS.Repository\IBTSS.Repository.csproj" />

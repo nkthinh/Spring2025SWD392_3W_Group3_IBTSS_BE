@@ -1,5 +1,5 @@
 ﻿using IBTSS.Repository.Entities;
-using IBTSS.Repository.Repositories.UserRepository;
+using IBTSS.Repository.UnitOfWork;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,33 +8,32 @@ namespace IBTSS.Service.Services.UserService
 {
     public class UserService : IUserService
     {
-        private readonly IUserRepository _userRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public UserService(IUserRepository userRepository)
+        public UserService(IUnitOfWork unitOfWork)
         {
-            _userRepository = userRepository;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task AddUserAsync(User user)
         {
-            user.PasswordHash = HashPassword(user.PasswordHash); // Mã hóa mật khẩu
-            await _userRepository.AddUserAsync(user); // ✅ dùng await
+            user.PasswordHash = HashPassword(user.PasswordHash);
+            await _unitOfWork.Users.AddUserAsync(user);
+            await _unitOfWork.CompleteAsync(); // thêm nếu muốn commit DB luôn
         }
 
         public User? Authenticate(string username, string password)
         {
-            var user = _userRepository.GetByUsername(username);
+            var user = _unitOfWork.Users.GetByUsername(username);
             if (user == null || user.IsDelete) return null;
 
             var hash = HashPassword(password);
-            if (user.PasswordHash != hash) return null;
-
-            return user;
+            return user.PasswordHash == hash ? user : null;
         }
 
         public User? GetByUsername(string username)
         {
-            return _userRepository.GetByUsername(username);
+            return _unitOfWork.Users.GetByUsername(username);
         }
 
         private string HashPassword(string password)

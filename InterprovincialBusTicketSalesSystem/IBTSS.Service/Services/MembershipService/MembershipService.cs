@@ -1,5 +1,6 @@
 ﻿using IBTSS.Repository.Entities;
 using IBTSS.Repository.Repositories.MembershipRepository;
+using IBTSS.Repository.UnitOfWork;
 using IBTSS.Service.DTO.Request.Membership;
 using IBTSS.Service.DTO.Response.Membership;
 using System;
@@ -12,16 +13,16 @@ namespace IBTSS.Service.Services.MembershipService
 {
     public class MembershipService : IMembershipService
     {
-        private readonly IMembershipRepository _repository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public MembershipService(IMembershipRepository repository)
+        public MembershipService(IUnitOfWork unitOfWork)
         {
-            _repository = repository;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<List<MembershipResponse>> GetAllAsync()
         {
-            var memberships = await _repository.GetAllAsync();
+            var memberships = await _unitOfWork.Memberships.GetAllAsync();
             return memberships.Select(m => new MembershipResponse
             {
                 MembershipId = m.MembershipId,
@@ -34,8 +35,9 @@ namespace IBTSS.Service.Services.MembershipService
 
         public async Task<MembershipResponse?> GetByIdAsync(string id)
         {
-            var m = await _repository.GetByIdAsync(id);
+            var m = await _unitOfWork.Memberships.GetByIdAsync(id);
             if (m == null) return null;
+
             return new MembershipResponse
             {
                 MembershipId = m.MembershipId,
@@ -56,7 +58,8 @@ namespace IBTSS.Service.Services.MembershipService
                 Description = request.Description
             };
 
-            var created = await _repository.AddAsync(m);
+            var created = await _unitOfWork.Memberships.AddAsync(m);
+            await _unitOfWork.CompleteAsync();
 
             return new MembershipResponse
             {
@@ -70,7 +73,7 @@ namespace IBTSS.Service.Services.MembershipService
 
         public async Task<MembershipResponse?> UpdateAsync(string id, MembershipRequest request)
         {
-            var existing = await _repository.GetByIdAsync(id);
+            var existing = await _unitOfWork.Memberships.GetByIdAsync(id);
             if (existing == null) return null;
 
             existing.RankName = request.RankName;
@@ -78,7 +81,8 @@ namespace IBTSS.Service.Services.MembershipService
             existing.DiscountRate = request.DiscountRate;
             existing.Description = request.Description;
 
-            var updated = await _repository.UpdateAsync(existing);
+            var updated = await _unitOfWork.Memberships.UpdateAsync(existing);
+            await _unitOfWork.CompleteAsync();
 
             return new MembershipResponse
             {
@@ -92,7 +96,9 @@ namespace IBTSS.Service.Services.MembershipService
 
         public async Task<bool> DeleteAsync(string id)
         {
-            return await _repository.DeleteAsync(id);
+            var deleted = await _unitOfWork.Memberships.DeleteAsync(id);
+            if (deleted) await _unitOfWork.CompleteAsync();
+            return deleted;
         }
     }
 

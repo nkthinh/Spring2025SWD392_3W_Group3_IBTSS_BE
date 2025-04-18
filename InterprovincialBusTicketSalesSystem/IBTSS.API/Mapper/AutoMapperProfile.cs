@@ -1,7 +1,8 @@
 ﻿using AutoMapper;
 using IBTSS.Repository.Entities;
 using IBTSS.Service.DTO.Request.Customer;
-using IBTSS.Service.DTO.Response;
+using IBTSS.Service.DTO.Response.Customer;
+using IBTSS.Service.DTO.Response.User;
 
 namespace IBTSS.API.Mapper
 {
@@ -13,6 +14,8 @@ namespace IBTSS.API.Mapper
             CreateMap<CustomerRequest, Customer>()
                 .ForMember(dest => dest.Score, opt => opt.MapFrom(src => 0))
                 .ForMember(dest => dest.MembershipId, opt => opt.MapFrom(src => "001"));
+            CreateMap<User, AddUserResponse>();             ;
+            CreateMap<User, LoginUserResponse>();
         }
     }
 }

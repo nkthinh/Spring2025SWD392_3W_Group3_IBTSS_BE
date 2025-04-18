@@ -25,7 +25,7 @@ namespace IBTSS.Service.DTO.Request.Trip
 
         public string Direction { get; set; } = string.Empty;
 
-        public bool IsDelete { get; set; }=false;
+        public bool IsDelete { get; set; }
 
         public int Price { get; set; }
         public string Status { get; set; }

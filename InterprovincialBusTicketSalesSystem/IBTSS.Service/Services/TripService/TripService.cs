@@ -81,7 +81,7 @@ namespace IBTSS.Service.Services.TripService
                 DepartureTime = request.DepartureTime,
                 Date = request.Date,
                 Direction = request.Direction,
-                IsDelete = request.IsDelete,
+                IsDelete = false,
                 Price = request.Price,
                 Status = request.Status,
             };

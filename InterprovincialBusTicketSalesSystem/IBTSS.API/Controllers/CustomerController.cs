@@ -24,13 +24,14 @@ namespace IBTSS.API.Controllers
                 }
 
                 var customerResponse = mapper.Map<IEnumerable<CustomerResponse>>(customers);
-                return Ok(customerResponse);
+                return Ok(customerResponse); // 200 OK
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
+                return StatusCode(500, $"Internal server error: {ex.Message}"); // 500 Error
             }
         }
+
         [HttpPost("register")]
         public async Task<IActionResult> Resgister([FromBody] CustomerRequest customerrequest)
         {

@@ -1,4 +1,4 @@
-
+using Microsoft.OpenApi.Models;
 using IBTSS.API.Mapper;
 using IBTSS.Repository;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -57,6 +57,36 @@ namespace IBTSS.API
                         )
                     };
                 });
+            builder.Services.AddSwaggerGen(options =>
+            {
+                options.SwaggerDoc("v1", new() { Title = "IBTSS API", Version = "v1" });
+
+                // Thêm cấu hình JWT Bearer vào Swagger
+                options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    Name = "Authorization",
+                    Type = SecuritySchemeType.ApiKey,
+                    Scheme = "Bearer",
+                    BearerFormat = "JWT",
+                    In = ParameterLocation.Header,
+                    Description = "Nhập JWT token dạng: Bearer {token}"
+                });
+
+                options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+            });
 
             builder.Services.AddAuthorization();
 

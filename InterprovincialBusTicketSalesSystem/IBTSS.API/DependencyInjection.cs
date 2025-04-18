@@ -1,10 +1,12 @@
 ﻿
 using IBTSS.Repository.Repositories.CustomerRepository;
 using IBTSS.Repository.Repositories.GenericRepository;
+using IBTSS.Repository.Repositories.MembershipRepository;
 using IBTSS.Repository.Repositories.UserRepository;
 using IBTSS.Repository.UnitOfWork;
 using IBTSS.Service.Services.CustomerService;
 using IBTSS.Service.Services.JWT;
+using IBTSS.Service.Services.MembershipService;
 using IBTSS.Service.Services.UserService;
 
 namespace IBTSS.API
@@ -22,12 +24,13 @@ namespace IBTSS.API
             // Đăng ký các Service
             services.AddScoped<ICustomerService, CustomerService>();
             services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IMembershipService, MembershipService>();
             services.AddScoped<JwtService>();
 
             // Đăng ký các Repository
             services.AddScoped<ICustomerRepository, CustomerRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
-
+            services.AddScoped<IMembershipRepository, MembershipRepository>();
             return services;
         }
     }

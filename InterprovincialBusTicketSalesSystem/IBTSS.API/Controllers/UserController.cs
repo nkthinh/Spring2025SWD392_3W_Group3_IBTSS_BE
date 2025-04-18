@@ -23,16 +23,24 @@ namespace IBTSS.API.Controllers
                 {
                     return Unauthorized(new { message = "Invalid username or password" });
                 }
-                //gen token
+
                 var token = jwtService.GenerateToken(user);
                 var userResponse = mapper.Map<LoginUserResponse>(user);
-                return Ok(userResponse);
+
+                return Ok(new
+                {
+                    User = userResponse,
+                    Token = token,
+                  
+                   
+                });
             }
             catch (Exception ex)
             {
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
+
 
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] AddUserRequest request)

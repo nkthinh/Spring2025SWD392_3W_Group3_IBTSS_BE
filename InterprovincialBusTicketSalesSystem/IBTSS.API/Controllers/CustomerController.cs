@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using IBTSS.Repository.Entities;
-using IBTSS.Service.DTO.Request;
-using IBTSS.Service.DTO.Response;
+using IBTSS.Service.DTO.Request.Customer;
+using IBTSS.Service.DTO.Response.Customer;
 using IBTSS.Service.Services.CustomerService;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
@@ -55,6 +55,7 @@ namespace IBTSS.API.Controllers
             {
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
+
         }
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] CustomerLoginRequest customerLoginRequest)

@@ -1,7 +1,15 @@
 ﻿
+using IBTSS.Repository.Repositories.BusRepository;
 using IBTSS.Repository.Repositories.CustomerRepository;
 using IBTSS.Repository.Repositories.GenericRepository;
+using IBTSS.Repository.Repositories.LocationRepository;
+using IBTSS.Repository.Repositories.LocationRouteRepository;
 using IBTSS.Repository.Repositories.MembershipRepository;
+using IBTSS.Repository.Repositories.RouteRepository;
+using IBTSS.Repository.Repositories.SeatRepository;
+using IBTSS.Repository.Repositories.TicketRepository;
+using IBTSS.Repository.Repositories.TransactionRepository;
+using IBTSS.Repository.Repositories.TripRepository;
 using IBTSS.Repository.Repositories.UserRepository;
 using IBTSS.Repository.UnitOfWork;
 using IBTSS.Service.Services.CustomerService;
@@ -31,6 +39,15 @@ namespace IBTSS.API
             services.AddScoped<ICustomerRepository, CustomerRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IMembershipRepository, MembershipRepository>();
+            services.AddScoped<IBusRepository, BusRepository>();
+            services.AddScoped<ILocationRepository, LocationRepository>();
+            services.AddScoped<ILocationRouteRepository, LocationRouteRepository>();
+            services.AddScoped<IRouteRepository, RouteRepository>();
+            services.AddScoped<ISeatRepository, SeatRepository>();
+            services.AddScoped<ITicketRepository, TicketRepository>();
+            services.AddScoped<ITransactionRepository, TransactionRepository>();
+            services.AddScoped<ITripRepository, TripRepository>();
+
             return services;
         }
     }

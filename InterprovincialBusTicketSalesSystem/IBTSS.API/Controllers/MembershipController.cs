@@ -19,38 +19,75 @@ namespace IBTSS.API.Controllers
             _service = service;
         }
 
-        
+
         [HttpGet]
-        public async Task<IActionResult> GetAll() =>
-            Ok(await _service.GetAllAsync());
+        public async Task<IActionResult> GetAll()
+        {
+            try
+            {
+                var memberships = await _service.GetAllAsync();
+                return Ok(memberships);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(string id)
         {
-            var result = await _service.GetByIdAsync(id);
-            return result == null ? NotFound() : Ok(result);
+            try
+            {
+                var result = await _service.GetByIdAsync(id);
+                return result == null ? NotFound() : Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
 
         [HttpPost]
         public async Task<IActionResult> Create(MembershipRequest request)
         {
-            var result = await _service.AddAsync(request);
-            return CreatedAtAction(nameof(GetById), new { id = result.MembershipId }, result);
+            try
+            {
+                var result = await _service.AddAsync(request);
+                return CreatedAtAction(nameof(GetById), new { id = result.MembershipId }, result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(string id, MembershipRequest request)
         {
-            var result = await _service.UpdateAsync(id, request);
-            return result == null ? NotFound() : Ok(result);
+            try
+            {
+                var result = await _service.UpdateAsync(id, request);
+                return result == null ? NotFound() : Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(string id)
         {
-            var deleted = await _service.DeleteAsync(id);
-            return deleted ? NoContent() : NotFound();
+            try
+            {
+                var deleted = await _service.DeleteAsync(id);
+                return deleted ? NoContent() : NotFound();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
     }
-
-}
+    }

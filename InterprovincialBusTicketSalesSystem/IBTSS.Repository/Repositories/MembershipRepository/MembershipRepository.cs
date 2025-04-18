@@ -22,14 +22,27 @@ namespace IBTSS.Repository.Repositories.MembershipRepository
 
         public async Task<Membership?> GetByIdAsync(string id) =>
             await _context.Memberships.FirstOrDefaultAsync(m => m.MembershipId == id && !m.IsDelete);
-
         public async Task<Membership> AddAsync(Membership membership)
         {
-            membership.MembershipId = Guid.NewGuid().ToString();
+            // Lấy MembershipId lớn nhất đang có
+            var lastMembership = await _context.Memberships
+                .OrderByDescending(m => m.MembershipId)
+                .FirstOrDefaultAsync();
+
+            int nextId = 1;
+
+            if (lastMembership != null && int.TryParse(lastMembership.MembershipId, out int currentId))
+            {
+                nextId = currentId + 1;
+            }
+
+            membership.MembershipId = nextId.ToString("D3"); // format "001", "002", ...
+
             _context.Memberships.Add(membership);
             await _context.SaveChangesAsync();
             return membership;
         }
+
 
         public async Task<Membership> UpdateAsync(Membership membership)
         {

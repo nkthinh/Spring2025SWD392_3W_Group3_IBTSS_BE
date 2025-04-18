@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using IBTSS.Repository.Entities;
-using IBTSS.Service.DTO.Request;
+using IBTSS.Service.DTO.Request.Customer;
 using IBTSS.Service.DTO.Response;
 using IBTSS.Service.Services.CustomerService;
 using Microsoft.AspNetCore.Identity.Data;

@@ -19,21 +19,43 @@ namespace IBTSS.Service.Services.UserService
         {
             user.PasswordHash = HashPassword(user.PasswordHash);
             await _unitOfWork.Users.AddUserAsync(user);
-            await _unitOfWork.CompleteAsync(); // thêm nếu muốn commit DB luôn
+            await _unitOfWork.CompleteAsync();
         }
 
-        public User? Authenticate(string username, string password)
+        public async Task<IEnumerable<User>> GetAllAsync()
         {
-            var user = _unitOfWork.Users.GetByUsername(username);
-            if (user == null || user.IsDelete) return null;
+            return await _unitOfWork.Users.GetAllAsync();
+        }
 
-            var hash = HashPassword(password);
-            return user.PasswordHash == hash ? user : null;
+        public async Task<User?> GetByIdAsync(string userId)
+        {
+            return await _unitOfWork.Users.GetByIdAsync(userId);
         }
 
         public User? GetByUsername(string username)
         {
             return _unitOfWork.Users.GetByUsername(username);
+        }
+
+        public async Task UpdateUserAsync(User user)
+        {
+            await _unitOfWork.Users.UpdateUserAsync(user);
+            await _unitOfWork.CompleteAsync();
+        }
+
+        public async Task DeleteUserAsync(string userId)
+        {
+            await _unitOfWork.Users.DeleteUserAsync(userId);
+            await _unitOfWork.CompleteAsync();
+        }
+
+        public User? Authenticate(string username, string password)
+        {
+            var user = GetByUsername(username);
+            if (user == null || user.IsDelete) return null;
+
+            var hash = HashPassword(password);
+            return user.PasswordHash == hash ? user : null;
         }
 
         private string HashPassword(string password)

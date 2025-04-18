@@ -9,8 +9,12 @@ namespace IBTSS.Service.Services.UserService
 {
     public interface IUserService
     {
-        User? Authenticate(string username, string password);
         Task AddUserAsync(User user);
+        Task<IEnumerable<User>> GetAllAsync();
+        Task<User?> GetByIdAsync(string userId);
+        Task UpdateUserAsync(User user);
+        Task DeleteUserAsync(string userId);
         User? GetByUsername(string username);
+        User? Authenticate(string username, string password);
     }
 }

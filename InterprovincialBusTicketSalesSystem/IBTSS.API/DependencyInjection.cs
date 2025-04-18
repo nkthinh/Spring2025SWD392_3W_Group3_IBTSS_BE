@@ -15,6 +15,7 @@ using IBTSS.Repository.UnitOfWork;
 using IBTSS.Service.Services.CustomerService;
 using IBTSS.Service.Services.JWT;
 using IBTSS.Service.Services.MembershipService;
+using IBTSS.Service.Services.TripService;
 using IBTSS.Service.Services.UserService;
 
 namespace IBTSS.API
@@ -33,6 +34,7 @@ namespace IBTSS.API
             services.AddScoped<ICustomerService, CustomerService>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IMembershipService, MembershipService>();
+            services.AddScoped<ITripService, TripService>();
             services.AddScoped<JwtService>();
 
             // Đăng ký các Repository

@@ -1,5 +1,6 @@
 ﻿using IBTSS.Repository.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,7 +24,18 @@ namespace IBTSS.Repository
         public DbSet<Location> Locations { get; set; }
         public DbSet<LocationRoute> LocationRoutes { get; set; }
         public DbSet<Membership> Memberships { get; set; }
+        //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        //{
+        //    optionsBuilder.UseSqlServer(GetConnectionString());
+        //}
 
+        //private string GetConnectionString()
+        //{
+        //    IConfiguration configuration = new ConfigurationBuilder()
+        //            .SetBasePath(Directory.GetCurrentDirectory())
+        //            .AddJsonFile("appsettings.json", true, true).Build();
+        //    return configuration["ConnectionStrings:DefaultConnectionString"];
+        //}
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

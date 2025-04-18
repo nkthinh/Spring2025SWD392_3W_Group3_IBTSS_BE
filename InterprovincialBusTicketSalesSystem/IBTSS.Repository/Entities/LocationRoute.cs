@@ -11,7 +11,7 @@ namespace IBTSS.Repository.Entities
     public class LocationRoute
     {
         [Key]
-        public string LocationRouteId { get; set; } = string.Empty;
+        public string LocationRouteId { get; set; } = string.Empty;//
 
         [ForeignKey("Location")]
         public string LocationId { get; set; } = string.Empty;

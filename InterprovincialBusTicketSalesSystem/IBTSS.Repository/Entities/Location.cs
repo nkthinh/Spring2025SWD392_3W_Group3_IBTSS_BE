@@ -10,7 +10,7 @@ namespace IBTSS.Repository.Entities
     public class Location
     {
         [Key]
-        public string LocationId { get; set; } = string.Empty;
+        public string LocationId { get; set; } = string.Empty;//
 
         public string LocationName { get; set; } = string.Empty;
 

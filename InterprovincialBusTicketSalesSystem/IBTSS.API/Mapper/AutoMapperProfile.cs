@@ -2,8 +2,10 @@
 using IBTSS.Repository.Entities;
 using IBTSS.Service.DTO.Request.Customer;
 using IBTSS.Service.DTO.Request.Membership;
+using IBTSS.Service.DTO.Request.Trip;
 using IBTSS.Service.DTO.Response.Customer;
 using IBTSS.Service.DTO.Response.Membership;
+using IBTSS.Service.DTO.Response.Trip;
 using IBTSS.Service.DTO.Response.User;
 
 namespace IBTSS.API.Mapper
@@ -20,6 +22,8 @@ namespace IBTSS.API.Mapper
             CreateMap<User, LoginUserResponse>();
             CreateMap<Membership, MembershipRequest>();
             CreateMap<Membership, MembershipResponse>();
+            CreateMap<TripRequest, TripResponse>();
+            CreateMap<Trip, TripSearchDto>();
 
         }
     }

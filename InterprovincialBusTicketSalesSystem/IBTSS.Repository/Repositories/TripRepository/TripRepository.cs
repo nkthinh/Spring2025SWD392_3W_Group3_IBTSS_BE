@@ -69,5 +69,14 @@ namespace IBTSS.Repository.Repositories.TripRepository
             await _context.SaveChangesAsync();
             return true;
         }
+        public async Task<List<Trip>> SearchTripsByDateAsync(string date)
+        {
+            return await _context.Trips
+                .Where(t => !t.IsDelete && t.Date == date)
+                .Include(t => t.Route)
+                    .ThenInclude(r => r.LocationRoutes)
+                        .ThenInclude(lr => lr.Location)
+                .ToListAsync();
+        }
     }
 }

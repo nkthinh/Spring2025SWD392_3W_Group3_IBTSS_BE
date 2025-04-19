@@ -67,6 +67,14 @@ namespace IBTSS.Repository
                 .WithMany(b => b.Trips)
                 .HasForeignKey(t => t.BusId)
                 .OnDelete(DeleteBehavior.Cascade);
+            //change DateTime to Time only
+            modelBuilder.Entity<Trip>()
+                 .Property(t => t.DepartureTime)
+                .HasConversion(
+                         v => v.ToTimeSpan(),           // TimeOnly → TimeSpan
+                         v => TimeOnly.FromTimeSpan(v)  // TimeSpan → TimeOnly
+    );
+
 
             // Trip - Driver (User) (N-1)
             modelBuilder.Entity<Trip>()

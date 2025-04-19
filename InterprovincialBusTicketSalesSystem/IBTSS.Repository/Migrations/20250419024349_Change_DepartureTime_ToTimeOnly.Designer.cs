@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace IBTSS.Repository.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250415170126_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20250419024349_Change_DepartureTime_ToTimeOnly")]
+    partial class Change_DepartureTime_ToTimeOnly
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -208,6 +208,10 @@ namespace IBTSS.Repository.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("TripId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
@@ -263,8 +267,8 @@ namespace IBTSS.Repository.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("DepartureTime")
-                        .HasColumnType("datetime2");
+                    b.Property<TimeSpan>("DepartureTime")
+                        .HasColumnType("time");
 
                     b.Property<string>("Direction")
                         .IsRequired()
@@ -283,6 +287,10 @@ namespace IBTSS.Repository.Migrations
                     b.Property<string>("RouteId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("TripId");
 

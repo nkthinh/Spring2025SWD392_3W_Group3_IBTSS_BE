@@ -23,7 +23,8 @@ namespace IBTSS.Repository.Entities
         [ForeignKey("Driver")]
         public string DriverId { get; set; } = string.Empty;
 
-        public DateTime DepartureTime { get; set; }
+        public TimeOnly DepartureTime { get; set; }
+
 
         public string Date { get; set; } = string.Empty;
 

@@ -145,6 +145,20 @@ namespace IBTSS.Service.Services.TripService
             if (deleted) await _unitOfWork.CompleteAsync();
             return deleted;
         }
+        public async Task<IEnumerable<TripSearchDto>> SearchByDateAsync(string date)
+        {
+            var trips = await _unitOfWork.Trips.SearchTripsByDateAsync(date);
+
+            return trips.Select(t => new TripSearchDto
+            {
+                RouteName = t.Route.RouteName,
+                LocationNames = t.Route.LocationRoutes.Select(lr => lr.Location.LocationName).ToList(),
+                DepartureTime = t.DepartureTime,
+                Date = t.Date,
+                Price = t.Price
+            });
+        }
+
     }
 }
 

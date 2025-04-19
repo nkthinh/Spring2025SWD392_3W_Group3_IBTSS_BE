@@ -58,6 +58,13 @@ namespace IBTSS.API.Controllers
                 if (!result) return NotFound();
                 return NoContent();
             }
+            [HttpGet("search-by-date")]
+            public async Task<ActionResult<IEnumerable<TripSearchDto>>> SearchByDate([FromQuery] string date)
+            {
+                var results = await _tripService.SearchByDateAsync(date);
+                return Ok(results);
+            }
+
         }
     }
 

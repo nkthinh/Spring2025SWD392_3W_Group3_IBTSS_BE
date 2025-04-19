@@ -15,7 +15,7 @@ namespace IBTSS.Service.Services.SeatService
         Task<SeatResponse> AddAsync(SeatRequest request);
         Task<SeatResponse?> UpdateAsync(string id, SeatRequest request);
         Task<bool> DeleteAsync(string id);
-        Task<SeatSummaryResponse> GetSeatAvailabilityByBusIdAsync(string busId);
+        Task<SeatSummaryResponse> GetSeatAvailabilityByTripIdAsync(string tripId);
 
     }
 }

@@ -12,6 +12,7 @@ using IBTSS.Repository.Repositories.TransactionRepository;
 using IBTSS.Repository.Repositories.TripRepository;
 using IBTSS.Repository.Repositories.UserRepository;
 using IBTSS.Repository.UnitOfWork;
+using IBTSS.Service.Services.BusService;
 using IBTSS.Service.Services.CustomerService;
 using IBTSS.Service.Services.JWT;
 using IBTSS.Service.Services.MembershipService;
@@ -37,6 +38,7 @@ namespace IBTSS.API
             services.AddScoped<IMembershipService, MembershipService>();
             services.AddScoped<ITripService, TripService>();
             services.AddScoped<ISeatService, SeatService>();
+            services.AddScoped<IBusService, BusService>();
             services.AddScoped<JwtService>();
 
             // Đăng ký các Repository

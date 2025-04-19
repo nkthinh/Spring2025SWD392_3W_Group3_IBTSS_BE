@@ -12,6 +12,7 @@ namespace IBTSS.Repository.Repositories.SeatRepository
         Task<List<Seat>> GetAllAsync();
         Task<Seat?> GetByIdAsync(string id);
         Task<Seat> AddAsync(Seat seat);
+        Task<List<Seat>> AddMultipleAsync(List<Seat> seats);
         Task<Seat> UpdateAsync(Seat seat);
         Task<bool> DeleteAsync(string id);
     }

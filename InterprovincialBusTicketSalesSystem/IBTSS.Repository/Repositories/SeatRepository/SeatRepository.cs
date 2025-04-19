@@ -35,6 +35,26 @@ namespace IBTSS.Repository.Repositories.SeatRepository
             await _context.SaveChangesAsync();
             return seat;
         }
+        //add multi seat/time
+        public async Task<List<Seat>> AddMultipleAsync(List<Seat> seats)
+        {
+            var lastSeat = await _context.Seats.OrderByDescending(s => s.SeatId).FirstOrDefaultAsync();
+            int lastNumber = 0;
+            if (lastSeat != null)
+            {
+                lastNumber = int.Parse(lastSeat.SeatId.Substring(1));
+            }
+
+            for (int i = 0; i < seats.Count; i++)
+            {
+                string newId = "S" + (lastNumber + i + 1).ToString("D3");
+                seats[i].SeatId = newId;
+            }
+
+            await _context.Seats.AddRangeAsync(seats);
+            await _context.SaveChangesAsync();
+            return seats;
+        }
 
         public async Task<Seat> UpdateAsync(Seat seat)
         {

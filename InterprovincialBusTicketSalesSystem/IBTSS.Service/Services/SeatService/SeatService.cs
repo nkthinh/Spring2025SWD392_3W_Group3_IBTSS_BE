@@ -86,16 +86,20 @@ namespace IBTSS.Service.Services.SeatService
             if (deleted) await _unitOfWork.CompleteAsync();
             return deleted;
         }
-        public async Task<SeatSummaryResponse> GetSeatAvailabilityByBusIdAsync(string busId)
+        public async Task<SeatSummaryResponse> GetSeatAvailabilityByTripIdAsync(string tripId)
         {
+            var trip = await _unitOfWork.Trips.GetByIdAsync(tripId);
+            if (trip == null || trip.IsDelete) throw new Exception("Trip not found");
+
+            var busId = trip.BusId;
+
             var seats = await _unitOfWork.Seats.GetAllAsync();
             var busSeats = seats.Where(s => s.BusId == busId && !s.IsDelete).ToList();
-
             var seatIds = busSeats.Select(s => s.SeatId).ToList();
 
-            var tickets = await _unitOfWork.Tickets.GetAllAsync(); 
+            var tickets = await _unitOfWork.Tickets.GetAllAsync();
             var activeTickets = tickets
-                .Where(t => !t.IsCancelled && !t.IsDelete && seatIds.Contains(t.SeatId))
+                .Where(t => !t.IsCancelled && !t.IsDelete && t.TripId == tripId && seatIds.Contains(t.SeatId))
                 .Select(t => t.SeatId)
                 .Distinct()
                 .ToList();
@@ -114,6 +118,7 @@ namespace IBTSS.Service.Services.SeatService
                 Seats = seatResponses
             };
         }
+
 
     }
 }

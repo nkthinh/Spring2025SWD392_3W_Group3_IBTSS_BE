@@ -53,12 +53,20 @@ namespace IBTSS.API.Controllers
             if (!result) return NotFound();
             return NoContent();
         }
-        [HttpGet("bus/{busId}/availability")]
-        public async Task<ActionResult<SeatSummaryResponse>> GetAvailability(string busId)
+        [HttpGet("trip/{tripId}/availability")]
+        public async Task<ActionResult<SeatSummaryResponse>> GetAvailabilityByTrip(string tripId)
         {
-            var result = await _seatService.GetSeatAvailabilityByBusIdAsync(busId);
-            return Ok(result);
+            try
+            {
+                var result = await _seatService.GetSeatAvailabilityByTripIdAsync(tripId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return NotFound(ex.Message);
+            }
         }
+
 
     }
 }

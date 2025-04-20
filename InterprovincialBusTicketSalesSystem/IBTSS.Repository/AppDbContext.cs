@@ -97,12 +97,13 @@ namespace IBTSS.Repository
                 .HasForeignKey(t => t.CustomerId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // Ticket - Transaction (1-N)
-            modelBuilder.Entity<Transaction>()
-                .HasOne(tr => tr.Ticket)
-                .WithMany(t => t.Transactions)
-                .HasForeignKey(tr => tr.TicketId)
+            // Transaction - Ticket (1-N)
+            modelBuilder.Entity<Ticket>()
+                .HasOne(t => t.Transaction)
+                .WithMany(tr => tr.Tickets)
+                .HasForeignKey(t => t.TransactionId)
                 .OnDelete(DeleteBehavior.Cascade);
+
 
             // Route - LocationRoute (1-N)
             modelBuilder.Entity<LocationRoute>()

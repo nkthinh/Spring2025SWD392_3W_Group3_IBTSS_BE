@@ -2,6 +2,7 @@
 using IBTSS.Repository.Enum;
 using IBTSS.Repository.UnitOfWork;
 using IBTSS.Service.DTO.Request.Trip;
+using IBTSS.Service.DTO.Response.LocationRoute;
 using IBTSS.Service.DTO.Response.Trip;
 using System;
 using System.Collections.Generic;
@@ -60,24 +61,17 @@ namespace IBTSS.Service.Services.TripService
 
         public async Task<TripResponse> AddAsync(TripRequest request)
         {
-            // Kiểm tra xem DriverId có tồn tại hay không
+            // 1. Kiểm tra thông tin Driver
             var driver = await _unitOfWork.Users.GetByIdAsync(request.DriverId);
-            if (driver == null)
-            {
-                throw new Exception($"User with ID {request.DriverId} not found.");
-            }
+            if (driver == null || driver.Role != UserRole.Driver)
+                throw new Exception($"User with ID {request.DriverId} is invalid or not a driver.");
 
-            // Kiểm tra Role của user
-            if (driver.Role != UserRole.Driver)
-            {
-                throw new Exception($"User with ID {request.DriverId} is not a driver.");
-            }
-
-            var m = new Trip
+            // 2. Tạo Trip
+            var trip = new Trip
             {
                 RouteId = request.RouteId,
                 BusId = request.BusId,
-                DriverId = request.DriverId, // Sử dụng ID được truyền vào
+                DriverId = request.DriverId,
                 DepartureTime = request.DepartureTime,
                 Date = request.Date,
                 Direction = request.Direction,
@@ -86,21 +80,54 @@ namespace IBTSS.Service.Services.TripService
                 Status = request.Status,
             };
 
-            var created = await _unitOfWork.Trips.AddAsync(m);
+            var createdTrip = await _unitOfWork.Trips.AddAsync(trip);
+
+            // 3. Tạo các LocationRoute cho chuyến đi
+            int stopOrder = 1; // Bắt đầu từ điểm dừng số 1
+            foreach (var lr in request.LocationRoutes)
+            {
+                // Kiểm tra LocationId có tồn tại hay không
+                var locationExists = await _unitOfWork.Locations.GetByIdAsync(lr.LocationId);
+                if (locationExists == null)
+                    throw new Exception($"Location with ID {lr.LocationId} does not exist.");
+
+                var locationRoute = new LocationRoute
+                {
+                    RouteId = createdTrip.RouteId,
+                    LocationId = lr.LocationId,
+                    StopOrder = stopOrder++, // Tăng thứ tự điểm dừng
+                    StopDuration = TimeSpan.FromMinutes(lr.StopDurationMinutes) // Thời gian nghỉ tại điểm dừng
+                };
+
+                await _unitOfWork.LocationRoutes.AddAsync(locationRoute);
+            }
+
             await _unitOfWork.CompleteAsync();
+
+            // 4. Lấy thông tin các LocationRoute đã tạo cho chuyến đi và trả về thông tin
+         var locationRouteList = await _unitOfWork.LocationRoutes.GetByRouteIdAsync(createdTrip.RouteId);
+
+var locationRoutes = locationRouteList.Select(lr => new LocationRouteResponse
+{
+    LocationId = lr.LocationId,
+    LocationName = lr.Location?.LocationName ?? "", // hoặc lr.Location.Name
+    StopOrder = lr.StopOrder,
+    StopDuration = lr.StopDuration
+}).ToList();
 
             return new TripResponse
             {
-                TripId = created.TripId,
-                RouteId = created.RouteId,
-                BusId = created.BusId,
-                DriverId = created.DriverId,
-                DepartureTime = created.DepartureTime,
-                Date = created.Date,
-                Direction = created.Direction,
-                IsDelete = created.IsDelete,
-                Price = created.Price,
-                Status = created.Status,
+                TripId = createdTrip.TripId,
+                RouteId = createdTrip.RouteId,
+                BusId = createdTrip.BusId,
+                DriverId = createdTrip.DriverId,
+                DepartureTime = createdTrip.DepartureTime,
+                Date = createdTrip.Date,
+                Direction = createdTrip.Direction,
+                IsDelete = createdTrip.IsDelete,
+                Price = createdTrip.Price,
+                Status = createdTrip.Status,
+                LocationRoutes = locationRoutes // Trả về các điểm dừng cho chuyến đi
             };
         }
 
@@ -151,12 +178,71 @@ namespace IBTSS.Service.Services.TripService
 
             return trips.Select(t => new TripSearchDto
             {
-                RouteName = t.Route.RouteName,
-                LocationNames = t.Route.LocationRoutes.Select(lr => lr.Location.LocationName).ToList(),
-                DepartureTime = t.DepartureTime,
+                RouteName = t.Route?.RouteName ?? "",
+                DepartureTime = DateTime.Today.Add(t.DepartureTime.ToTimeSpan()), // chuyển TimeOnly
                 Date = t.Date,
-                Price = t.Price
+                Price = t.Price,
+                Stops = t.Route?.LocationRoutes?
+                    .OrderBy(lr => lr.StopOrder)
+                    .Select(lr => new LocationStopDto
+                    {
+                        LocationName = lr.Location?.LocationName ?? "",
+                        StopOrder = lr.StopOrder,
+                        StopDuration = lr.StopDuration
+                    }).ToList() ?? new List<LocationStopDto>()
             });
+        }
+        //public async Task<IEnumerable<TripSearchDto>> SearchByLocationAndRouteAsync(string locationName, string routeName)
+        //{
+        //    var trips = await _unitOfWork.Trips.SearchTripsByLocationAndRouteAsync(locationName, routeName);
+
+        //    return trips.Select(t => new TripSearchDto
+        //    {
+        //        RouteName = t.Route?.RouteName ?? "",
+        //        DepartureTime = DateTime.Today.Add(t.DepartureTime.ToTimeSpan()),
+        //        Date = t.Date,
+        //        Price = t.Price,
+        //        Stops = t.Route?.LocationRoutes?
+        //            .OrderBy(lr => lr.StopOrder)
+        //            .Select(lr => new LocationStopDto
+        //            {
+        //                LocationName = lr.Location?.LocationName ?? "",
+        //                StopOrder = lr.StopOrder,
+        //                StopDuration = lr.StopDuration
+        //            }).ToList() ?? new List<LocationStopDto>()
+        //    });
+        //}
+        public async Task<IEnumerable<TripSearchDto>> SearchByKeywordAsync(string keyword)
+        {
+            // Tìm theo RouteName
+            var tripsByRoute = await _unitOfWork.Trips.SearchTripsByRouteNameAsync(keyword);
+            if (tripsByRoute.Any())
+            {
+                return tripsByRoute.Select(t => ConvertTripToDto(t));
+            }
+
+            // Nếu không thấy route phù hợp, thử LocationName
+            var tripsByLocation = await _unitOfWork.Trips.SearchTripsByLocationNameAsync(keyword);
+            return tripsByLocation.Select(t => ConvertTripToDto(t));
+        }
+
+        private TripSearchDto ConvertTripToDto(Trip t)
+        {
+            return new TripSearchDto
+            {
+                RouteName = t.Route?.RouteName ?? "",
+                DepartureTime = DateTime.Today.Add(t.DepartureTime.ToTimeSpan()),
+                Date = t.Date,
+                Price = t.Price,
+                Stops = t.Route?.LocationRoutes?
+                    .OrderBy(lr => lr.StopOrder)
+                    .Select(lr => new LocationStopDto
+                    {
+                        LocationName = lr.Location?.LocationName ?? "",
+                        StopOrder = lr.StopOrder,
+                        StopDuration = lr.StopDuration
+                    }).ToList() ?? new List<LocationStopDto>()
+            };
         }
 
     }

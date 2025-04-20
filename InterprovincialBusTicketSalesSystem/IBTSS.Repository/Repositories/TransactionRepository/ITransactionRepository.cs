@@ -12,6 +12,7 @@ namespace IBTSS.Repository.Repositories.TransactionRepository
     {
         Task<List<Transaction>> GetAllAsync();
         Task<Transaction?> GetByIdAsync(string id);
+        Task<List<Transaction>> GetByCustomerIdAsync(string customerId);
         Task<Transaction> AddAsync(Transaction transaction);
         Task<Transaction?> UpdateAsync(string id, Transaction transaction);
         Task<bool> DeleteAsync(string id);

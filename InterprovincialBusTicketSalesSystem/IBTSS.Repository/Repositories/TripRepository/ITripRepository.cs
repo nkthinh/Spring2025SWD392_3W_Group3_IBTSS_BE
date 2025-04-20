@@ -15,5 +15,9 @@ namespace IBTSS.Repository.Repositories.TripRepository
         Task<Trip> UpdateAsync(Trip trip);
         Task<bool> DeleteAsync(string id);
         Task<List<Trip>> SearchTripsByDateAsync(string date);
+        Task<List<Trip>> SearchTripsByLocationAndRouteAsync(string locationName, string routeName);
+        Task<List<Trip>> SearchTripsByRouteNameAsync(string routeName);
+        Task<List<Trip>> SearchTripsByLocationNameAsync(string locationName);
+
     }
 }

@@ -15,6 +15,8 @@ namespace IBTSS.Repository.Repositories.TicketRepository
         Task<Ticket> UpdateAsync(Ticket ticket);
         Task<bool> DeleteAsync(string id);
         Task<List<Ticket>> GetByCustomerIdAsync(string customerId);
+        Task<List<Ticket>> GetUnpaidTicketsByCustomerId(string customerId);
+        Task UpdateRangeAsync(List<Ticket> tickets);
 
     }
 }

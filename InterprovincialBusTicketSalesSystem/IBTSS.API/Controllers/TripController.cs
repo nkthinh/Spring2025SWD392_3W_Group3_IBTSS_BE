@@ -65,6 +65,21 @@ namespace IBTSS.API.Controllers
                 return Ok(results);
             }
 
+            [HttpGet("search")]
+            public async Task<IActionResult> SearchTripsByKeyword([FromQuery] string keyword)
+            {
+                var results = await _tripService.SearchByKeywordAsync(keyword);
+                return Ok(results);
+            }
+
+
+            //[HttpGet("search-by-location-and-route")]
+            //public async Task<IActionResult> SearchByLocationAndRoute([FromQuery] string locationName, [FromQuery] string routeName)
+            //{
+            //    var result = await _tripService.SearchByLocationAndRouteAsync(locationName, routeName);
+            //    return Ok(result);
+            //}
+
         }
     }
 

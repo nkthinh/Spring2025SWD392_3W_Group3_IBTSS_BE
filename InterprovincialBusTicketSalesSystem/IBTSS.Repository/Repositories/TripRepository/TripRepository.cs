@@ -20,26 +20,26 @@ namespace IBTSS.Repository.Repositories.TripRepository
 
         public async Task<Trip?> GetByIdAsync(string id) =>
             await _context.Trips.FirstOrDefaultAsync(m => m.TripId == id && !m.IsDelete);
-        public async Task<Trip> AddAsync(Trip Trip)
+        public async Task<Trip> AddAsync(Trip trip)
         {
             // Tìm TripId lớn nhất (theo định dạng T001, T002, ...)
             var lastTrip = await _context.Trips
-                .OrderByDescending(u => u.TripId)
+                .OrderByDescending(t => t.TripId)
                 .FirstOrDefaultAsync();
 
             string newId = "T001";
 
             if (lastTrip != null)
             {
-                string lastId = lastTrip.TripId; // ví dụ: "U005"
-                int number = int.Parse(lastId.Substring(1)); // bỏ "U" => 5
+                string lastId = lastTrip.TripId; // ví dụ: "T005"
+                int number = int.Parse(lastId.Substring(1)); // bỏ "T" => 5
                 number++;
-                newId = "T" + number.ToString("D3"); // "U006"
+                newId = "T" + number.ToString("D3"); // => "T006"
             }
 
-            Trip.TripId = newId;
+            trip.TripId = newId;
 
-            await _context.Trips.AddAsync(Trip);
+            await _context.Trips.AddAsync(trip);
 
             try
             {
@@ -50,7 +50,8 @@ namespace IBTSS.Repository.Repositories.TripRepository
                 Console.WriteLine(ex.InnerException?.Message);
                 throw;
             }
-            return Trip;
+
+            return trip;
         }
 
 
@@ -78,5 +79,40 @@ namespace IBTSS.Repository.Repositories.TripRepository
                         .ThenInclude(lr => lr.Location)
                 .ToListAsync();
         }
+        public async Task<List<Trip>> SearchTripsByLocationAndRouteAsync(string locationName, string routeName)
+        {
+            return await _context.Trips
+                .Where(t => !t.IsDelete &&
+                            t.Route.RouteName.Contains(routeName) &&
+                            t.Route.LocationRoutes.Any(lr => lr.Location.LocationName.Contains(locationName)))
+                .Include(t => t.Route)
+                    .ThenInclude(r => r.LocationRoutes)
+                        .ThenInclude(lr => lr.Location)
+                .ToListAsync();
+        }
+
+        public async Task<List<Trip>> SearchTripsByRouteNameAsync(string routeName)
+        {
+            return await _context.Trips
+                .Where(t => !t.IsDelete &&
+                            t.Route.RouteName.Contains(routeName))
+                .Include(t => t.Route)
+                    .ThenInclude(r => r.LocationRoutes)
+                        .ThenInclude(lr => lr.Location)
+                .ToListAsync();
+        }
+
+        public async Task<List<Trip>> SearchTripsByLocationNameAsync(string locationName)
+        {
+            return await _context.Trips
+                .Where(t => !t.IsDelete &&
+                            t.Route.LocationRoutes.Any(lr => lr.Location.LocationName.Contains(locationName)))
+                .Include(t => t.Route)
+                    .ThenInclude(r => r.LocationRoutes)
+                        .ThenInclude(lr => lr.Location)
+                .ToListAsync();
+        }
+
+
     }
 }

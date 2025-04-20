@@ -15,6 +15,7 @@ using IBTSS.Repository.UnitOfWork;
 using IBTSS.Service.Services.BusService;
 using IBTSS.Service.Services.CustomerService;
 using IBTSS.Service.Services.JWT;
+using IBTSS.Service.Services.LocationService;
 using IBTSS.Service.Services.MembershipService;
 using IBTSS.Service.Services.SeatService;
 using IBTSS.Service.Services.TicketService;
@@ -44,6 +45,8 @@ namespace IBTSS.API
             services.AddScoped<JwtService>();
             services.AddScoped<ITicketService, TicketService>();
             services.AddScoped<ITransactionService, TransactionService>();
+            services.AddScoped<ILocationService, LocationService>();
+
 
             // Đăng ký các Repository
             services.AddScoped<ICustomerRepository, CustomerRepository>();

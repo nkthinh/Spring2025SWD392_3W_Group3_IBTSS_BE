@@ -40,7 +40,7 @@ namespace IBTSS.Service.Services.BusService
                 seats.Add(new Seat
                 {
                     BusId = bus.BusId,
-                    IsDelete = false
+                    IsBooked = false
                 });
             }
 
@@ -77,7 +77,7 @@ namespace IBTSS.Service.Services.BusService
                 BusType = bus.BusType,
                 SeatCount = bus.SeatCount,
                 Seats = bus.Seats
-                    .Where(s => !s.IsDelete)
+                    .Where(s => !s.IsBooked)
                     .Select(s => new SeatAvailabilityResponse
                     {
                         SeatId = s.SeatId,
@@ -95,7 +95,7 @@ namespace IBTSS.Service.Services.BusService
                 BusType = b.BusType,
                 SeatCount = b.SeatCount,
                 Seats = b.Seats
-                    .Where(s => !s.IsDelete)
+                    .Where(s => !s.IsBooked)
                     .Select(s => new SeatAvailabilityResponse
                     {
                         SeatId = s.SeatId,

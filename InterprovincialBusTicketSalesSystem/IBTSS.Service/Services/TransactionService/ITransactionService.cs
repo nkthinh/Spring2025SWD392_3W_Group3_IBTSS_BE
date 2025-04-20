@@ -1,4 +1,5 @@
-﻿using IBTSS.Service.DTO.Request.Transaction;
+﻿using IBTSS.Repository.Entities;
+using IBTSS.Service.DTO.Request.Transaction;
 using IBTSS.Service.DTO.Response.Transaction;
 using System;
 using System.Collections.Generic;
@@ -12,8 +13,11 @@ namespace IBTSS.Service.Services.TransactionService
     {
         Task<List<TransactionResponse>> GetAllAsync();
         Task<TransactionResponse?> GetByIdAsync(string id);
+        Task<List<TransactionResponse>> GetByCustomerIdAsync(string customerId);
         Task<TransactionResponse> AddAsync(TransactionRequest request);
         Task<TransactionResponse?> UpdateAsync(string id, TransactionRequest request);
         Task<bool> DeleteAsync(string id);
+        Task<List<Ticket>> GetUnpaidTicketsByCustomerIdAsync(string customerId);
+
     }
 }

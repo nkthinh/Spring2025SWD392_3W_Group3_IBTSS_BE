@@ -16,6 +16,5 @@ namespace IBTSS.Repository.Entities
 
         public bool IsDelete { get; set; }
 
-        public string RouteId { get; set; } = string.Empty;
     }
 }

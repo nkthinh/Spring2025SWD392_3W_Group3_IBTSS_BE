@@ -26,7 +26,7 @@ namespace IBTSS.Service.Services.SeatService
             {
                 SeatId = s.SeatId,
                 BusId = s.BusId,
-                IsDelete = s.IsDelete
+                IsDelete = s.IsBooked
             }).ToList();
         }
 
@@ -39,7 +39,7 @@ namespace IBTSS.Service.Services.SeatService
             {
                 SeatId = seat.SeatId,
                 BusId = seat.BusId,
-                IsDelete = seat.IsDelete
+                IsDelete = seat.IsBooked
             };
         }
 
@@ -48,7 +48,7 @@ namespace IBTSS.Service.Services.SeatService
             var seat = new Seat
             {
                 BusId = request.BusId,
-                IsDelete = false
+                IsBooked = false
             };
 
             var created = await _unitOfWork.Seats.AddAsync(seat);
@@ -58,7 +58,7 @@ namespace IBTSS.Service.Services.SeatService
             {
                 SeatId = created.SeatId,
                 BusId = created.BusId,
-                IsDelete = created.IsDelete
+                IsDelete = created.IsBooked
             };
         }
 
@@ -76,7 +76,7 @@ namespace IBTSS.Service.Services.SeatService
             {
                 SeatId = updated.SeatId,
                 BusId = updated.BusId,
-                IsDelete = updated.IsDelete
+                IsDelete = updated.IsBooked
             };
         }
 
@@ -94,7 +94,7 @@ namespace IBTSS.Service.Services.SeatService
             var busId = trip.BusId;
 
             var seats = await _unitOfWork.Seats.GetAllAsync();
-            var busSeats = seats.Where(s => s.BusId == busId && !s.IsDelete).ToList();
+            var busSeats = seats.Where(s => s.BusId == busId && !s.IsBooked).ToList();
             var seatIds = busSeats.Select(s => s.SeatId).ToList();
 
             var tickets = await _unitOfWork.Tickets.GetAllAsync();

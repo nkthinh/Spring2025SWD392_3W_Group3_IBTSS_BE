@@ -22,6 +22,9 @@ namespace IBTSS.Repository.Entities
         [ForeignKey("Seat")]
         public string SeatId { get; set; } = string.Empty;
 
+        [ForeignKey("Transaction")]
+        public string? TransactionId { get; set; }
+
         public DateTime CreatedAt { get; set; }
 
         public bool IsCancelled { get; set; }
@@ -29,11 +32,16 @@ namespace IBTSS.Repository.Entities
         public bool IsDelete { get; set; }
 
         public int Price { get; set; }
+
         public string Status { get; set; } = string.Empty;
 
         public virtual Trip? Trip { get; set; }
+
         public virtual Customer? Customer { get; set; }
+
         public virtual Seat? Seat { get; set; }
-        public virtual ICollection<Transaction>? Transactions { get; set; }
+
+        public virtual Transaction? Transaction { get; set; } // ✅ thêm navigation
     }
+
 }

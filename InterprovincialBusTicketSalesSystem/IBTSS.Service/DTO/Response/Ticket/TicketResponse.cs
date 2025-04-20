@@ -10,6 +10,7 @@ namespace IBTSS.Service.DTO.Response.Ticket
     {
         public string TicketId { get; set; } = string.Empty;
         public string TripId { get; set; } = string.Empty;
+        public string? TransactionId { get; set; }
         public string CustomerId { get; set; } = string.Empty;
         public string SeatId { get; set; } = string.Empty;
         public DateTime CreatedAt { get; set; }

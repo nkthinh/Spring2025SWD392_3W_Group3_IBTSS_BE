@@ -8,9 +8,7 @@ namespace IBTSS.Service.DTO.Request.Transaction
 {
     public class TransactionRequest
     {
-        public string TicketId { get; set; } = string.Empty;
-        public DateTime CreatedAt { get; set; }
-        public string PaymentStatus { get; set; } = string.Empty;
-        public int Amount { get; set; }
+        public string CustomerId { get; set; } = string.Empty;
     }
+
 }

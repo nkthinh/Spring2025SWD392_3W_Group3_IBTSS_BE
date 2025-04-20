@@ -11,10 +11,10 @@ namespace IBTSS.Repository.Entities
     public class Transaction
     {
         [Key]
-        public string TransactionId { get; set; } = string.Empty;
+        public string? TransactionId { get; set; } = string.Empty;
 
-        [ForeignKey("Ticket")]
-        public string TicketId { get; set; } = string.Empty;
+        [ForeignKey("Customer")]
+        public string CustomerId { get; set; } = string.Empty;
 
         public DateTime CreatedAt { get; set; }
 
@@ -22,6 +22,12 @@ namespace IBTSS.Repository.Entities
 
         public int Amount { get; set; }
 
-        public virtual Ticket? Ticket { get; set; }
+        public bool IsDeleted { get; set; }
+
+        public virtual Customer? Customer { get; set; }
+
+        // ✅ 1 transaction có thể có nhiều ticket
+        public virtual ICollection<Ticket>? Tickets { get; set; }
     }
+
 }

@@ -1,0 +1,14 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace IBTSS.Service.DTO.Request.Location
+{
+    public class LocationRequest
+    {
+        public string LocationName { get; set; } = string.Empty;       
+    }
+
+}

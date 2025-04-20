@@ -16,6 +16,9 @@ namespace IBTSS.Service.Services.TripService
         Task<TripResponse?> UpdateAsync(string id, TripRequest request);
         Task<bool> DeleteAsync(string id);
         Task<IEnumerable<TripSearchDto>> SearchByDateAsync(string date);
+        Task<IEnumerable<TripSearchDto>> SearchByKeywordAsync(string keyword);
+        //Task<IEnumerable<TripSearchDto>> SearchByLocationAndRouteAsync(string locationName, string routeName);
+
 
     }
 }

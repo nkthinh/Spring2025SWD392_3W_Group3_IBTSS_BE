@@ -16,10 +16,10 @@ namespace IBTSS.Repository.Repositories.SeatRepository
             _context = context;
         }
         public async Task<List<Seat>> GetAllAsync() =>
-            await _context.Seats.Where(s => !s.IsDelete).ToListAsync();
+            await _context.Seats.Where(s => !s.IsBooked).ToListAsync();
 
         public async Task<Seat?> GetByIdAsync(string id) =>
-            await _context.Seats.FirstOrDefaultAsync(s => s.SeatId == id && !s.IsDelete);
+            await _context.Seats.FirstOrDefaultAsync(s => s.SeatId == id && !s.IsBooked);
 
         public async Task<Seat> AddAsync(Seat seat)
         {
@@ -67,7 +67,7 @@ namespace IBTSS.Repository.Repositories.SeatRepository
         {
             var seat = await _context.Seats.FindAsync(id);
             if (seat == null) return false;
-            seat.IsDelete = true;
+            seat.IsBooked = true;
             await _context.SaveChangesAsync();
             return true;
         }

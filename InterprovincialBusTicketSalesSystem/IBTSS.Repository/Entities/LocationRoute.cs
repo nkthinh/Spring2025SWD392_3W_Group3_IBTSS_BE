@@ -18,7 +18,8 @@ namespace IBTSS.Repository.Entities
 
         [ForeignKey("Route")]
         public string RouteId { get; set; } = string.Empty;
-
+        public int StopOrder { get; set; } // điểm dừng số mấy
+        public TimeSpan? StopDuration { get; set; } // thời gian nghỉ tại điểm dừng
         public virtual Location? Location { get; set; }
         public virtual Route? Route { get; set; }
     }

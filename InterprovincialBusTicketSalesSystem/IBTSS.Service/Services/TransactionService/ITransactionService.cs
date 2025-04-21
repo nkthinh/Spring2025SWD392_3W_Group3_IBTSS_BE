@@ -11,13 +11,13 @@ namespace IBTSS.Service.Services.TransactionService
 {
     public interface ITransactionService
     {
-        Task<List<TransactionResponse>> GetAllAsync();
-        Task<TransactionResponse?> GetByIdAsync(string id);
-        Task<List<TransactionResponse>> GetByCustomerIdAsync(string customerId);
-        Task<TransactionResponse> AddAsync(TransactionRequest request);
-        Task<TransactionResponse?> UpdateAsync(string id, TransactionRequest request);
-        Task<bool> DeleteAsync(string id);
-        Task<List<Ticket>> GetUnpaidTicketsByCustomerIdAsync(string customerId);
+        //Task<List<TransactionResponse>> GetAllAsync();
+        //Task<TransactionResponse?> GetByIdAsync(string id);
+        //Task<List<TransactionResponse>> GetByCustomerIdAsync(string customerId);
+        //Task<TransactionResponse> AddAsync(TransactionRequest request);
+        //Task<TransactionResponse?> UpdateAsync(string id, TransactionRequest request);
+        //Task<bool> DeleteAsync(string id);
+        //Task<List<Book>> GetUnpaidTicketsByCustomerIdAsync(string customerId);
 
     }
 }

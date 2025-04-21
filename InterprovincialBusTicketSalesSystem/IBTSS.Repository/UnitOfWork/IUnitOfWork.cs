@@ -30,6 +30,7 @@ namespace IBTSS.Repository.UnitOfWork
         ITransactionRepository Transactions { get; }
         ITripRepository Trips { get; }
         IMembershipRepository Memberships { get; }
+
         Task<int> CompleteAsync();
     }
 }

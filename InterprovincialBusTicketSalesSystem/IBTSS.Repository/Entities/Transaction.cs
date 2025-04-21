@@ -27,7 +27,7 @@ namespace IBTSS.Repository.Entities
         public virtual Customer? Customer { get; set; }
 
         // ✅ 1 transaction có thể có nhiều ticket
-        public virtual ICollection<Ticket>? Tickets { get; set; }
+        public virtual ICollection<Book>? Books { get; set; }
     }
 
 }

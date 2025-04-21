@@ -24,20 +24,18 @@ namespace IBTSS.Repository.Entities
         public string DriverId { get; set; } = string.Empty;
 
         public TimeOnly DepartureTime { get; set; }
-
-
         public string Date { get; set; } = string.Empty;
-
         public string Direction { get; set; } = string.Empty;
-
         public bool IsDelete { get; set; }
-
         public int Price { get; set; }
         public string Status { get; set; }
 
         public virtual Route? Route { get; set; }
         public virtual Bus? Bus { get; set; }
         public virtual User? Driver { get; set; }
+
+        // Một chuyến có nhiều vé
         public virtual ICollection<Ticket>? Tickets { get; set; }
     }
+
 }

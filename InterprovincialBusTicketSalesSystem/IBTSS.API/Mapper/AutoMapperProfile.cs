@@ -30,8 +30,8 @@ namespace IBTSS.API.Mapper
             CreateMap<Membership, MembershipResponse>();
             CreateMap<TripRequest, TripResponse>();
             CreateMap<Trip, TripSearchDto>();
-            CreateMap<Ticket, TicketResponse>();
-            CreateMap<TicketRequest, Ticket>();
+            CreateMap<Book, TicketResponse>();
+            CreateMap<TicketRequest, Book>();
             CreateMap<TransactionRequest, Transaction>();
             CreateMap<Transaction, TransactionResponse>();
             CreateMap<Repository.Entities.Route, RouteResponse>();

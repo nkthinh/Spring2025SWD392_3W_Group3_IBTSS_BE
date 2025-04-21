@@ -10,9 +10,9 @@ namespace IBTSS.Service.Services.BusService
 {
     public interface IBusService
     {
-        Task<BusResponse> AddAsync(BusRequest request);
-        Task<BusResponse?> UpdateAsync(string id, BusUpdateRequest request);
-        Task<BusResponse?> GetByIdAsync(string id);
-        Task<List<BusResponse>> GetAllAsync();
+        //Task<BusResponse> AddAsync(BusRequest request);
+        //Task<BusResponse?> UpdateAsync(string id, BusUpdateRequest request);
+        //Task<BusResponse?> GetByIdAsync(string id);
+        //Task<List<BusResponse>> GetAllAsync();
     }
 }

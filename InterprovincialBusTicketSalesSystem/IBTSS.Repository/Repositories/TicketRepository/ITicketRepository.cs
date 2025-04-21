@@ -9,14 +9,14 @@ namespace IBTSS.Repository.Repositories.TicketRepository
 {
     public interface ITicketRepository
     {
-        Task<List<Ticket>> GetAllAsync();
-        Task<Ticket?> GetByIdAsync(string id);
-        Task<Ticket> AddAsync(Ticket ticket);
-        Task<Ticket> UpdateAsync(Ticket ticket);
-        Task<bool> DeleteAsync(string id);
-        Task<List<Ticket>> GetByCustomerIdAsync(string customerId);
-        Task<List<Ticket>> GetUnpaidTicketsByCustomerId(string customerId);
-        Task UpdateRangeAsync(List<Ticket> tickets);
+        //Task<List<Book>> GetAllAsync();
+        //Task<Book?> GetByIdAsync(string id);
+        //Task<Book> AddAsync(Book ticket);
+        //Task<Book> UpdateAsync(Book ticket);
+        //Task<bool> DeleteAsync(string id);
+        //Task<List<Book>> GetByCustomerIdAsync(string customerId);
+        //Task<List<Book>> GetUnpaidTicketsByCustomerId(string customerId);
+        //Task UpdateRangeAsync(List<Book> tickets);
 
     }
 }

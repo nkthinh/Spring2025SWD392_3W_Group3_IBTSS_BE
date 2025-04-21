@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace IBTSS.Repository.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250420063639_RenameIsDeleteToIsBooked")]
-    partial class RenameIsDeleteToIsBooked
+    [Migration("20250421170117_CreateFixedDB")]
+    partial class CreateFixedDB
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,6 +24,40 @@ namespace IBTSS.Repository.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("IBTSS.Repository.Entities.Book", b =>
+                {
+                    b.Property<string>("BookId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CustomerId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("TicketCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TotalPrice")
+                        .HasColumnType("int");
+
+                    b.Property<string>("TransactionId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("BookId");
+
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("TransactionId");
+
+                    b.ToTable("Books");
+                });
 
             modelBuilder.Entity("IBTSS.Repository.Entities.Bus", b =>
                 {
@@ -83,10 +117,6 @@ namespace IBTSS.Repository.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("RouteId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.HasKey("LocationId");
 
                     b.ToTable("Locations");
@@ -104,6 +134,12 @@ namespace IBTSS.Repository.Migrations
                     b.Property<string>("RouteId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
+
+                    b.Property<TimeSpan?>("StopDuration")
+                        .HasColumnType("time");
+
+                    b.Property<int>("StopOrder")
+                        .HasColumnType("int");
 
                     b.HasKey("LocationRouteId");
 
@@ -176,6 +212,9 @@ namespace IBTSS.Repository.Migrations
                     b.Property<bool>("IsBooked")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("IsDelete")
+                        .HasColumnType("bit");
+
                     b.HasKey("SeatId");
 
                     b.HasIndex("BusId");
@@ -188,15 +227,9 @@ namespace IBTSS.Repository.Migrations
                     b.Property<string>("TicketId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("CustomerId")
+                    b.Property<string>("BookId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
-
-                    b.Property<bool>("IsCancelled")
-                        .HasColumnType("bit");
 
                     b.Property<bool>("IsDelete")
                         .HasColumnType("bit");
@@ -205,23 +238,21 @@ namespace IBTSS.Repository.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("SeatId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("TripId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
+
+                    b.Property<bool>("isCancelled")
+                        .HasColumnType("bit");
 
                     b.HasKey("TicketId");
 
-                    b.HasIndex("CustomerId");
+                    b.HasIndex("BookId");
 
                     b.HasIndex("SeatId")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasFilter("[SeatId] IS NOT NULL");
 
                     b.HasIndex("TripId");
 
@@ -239,17 +270,20 @@ namespace IBTSS.Repository.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("CustomerId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
                     b.Property<string>("PaymentStatus")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("TicketId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
                     b.HasKey("TransactionId");
 
-                    b.HasIndex("TicketId");
+                    b.HasIndex("CustomerId");
 
                     b.ToTable("Transactions");
                 });
@@ -335,6 +369,24 @@ namespace IBTSS.Repository.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("IBTSS.Repository.Entities.Book", b =>
+                {
+                    b.HasOne("IBTSS.Repository.Entities.Customer", "Customer")
+                        .WithMany("Books")
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("IBTSS.Repository.Entities.Transaction", "Transaction")
+                        .WithMany("Books")
+                        .HasForeignKey("TransactionId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("Customer");
+
+                    b.Navigation("Transaction");
+                });
+
             modelBuilder.Entity("IBTSS.Repository.Entities.Customer", b =>
                 {
                     b.HasOne("IBTSS.Repository.Entities.Membership", "Membership")
@@ -377,25 +429,23 @@ namespace IBTSS.Repository.Migrations
 
             modelBuilder.Entity("IBTSS.Repository.Entities.Ticket", b =>
                 {
-                    b.HasOne("IBTSS.Repository.Entities.Customer", "Customer")
+                    b.HasOne("IBTSS.Repository.Entities.Book", "Book")
                         .WithMany("Tickets")
-                        .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasForeignKey("BookId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("IBTSS.Repository.Entities.Seat", "Seat")
                         .WithOne("Ticket")
                         .HasForeignKey("IBTSS.Repository.Entities.Ticket", "SeatId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("IBTSS.Repository.Entities.Trip", "Trip")
                         .WithMany("Tickets")
                         .HasForeignKey("TripId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
-                    b.Navigation("Customer");
+                    b.Navigation("Book");
 
                     b.Navigation("Seat");
 
@@ -404,13 +454,13 @@ namespace IBTSS.Repository.Migrations
 
             modelBuilder.Entity("IBTSS.Repository.Entities.Transaction", b =>
                 {
-                    b.HasOne("IBTSS.Repository.Entities.Ticket", "Ticket")
-                        .WithMany("Transactions")
-                        .HasForeignKey("TicketId")
+                    b.HasOne("IBTSS.Repository.Entities.Customer", "Customer")
+                        .WithMany()
+                        .HasForeignKey("CustomerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Ticket");
+                    b.Navigation("Customer");
                 });
 
             modelBuilder.Entity("IBTSS.Repository.Entities.Trip", b =>
@@ -440,6 +490,11 @@ namespace IBTSS.Repository.Migrations
                     b.Navigation("Route");
                 });
 
+            modelBuilder.Entity("IBTSS.Repository.Entities.Book", b =>
+                {
+                    b.Navigation("Tickets");
+                });
+
             modelBuilder.Entity("IBTSS.Repository.Entities.Bus", b =>
                 {
                     b.Navigation("Seats");
@@ -449,7 +504,7 @@ namespace IBTSS.Repository.Migrations
 
             modelBuilder.Entity("IBTSS.Repository.Entities.Customer", b =>
                 {
-                    b.Navigation("Tickets");
+                    b.Navigation("Books");
                 });
 
             modelBuilder.Entity("IBTSS.Repository.Entities.Membership", b =>
@@ -469,9 +524,9 @@ namespace IBTSS.Repository.Migrations
                     b.Navigation("Ticket");
                 });
 
-            modelBuilder.Entity("IBTSS.Repository.Entities.Ticket", b =>
+            modelBuilder.Entity("IBTSS.Repository.Entities.Transaction", b =>
                 {
-                    b.Navigation("Transactions");
+                    b.Navigation("Books");
                 });
 
             modelBuilder.Entity("IBTSS.Repository.Entities.Trip", b =>

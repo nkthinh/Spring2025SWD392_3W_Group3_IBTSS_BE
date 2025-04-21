@@ -13,35 +13,22 @@ namespace IBTSS.Repository.Entities
         [Key]
         public string TicketId { get; set; } = string.Empty;
 
-        [ForeignKey("Trip")]
-        public string TripId { get; set; } = string.Empty;
+        [ForeignKey("Book")]
+        public string BookId { get; set; } = string.Empty;
 
-        [ForeignKey("Customer")]
-        public string CustomerId { get; set; } = string.Empty;
+        [ForeignKey("Trip")]
+        public string? TripId { get; set; }
 
         [ForeignKey("Seat")]
-        public string SeatId { get; set; } = string.Empty;
+        public string? SeatId { get; set; }
 
-        [ForeignKey("Transaction")]
-        public string? TransactionId { get; set; }
-
-        public DateTime CreatedAt { get; set; }
-
-        public bool IsCancelled { get; set; }
-
+        public bool isCancelled { get; set; }
         public bool IsDelete { get; set; }
 
         public int Price { get; set; }
 
-        public string Status { get; set; } = string.Empty;
-
-        public virtual Trip? Trip { get; set; }
-
-        public virtual Customer? Customer { get; set; }
-
+        public virtual Book? Book { get; set; }
         public virtual Seat? Seat { get; set; }
-
-        public virtual Transaction? Transaction { get; set; } // ✅ thêm navigation
+        public virtual Trip? Trip { get; set; }
     }
-
 }

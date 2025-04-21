@@ -24,6 +24,6 @@ namespace IBTSS.Repository.Entities
         public string Name { get; set; } = string.Empty;
 
         public virtual Membership? Membership { get; set; }
-        public virtual ICollection<Ticket>? Tickets { get; set; }
+        public virtual ICollection<Book>? Books { get; set; }
     }
 }

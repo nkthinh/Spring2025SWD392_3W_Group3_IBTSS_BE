@@ -11,11 +11,11 @@ namespace IBTSS.Service.Services.TicketService
 {
     public interface ITicketService
     {
-        Task<List<TicketResponse>> GetAllAsync();
-        Task<TicketResponse?> GetByIdAsync(string id);
-        Task<TicketResponse> AddAsync(TicketRequest request);
-        Task<TicketResponse?> UpdateAsync(string id, TicketRequest request);
-        Task<bool> DeleteAsync(string id);
-        Task<List<Ticket>> GetByCustomerIdAsync(string customerId);
+        //Task<List<TicketResponse>> GetAllAsync();
+        //Task<TicketResponse?> GetByIdAsync(string id);
+        //Task<TicketResponse> AddAsync(TicketRequest request);
+        //Task<TicketResponse?> UpdateAsync(string id, TicketRequest request);
+        //Task<bool> DeleteAsync(string id);
+        //Task<List<Book>> GetByCustomerIdAsync(string customerId);
     }
 }

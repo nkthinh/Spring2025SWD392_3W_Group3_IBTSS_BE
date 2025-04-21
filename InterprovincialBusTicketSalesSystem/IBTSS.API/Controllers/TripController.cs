@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace IBTSS.API.Controllers
 {
- 
+
 
     namespace IBTSS.API.Controllers
     {
@@ -58,19 +58,19 @@ namespace IBTSS.API.Controllers
                 if (!result) return NotFound();
                 return NoContent();
             }
-            //[HttpGet("search-by-date")]
-            //public async Task<ActionResult<IEnumerable<TripSearchDto>>> SearchByDate([FromQuery] string date)
-            //{
-            //    var results = await _tripService.SearchByDateAsync(date);
-            //    return Ok(results);
-            //}
-            /////search-by-location-and-route
-            //[HttpGet("search-by-location-and-route")]
-            //public async Task<IActionResult> SearchTripsByKeyword([FromQuery] string keyword)
-            //{
-            //    var results = await _tripService.SearchByKeywordAsync(keyword);
-            //    return Ok(results);
-            //}
+            [HttpGet("search-by-date")]
+            public async Task<ActionResult<IEnumerable<TripSearchDto>>> SearchByDate([FromQuery] string date)
+            {
+                var results = await _tripService.SearchByDateAsync(date);
+                return Ok(results);
+            }
+            ///search-by-location-and-route
+            [HttpGet("search-by-location-and-route")]
+            public async Task<IActionResult> SearchTripsByKeyword([FromQuery] string keyword)
+            {
+                var results = await _tripService.SearchByKeywordAsync(keyword);
+                return Ok(results);
+            }
 
 
             [HttpGet("search")]

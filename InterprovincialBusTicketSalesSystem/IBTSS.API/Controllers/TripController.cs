@@ -58,27 +58,31 @@ namespace IBTSS.API.Controllers
                 if (!result) return NotFound();
                 return NoContent();
             }
-            [HttpGet("search-by-date")]
-            public async Task<ActionResult<IEnumerable<TripSearchDto>>> SearchByDate([FromQuery] string date)
-            {
-                var results = await _tripService.SearchByDateAsync(date);
-                return Ok(results);
-            }
+            //[HttpGet("search-by-date")]
+            //public async Task<ActionResult<IEnumerable<TripSearchDto>>> SearchByDate([FromQuery] string date)
+            //{
+            //    var results = await _tripService.SearchByDateAsync(date);
+            //    return Ok(results);
+            //}
+            /////search-by-location-and-route
+            //[HttpGet("search-by-location-and-route")]
+            //public async Task<IActionResult> SearchTripsByKeyword([FromQuery] string keyword)
+            //{
+            //    var results = await _tripService.SearchByKeywordAsync(keyword);
+            //    return Ok(results);
+            //}
+
 
             [HttpGet("search")]
-            public async Task<IActionResult> SearchTripsByKeyword([FromQuery] string keyword)
+            public async Task<ActionResult<IEnumerable<TripSearchDto>>> SearchTrips(
+         [FromQuery] string keyword,
+         [FromQuery] string date,
+         [FromQuery] string type)
             {
-                var results = await _tripService.SearchByKeywordAsync(keyword);
-                return Ok(results);
+                var result = await _tripService.SearchTripsAsync(keyword, date, type);
+                return Ok(result);
             }
 
-
-            //[HttpGet("search-by-location-and-route")]
-            //public async Task<IActionResult> SearchByLocationAndRoute([FromQuery] string locationName, [FromQuery] string routeName)
-            //{
-            //    var result = await _tripService.SearchByLocationAndRouteAsync(locationName, routeName);
-            //    return Ok(result);
-            //}
 
         }
     }

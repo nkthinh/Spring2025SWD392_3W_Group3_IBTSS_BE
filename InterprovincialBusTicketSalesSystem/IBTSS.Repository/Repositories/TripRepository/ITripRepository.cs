@@ -18,6 +18,8 @@ namespace IBTSS.Repository.Repositories.TripRepository
         Task<List<Trip>> SearchTripsByLocationAndRouteAsync(string locationName, string routeName);
         Task<List<Trip>> SearchTripsByRouteNameAsync(string routeName);
         Task<List<Trip>> SearchTripsByLocationNameAsync(string locationName);
+        Task<List<Trip>> SearchTripsByKeywordAndDateAsync(string keyword, string date);
+
 
     }
 }

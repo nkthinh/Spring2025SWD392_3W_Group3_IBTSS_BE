@@ -154,7 +154,6 @@ namespace IBTSS.Service.Services.TripService
             existing.DepartureTime = TimeOnly.ParseExact(request.DepartureTime, "HH:mm", null);
             existing.Date = request.Date;
             existing.Direction = request.Direction;
-            existing.IsDelete = request.IsDelete;
             existing.Price = request.Price;
             existing.Status = request.Status;
 

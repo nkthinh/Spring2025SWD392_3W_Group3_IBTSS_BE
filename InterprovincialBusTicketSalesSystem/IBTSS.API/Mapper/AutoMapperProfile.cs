@@ -29,15 +29,15 @@ namespace IBTSS.API.Mapper
             CreateMap<User, LoginUserResponse>();
             CreateMap<Membership, MembershipRequest>();
             CreateMap<Membership, MembershipResponse>();
-            CreateMap<TripRequest, TripResponse>();
+            CreateMap<TripRequest, TripResponse>().ForMember(dest => dest.IsDelete, opt => opt.MapFrom(src => "false"));
             CreateMap<Trip, TripSearchDto>();
             CreateMap<Book, TicketResponse>();
             CreateMap<TicketRequest, Book>();
             CreateMap<TransactionRequest, Transaction>();
             CreateMap<Transaction, TransactionResponse>();
             CreateMap<Repository.Entities.Route, RouteResponse>();
-            CreateMap<RouteRequest, Repository.Entities.Route>()
-                .ForMember(dest => dest.IsDelete, opt => opt.MapFrom(src => false));
+            CreateMap<RouteRequest, Repository.Entities.Route>().ForMember(dest => dest.IsDelete, opt => opt.MapFrom(src => "false"));
+
             CreateMap<Book, BookResponse>()
     .ForMember(dest => dest.SeatIds, opt => opt.MapFrom(src => src.Tickets.Select(t => t.SeatId)))
     .ForMember(dest => dest.Tickets, opt => opt.MapFrom(src => src.Tickets));

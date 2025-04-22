@@ -15,6 +15,5 @@ namespace IBTSS.Service.DTO.Request.Route
 
         public int EstimatedDuration { get; set; }
 
-        public bool IsDelete { get; set; }
     }
 }

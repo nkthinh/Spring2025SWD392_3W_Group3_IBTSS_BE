@@ -12,73 +12,82 @@ namespace IBTSS.Repository.Repositories.TransactionRepository
             _context = context;
         }
 
-        //    public async Task<List<Transaction>> GetAllAsync()
-        //    {
-        //        return await _context.Transactions.ToListAsync();
-        //    }
+        public async Task<List<Transaction>> GetAllAsync()
+        {
+            return await _context.Transactions.ToListAsync();
+        }
 
-        //    public async Task<Transaction?> GetByIdAsync(string id)
-        //    {
-        //        return await _context.Transactions.FindAsync(id);
-        //    }
-        //    public async Task<List<Transaction>> GetByCustomerIdAsync(string customerId)
-        //    {
-        //        return await _context.Transactions
-        //            .Where(t => t.CustomerId == customerId && !t.IsDeleted)
-        //            .ToListAsync();
-        //    }
+        public async Task<Transaction?> GetByIdAsync(string id)
+        {
+            return await _context.Transactions.FindAsync(id);
+        }
+        public async Task<List<Transaction>> GetByCustomerIdAsync(string customerId)
+        {
+            return await _context.Transactions
+                .Where(t => t.CustomerId == customerId && !t.IsDeleted)
+                .ToListAsync();
+        }
 
 
-        //    public async Task<Transaction> AddAsync(Transaction transaction)
-        //    {
-        //        transaction.TransactionId = Guid.NewGuid().ToString();
-        //        transaction.CreatedAt = DateTime.UtcNow;
-        //        transaction.PaymentStatus = "Paid";
+        public async Task<Transaction> AddAsync(Transaction transaction)
+        {
+            // Bước 1: Tìm Book có trạng thái Pending của Customer
+            var pendingBook = await _context.Books
+                .Include(b => b.Tickets)
+                .FirstOrDefaultAsync(b =>
+                    b.CustomerId == transaction.CustomerId &&
+                    b.Status == "Pending");
 
-        //        // Lấy tất cả ticket của customer chưa có transaction
-        //        var ticketsToUpdate = await _context.Tickets
-        //            .Where(t => t.CustomerId == transaction.CustomerId
-        //                     && t.TransactionId == null
-        //                     && !t.IsCancelled
-        //                     && !t.IsDelete)
-        //            .ToListAsync();
+            if (pendingBook == null)
+            {
+                // Không có đơn đặt nào ở trạng thái Pending => không tạo transaction
+                return null; // hoặc throw new Exception("No pending booking found.");
+            }
 
-        //        transaction.Amount = ticketsToUpdate.Sum(t => t.Price);
+            transaction.TransactionId = Guid.NewGuid().ToString();
+            transaction.CreatedAt = DateTime.UtcNow;
+            transaction.PaymentStatus = "Paid";
+            transaction.Amount = pendingBook.TotalPrice;
+            pendingBook.Status = "Complete";
 
-        //        // Gán TransactionId cho từng ticket
-        //        foreach (var ticket in ticketsToUpdate)
-        //        {
-        //            ticket.TransactionId = transaction.TransactionId;
-        //        }
+            pendingBook.TransactionId = transaction.TransactionId;
 
-        //        _context.Transactions.Add(transaction);
-        //        await _context.SaveChangesAsync();
-        //        return transaction;
-        //    }
+            // ✅ Cập nhật trạng thái của từng Ticket trong Book
+            foreach (var ticket in pendingBook.Tickets)
+            {
+                ticket.Status = "Complete";          // Hoặc "Confirmed"
+                ticket.IsDelete = false;         // Optional: đảm bảo chưa bị xóa
+                ticket.isCancelled = false;      // Optional: chưa bị hủy
+            }
 
-        //    public async Task<Transaction?> UpdateAsync(string id, Transaction transaction)
-        //    {
-        //        var existing = await _context.Transactions.FindAsync(id);
-        //        if (existing == null) return null;
+            _context.Transactions.Add(transaction);
+            await _context.SaveChangesAsync();
+            return transaction;
+        }
 
-        //        existing.CustomerId = transaction.CustomerId;
-        //        existing.CreatedAt = transaction.CreatedAt;
-        //        existing.PaymentStatus = transaction.PaymentStatus;
-        //        existing.Amount = transaction.Amount;
+        public async Task<Transaction?> UpdateAsync(string id, Transaction transaction)
+        {
+            var existing = await _context.Transactions.FindAsync(id);
+            if (existing == null) return null;
 
-        //        await _context.SaveChangesAsync();
-        //        return existing;
-        //    }
+            existing.CustomerId = transaction.CustomerId;
+            existing.CreatedAt = transaction.CreatedAt;
+            existing.PaymentStatus = transaction.PaymentStatus;
+            existing.Amount = transaction.Amount;
 
-        //    public async Task<bool> DeleteAsync(string id)
-        //    {
-        //        var transaction = await _context.Transactions.FindAsync(id);
-        //        if (transaction == null) return false;
+            await _context.SaveChangesAsync();
+            return existing;
+        }
 
-        //        _context.Transactions.Remove(transaction);
-        //        await _context.SaveChangesAsync();
-        //        return true;
-        //    }
-        //}
+        public async Task<bool> DeleteAsync(string id)
+        {
+            var transaction = await _context.Transactions.FindAsync(id);
+            if (transaction == null) return false;
+
+            _context.Transactions.Remove(transaction);
+            await _context.SaveChangesAsync();
+            return true;
+        }
     }
 }
+

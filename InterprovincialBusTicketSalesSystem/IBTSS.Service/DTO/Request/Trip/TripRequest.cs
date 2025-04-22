@@ -17,7 +17,6 @@ namespace IBTSS.Service.DTO.Request.Trip
         public string DepartureTime { get; set; }
         public string Date { get; set; } = string.Empty;
         public string Direction { get; set; } = string.Empty;
-        public bool IsDelete { get; set; }
         public int Price { get; set; }
         public string Status { get; set; } = string.Empty;
 

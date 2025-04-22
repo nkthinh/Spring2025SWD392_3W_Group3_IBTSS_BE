@@ -1,11 +1,11 @@
-﻿using IBTSS.Repository.Entities;
+﻿using AutoMapper; // ✅ THÊM
+using IBTSS.Repository.Entities;
 using IBTSS.Repository.UnitOfWork;
 using IBTSS.Service.DTO.Request.Book;
 using IBTSS.Service.DTO.Response.Book;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace IBTSS.Service.Services.BookService
@@ -13,10 +13,12 @@ namespace IBTSS.Service.Services.BookService
     public class BookService : IBookService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IMapper _mapper; // ✅ THÊM
 
-        public BookService(IUnitOfWork unitOfWork)
+        public BookService(IUnitOfWork unitOfWork, IMapper mapper) // ✅ THÊM IMapper
         {
             _unitOfWork = unitOfWork;
+            _mapper = mapper;
         }
 
         public async Task<List<Book>> GetAllAsync() =>
@@ -36,7 +38,7 @@ namespace IBTSS.Service.Services.BookService
                 CustomerId = request.CustomerId,
                 CreatedAt = DateTime.UtcNow,
                 TicketCount = request.Seats.Count,
-                TotalPrice = 0, // tính sau
+                TotalPrice = 0,
                 Status = "Pending"
             };
 
@@ -70,22 +72,14 @@ namespace IBTSS.Service.Services.BookService
             }
 
             book.TotalPrice = tickets.Sum(t => t.Price);
+            book.Tickets = tickets; // ✅ GÁN tickets để AutoMapper map sang DTO
 
             await _unitOfWork.Tickets.AddRangeAsync(tickets);
             await _unitOfWork.CompleteAsync();
 
-            return new BookResponse
-            {
-                BookId = book.BookId,
-                CustomerId = book.CustomerId,
-                TicketCount = book.TicketCount,
-                TotalPrice = book.TotalPrice,
-                SeatIds = request.Seats,
-                CreatedAt = book.CreatedAt,
-                Status = book.Status
-            };
+            // ✅ DÙNG AutoMapper
+            return _mapper.Map<BookResponse>(book);
         }
-
 
         public async Task<Book?> UpdateAsync(string id, CreateBookRequest request)
         {
@@ -108,6 +102,7 @@ namespace IBTSS.Service.Services.BookService
             await _unitOfWork.CompleteAsync();
             return true;
         }
+
         public async Task<List<Ticket>> GenerateTicketsAsync(Book book, CreateBookRequest request)
         {
             var trip = await _unitOfWork.Trips.GetByIdAsync(request.TripId)
@@ -138,9 +133,5 @@ namespace IBTSS.Service.Services.BookService
 
             return tickets;
         }
-
-
-
     }
-
 }

@@ -46,19 +46,6 @@ namespace IBTSS.Repository.Repositories.LocationRouteRepository
         // Add a new LocationRoute
         public async Task<LocationRoute> AddAsync(LocationRoute locationRoute)
         {
-            // Generate a new LocationRouteId
-            var lastLocationRoute = await _context.LocationRoutes
-                .OrderByDescending(x => x.LocationRouteId)
-                .FirstOrDefaultAsync();
-
-            string newId = "LR001";
-            if (lastLocationRoute != null)
-            {
-                int number = int.Parse(lastLocationRoute.LocationRouteId.Substring(2)) + 1;
-                newId = "LR" + number.ToString("D3");
-            }
-            locationRoute.LocationRouteId = newId;
-
             await _context.LocationRoutes.AddAsync(locationRoute);
             return locationRoute;
         }

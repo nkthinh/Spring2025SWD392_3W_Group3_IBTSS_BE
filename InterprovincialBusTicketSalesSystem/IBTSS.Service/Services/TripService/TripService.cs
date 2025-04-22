@@ -84,12 +84,13 @@ namespace IBTSS.Service.Services.TripService
                 RouteId = request.RouteId,
                 BusId = request.BusId,
                 DriverId = request.DriverId,
-                DepartureTime = request.DepartureTime,
+                DepartureTime = TimeOnly.ParseExact(request.DepartureTime, "HH:mm", null),
                 Date = request.Date,
                 Direction = request.Direction,
                 IsDelete = false,
                 Price = request.Price,
                 Status = request.Status,
+                Tickets = new List<Ticket>() // nếu cần
             };
 
             var createdTrip = await _unitOfWork.Trips.AddAsync(trip);
@@ -103,6 +104,7 @@ namespace IBTSS.Service.Services.TripService
 
                 var locationRoute = new LocationRoute
                 {
+                    LocationRouteId = Guid.NewGuid().ToString(), // đảm bảo luôn mới
                     RouteId = createdTrip.RouteId,
                     LocationId = lr.LocationId,
                     StopOrder = stopOrder++,
@@ -122,7 +124,7 @@ namespace IBTSS.Service.Services.TripService
                 LocationName = lr.Location?.LocationName ?? "",
                 StopOrder = lr.StopOrder,
                 StopDuration = lr.StopDuration
-            }).ToList();
+            }).OrderBy(lr => lr.StopOrder).ToList();
 
             return new TripResponse
             {
@@ -140,6 +142,7 @@ namespace IBTSS.Service.Services.TripService
             };
         }
 
+
         public async Task<TripResponse?> UpdateAsync(string id, TripRequest request)
         {
             var existing = await _unitOfWork.Trips.GetByIdAsync(id);
@@ -148,7 +151,7 @@ namespace IBTSS.Service.Services.TripService
             existing.RouteId = request.RouteId;
             existing.BusId = request.BusId;
             existing.DriverId = request.DriverId;
-            existing.DepartureTime = request.DepartureTime;
+            existing.DepartureTime = TimeOnly.ParseExact(request.DepartureTime, "HH:mm", null);
             existing.Date = request.Date;
             existing.Direction = request.Direction;
             existing.IsDelete = request.IsDelete;

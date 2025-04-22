@@ -30,7 +30,7 @@ namespace IBTSS.Service.Services.TripService
                 RouteId = m.RouteId,
                 BusId = m.BusId,
                 DriverId = m.DriverId,
-                DepartureTime = m.DepartureTime,
+                DepartureTime = m.DepartureTime.ToString("HH:mm"),
                 Date = m.Date,
                 Direction = m.Direction,
                 IsDelete = m.IsDelete,
@@ -41,21 +41,35 @@ namespace IBTSS.Service.Services.TripService
 
         public async Task<TripResponse?> GetByIdAsync(string id)
         {
-            var m = await _unitOfWork.Trips.GetByIdAsync(id);
-            if (m == null) return null;
+            var trip = await _unitOfWork.Trips.GetByIdAsync(id);
+            if (trip == null) return null;
+
+            var route = trip.Route;
+            var bus = trip.Bus;
 
             return new TripResponse
             {
-                TripId = m.TripId,
-                RouteId = m.RouteId,
-                BusId = m.BusId,
-                DriverId = m.DriverId,
-                DepartureTime = m.DepartureTime,
-                Date = m.Date,
-                Direction = m.Direction,
-                IsDelete = m.IsDelete,
-                Price = m.Price,
-                Status = m.Status,
+                TripId = trip.TripId,
+                RouteId = trip.RouteId,
+                RouteName = route?.RouteName ?? "",
+                BusId = trip.BusId,
+                BusType = bus?.BusType ?? "",
+                DriverId = trip.DriverId,
+                DepartureTime = trip.DepartureTime.ToString("HH:mm"),
+                Date = trip.Date,
+                Direction = trip.Direction,
+                IsDelete = trip.IsDelete,
+                Price = trip.Price,
+                Status = trip.Status,
+                LocationRoutes = route?.LocationRoutes?
+                    .OrderBy(lr => lr.StopOrder)
+                    .Select(lr => new LocationRouteResponse
+                    {
+                        LocationId = lr.LocationId,
+                        LocationName = lr.Location?.LocationName ?? "",
+                        StopOrder = lr.StopOrder,
+                        StopDuration = lr.StopDuration
+                    }).ToList() ?? new()
             };
         }
 
@@ -116,7 +130,7 @@ namespace IBTSS.Service.Services.TripService
                 RouteId = createdTrip.RouteId,
                 BusId = createdTrip.BusId,
                 DriverId = createdTrip.DriverId,
-                DepartureTime = createdTrip.DepartureTime,
+                DepartureTime = createdTrip.DepartureTime.ToString("HH:mm"),
                 Date = createdTrip.Date,
                 Direction = createdTrip.Direction,
                 IsDelete = createdTrip.IsDelete,
@@ -150,7 +164,7 @@ namespace IBTSS.Service.Services.TripService
                 RouteId = updated.RouteId,
                 BusId = updated.BusId,
                 DriverId = updated.DriverId,
-                DepartureTime = updated.DepartureTime,
+                DepartureTime = updated.DepartureTime.ToString("HH:mm"),
                 Date = updated.Date,
                 Direction = updated.Direction,
                 IsDelete = updated.IsDelete,
@@ -173,7 +187,7 @@ namespace IBTSS.Service.Services.TripService
             return trips.Select(t => new TripSearchDto
             {
                 RouteName = t.Route?.RouteName ?? "",
-                DepartureTime = t.DepartureTime, // Direct assignment of TimeOnly
+                DepartureTime = t.DepartureTime.ToString("HH:mm"),
                 Date = t.Date,
                 Price = t.Price,
                 Stops = t.Route?.LocationRoutes?
@@ -215,7 +229,7 @@ namespace IBTSS.Service.Services.TripService
             return trips.Select(t => new TripSearchDto
             {
                 RouteName = t.Route.RouteName,
-                DepartureTime = t.DepartureTime,
+                DepartureTime = t.DepartureTime.ToString("HH:mm"),
                 Date = t.Date,
                 Price = t.Price,
                 Stops = t.Route.LocationRoutes.Select(lr => new LocationStopDto
@@ -233,7 +247,7 @@ namespace IBTSS.Service.Services.TripService
                 BusId = t.BusId,
                 BusType = t.Bus?.BusType ?? "",
                 RouteName = t.Route?.RouteName ?? "",
-                DepartureTime = t.DepartureTime,
+                DepartureTime = t.DepartureTime.ToString("HH:mm"),
                 Date = t.Date,
                 Price = t.Price,
                 Stops = t.Route?.LocationRoutes?
@@ -246,6 +260,5 @@ namespace IBTSS.Service.Services.TripService
                     }).ToList() ?? new List<LocationStopDto>()
             };
         }
-
     }
 }

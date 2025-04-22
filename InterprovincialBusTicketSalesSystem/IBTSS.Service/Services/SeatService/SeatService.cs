@@ -99,7 +99,7 @@ namespace IBTSS.Service.Services.SeatService
 
             var tickets = await _unitOfWork.Tickets.GetAllAsync();
             var activeTickets = tickets
-                .Where(t => !t.IsCancelled && !t.IsDelete && t.TripId == tripId && seatIds.Contains(t.SeatId))
+                .Where(t => !t.isCancelled && !t.IsDelete && t.TripId == tripId && seatIds.Contains(t.SeatId))
                 .Select(t => t.SeatId)
                 .Distinct()
                 .ToList();

@@ -398,3 +398,5 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+/InterprovincialBusTicketSalesSystem/IBTSS.Repository/Repositories/TripRepository/TripRepository.cs
+/InterprovincialBusTicketSalesSystem/IBTSS.Repository/Repositories/TripRepository/TripRepository.cs

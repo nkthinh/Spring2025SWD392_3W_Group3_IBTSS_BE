@@ -1,4 +1,5 @@
-﻿using IBTSS.Repository.Repositories.BusRepository;
+﻿using IBTSS.Repository.Repositories.BookRepository;
+using IBTSS.Repository.Repositories.BusRepository;
 using IBTSS.Repository.Repositories.CustomerRepository;
 using IBTSS.Repository.Repositories.GenericRepository;
 using IBTSS.Repository.Repositories.LocationRepository;
@@ -21,7 +22,7 @@ namespace IBTSS.Repository.UnitOfWork
     public class UnitOfWork(AppDbContext _context, ICustomerRepository _customerRepository, IUserRepository _userRepository, IBusRepository _busRepository
         , ILocationRepository _locationRepository, ILocationRouteRepository _locationRouteRepository, IRouteRepository _routeRepository
         , ISeatRepository _seatRepository, ITicketRepository _ticketRepository, ITransactionRepository _transactionRepository, ITripRepository _tripRepository
-        , IMembershipRepository membershipRepository) : IUnitOfWork
+        , IMembershipRepository membershipRepository, IBookRepository bookRepository) : IUnitOfWork
     {
         public ICustomerRepository Customers { get; } = _customerRepository;
         public IUserRepository Users { get; } = _userRepository;
@@ -34,7 +35,7 @@ namespace IBTSS.Repository.UnitOfWork
         public ITransactionRepository Transactions { get; } = _transactionRepository;
         public ITripRepository Trips { get; } = _tripRepository;
         public IMembershipRepository Memberships { get; } = membershipRepository;
-
+        public IBookRepository Books { get; } = bookRepository;
         public async Task<int> CompleteAsync()
         {
             return await _context.SaveChangesAsync();

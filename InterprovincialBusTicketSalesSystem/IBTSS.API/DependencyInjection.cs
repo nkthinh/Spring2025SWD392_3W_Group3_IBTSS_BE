@@ -1,4 +1,5 @@
 ﻿
+using IBTSS.Repository.Repositories.BookRepository;
 using IBTSS.Repository.Repositories.BusRepository;
 using IBTSS.Repository.Repositories.CustomerRepository;
 using IBTSS.Repository.Repositories.GenericRepository;
@@ -12,6 +13,7 @@ using IBTSS.Repository.Repositories.TransactionRepository;
 using IBTSS.Repository.Repositories.TripRepository;
 using IBTSS.Repository.Repositories.UserRepository;
 using IBTSS.Repository.UnitOfWork;
+using IBTSS.Service.Services.BookService;
 using IBTSS.Service.Services.BusService;
 using IBTSS.Service.Services.CustomerService;
 using IBTSS.Service.Services.JWT;
@@ -48,6 +50,7 @@ namespace IBTSS.API
             services.AddScoped<ITransactionService, TransactionService>();
             services.AddScoped<ILocationService, LocationService>();
             services.AddScoped<IRouteService, RouteService>();
+            services.AddScoped<IBookService, BookService>();
 
 
             // Đăng ký các Repository
@@ -62,7 +65,7 @@ namespace IBTSS.API
             services.AddScoped<ITicketRepository, TicketRepository>();
             services.AddScoped<ITransactionRepository, TransactionRepository>();
             services.AddScoped<ITripRepository, TripRepository>();
-
+            services.AddScoped<IBookRepository, BookRepository>();
             return services;
         }
     }

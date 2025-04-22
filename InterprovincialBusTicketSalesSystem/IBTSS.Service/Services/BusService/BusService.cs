@@ -67,7 +67,7 @@ namespace IBTSS.Service.Services.BusService
 
             var tickets = await _unitOfWork.Tickets.GetAllAsync();
             var bookedSeatIds = tickets
-                .Where(t => t.Trip != null && t.Trip.BusId == id && !t.IsCancelled && !t.IsDelete)
+                .Where(t => t.Trip != null && t.Trip.BusId == id && !t.isCancelled && !t.IsDelete)
                 .Select(t => t.SeatId)
                 .ToHashSet();
 

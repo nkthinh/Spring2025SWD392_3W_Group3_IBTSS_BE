@@ -26,7 +26,8 @@ namespace IBTSS.Repository.Entities
         public bool IsDelete { get; set; }
 
         public int Price { get; set; }
-
+        public DateTime CreatedAt { get; set; } // ✅ thêm
+        public string Status { get; set; } = string.Empty; // ✅ thêm
         public virtual Book? Book { get; set; }
         public virtual Seat? Seat { get; set; }
         public virtual Trip? Trip { get; set; }

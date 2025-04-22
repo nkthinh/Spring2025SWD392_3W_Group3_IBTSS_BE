@@ -19,7 +19,13 @@ namespace IBTSS.Repository.Repositories.TripRepository
           await _context.Trips.Where(m => !m.IsDelete).ToListAsync();
 
         public async Task<Trip?> GetByIdAsync(string id) =>
-            await _context.Trips.FirstOrDefaultAsync(m => m.TripId == id && !m.IsDelete);
+      await _context.Trips
+          .Include(t => t.Route)
+              .ThenInclude(r => r.LocationRoutes)
+                  .ThenInclude(lr => lr.Location)
+          .Include(t => t.Bus)
+          .FirstOrDefaultAsync(t => t.TripId == id && !t.IsDelete);
+
         public async Task<Trip> AddAsync(Trip trip)
         {
             // Tìm TripId lớn nhất (theo định dạng T001, T002, ...)

@@ -1,4 +1,5 @@
-﻿using IBTSS.Repository.Repositories.BusRepository;
+﻿using IBTSS.Repository.Repositories.BookRepository;
+using IBTSS.Repository.Repositories.BusRepository;
 using IBTSS.Repository.Repositories.CustomerRepository;
 using IBTSS.Repository.Repositories.LocationRepository;
 using IBTSS.Repository.Repositories.LocationRouteRepository;
@@ -30,7 +31,7 @@ namespace IBTSS.Repository.UnitOfWork
         ITransactionRepository Transactions { get; }
         ITripRepository Trips { get; }
         IMembershipRepository Memberships { get; }
-
+        IBookRepository Books { get; }
         Task<int> CompleteAsync();
     }
 }

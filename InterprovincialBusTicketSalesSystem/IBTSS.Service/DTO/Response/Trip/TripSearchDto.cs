@@ -14,7 +14,7 @@ namespace IBTSS.Service.DTO.Response.Trip
         public string BusType { get; set; } = string.Empty;
 
         public string RouteName { get; set; } = string.Empty;
-        public TimeOnly DepartureTime { get; set; }
+        public string DepartureTime { get; set; }
         public string Date { get; set; } = string.Empty;
         public decimal Price { get; set; }
 

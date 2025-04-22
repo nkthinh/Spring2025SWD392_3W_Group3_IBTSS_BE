@@ -12,21 +12,32 @@ using System.Threading.Tasks;
 
 namespace IBTSS.Service.Services.TicketService
 {
-    public class TicketService(IUnitOfWork _unitOfWork, ILogger<TicketService> _logger) : ITicketService
+    public class TicketService : ITicketService
     {
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly ILogger<TicketService> _logger;
+
+        public TicketService(IUnitOfWork unitOfWork, ILogger<TicketService> logger)
+        {
+            _unitOfWork = unitOfWork;
+            _logger = logger;
+        }
+
         public async Task<List<TicketResponse>> GetAllAsync()
         {
             var tickets = await _unitOfWork.Tickets.GetAllAsync();
+
             return tickets.Select(t => new TicketResponse
             {
                 TicketId = t.TicketId,
+                BookId = t.BookId,
                 TripId = t.TripId,
-                CustomerId = t.CustomerId,
                 SeatId = t.SeatId,
-                CreatedAt = t.CreatedAt,
-                IsCancelled = t.IsCancelled,
+                CreatedAt = t.Book?.CreatedAt ?? DateTime.MinValue,
+                CustomerId = t.Book?.CustomerId ?? string.Empty,
+                IsCancelled = t.isCancelled,
                 Price = t.Price,
-                Status = t.Status
+                Status = "Pending"
             }).ToList();
         }
 
@@ -38,67 +49,61 @@ namespace IBTSS.Service.Services.TicketService
             return new TicketResponse
             {
                 TicketId = t.TicketId,
+                BookId = t.BookId,
                 TripId = t.TripId,
-                CustomerId = t.CustomerId,
                 SeatId = t.SeatId,
-                CreatedAt = t.CreatedAt,
-                IsCancelled = t.IsCancelled,
+                CreatedAt = t.Book?.CreatedAt ?? DateTime.MinValue,
+                CustomerId = t.Book?.CustomerId ?? string.Empty,
+                IsCancelled = t.isCancelled,
                 Price = t.Price,
-                Status = t.Status
+                Status = "Pending"
             };
         }
 
         public async Task<TicketResponse> AddAsync(TicketRequest request)
         {
-            // 1. Kiểm tra ghế có tồn tại và chưa được đặt
             var seat = await _unitOfWork.Seats.GetByIdAsync(request.SeatId);
-            if (seat == null)
-                throw new Exception("Seat is not existed.");
+            if (seat == null || seat.IsBooked)
+                throw new Exception("Seat is not available.");
 
-            if (seat.IsBooked)
-                throw new Exception("Seat being booked.");
-
-            // 2. Đánh dấu ghế là đã đặt
             seat.IsBooked = true;
             await _unitOfWork.Seats.UpdateAsync(seat);
 
-            // 3. Lấy thông tin của chuyến đi để gán giá vé
-            var trip = await _unitOfWork.Trips.GetByIdAsync(request.TripId);
-            if (trip == null)
-                throw new Exception("Trip is not existed.");
+            var trip = await _unitOfWork.Trips.GetByIdAsync(request.TripId)
+                       ?? throw new Exception("Trip not found");
 
-            // Gán giá vé từ chuyến đi vào vé
-            var t = new Book
+            var book = await _unitOfWork.Books.GetByIdAsync(request.BookId)
+                       ?? throw new Exception("Book not found");
+
+            var ticket = new Ticket
             {
+                TicketId = Guid.NewGuid().ToString(),
+                BookId = request.BookId,
                 TripId = request.TripId,
-                CustomerId = request.CustomerId,
                 SeatId = request.SeatId,
-                IsCancelled = false,
+                CreatedAt = book.CreatedAt,
+                isCancelled = false,
                 IsDelete = false,
-                Price = trip.Price,  // Gán giá từ chuyến đi
-                Status = request.Status
+                Price = trip.Price,
+                Status = "Pending"
             };
 
-            var created = await _unitOfWork.Tickets.AddAsync(t);
-
-            // 4. Lưu thay đổi vào database
+            await _unitOfWork.Tickets.AddAsync(ticket);
             await _unitOfWork.CompleteAsync();
 
-            // 5. Trả về response
             return new TicketResponse
             {
-                TicketId = created.TicketId,
-                TripId = created.TripId,
-                CustomerId = created.CustomerId,
-                SeatId = created.SeatId,
-                CreatedAt = created.CreatedAt,
-                IsCancelled = created.IsCancelled,
-                Price = created.Price,  // Trả về giá vé đã được gán
-                Status = created.Status
+                TicketId = ticket.TicketId,
+                BookId = ticket.BookId,
+                TripId = ticket.TripId,
+                SeatId = ticket.SeatId,
+                CreatedAt = ticket.CreatedAt,
+                CustomerId = book.CustomerId,
+                IsCancelled = ticket.isCancelled,
+                Price = ticket.Price,
+                Status = ticket.Status
             };
         }
-
-
 
         public async Task<TicketResponse?> UpdateAsync(string id, TicketRequest request)
         {
@@ -106,24 +111,25 @@ namespace IBTSS.Service.Services.TicketService
             if (existing == null) return null;
 
             existing.TripId = request.TripId;
-            existing.CustomerId = request.CustomerId;
             existing.SeatId = request.SeatId;
             existing.Status = request.Status;
-            existing.IsCancelled = request.IsCancelled;
 
-            var updated = await _unitOfWork.Tickets.UpdateAsync(existing);
+            await _unitOfWork.Tickets.UpdateAsync(existing);
             await _unitOfWork.CompleteAsync();
+
+            var book = await _unitOfWork.Books.GetByIdAsync(existing.BookId);
 
             return new TicketResponse
             {
-                TicketId = updated.TicketId,
-                TripId = updated.TripId,
-                CustomerId = updated.CustomerId,
-                SeatId = updated.SeatId,
-                CreatedAt = updated.CreatedAt,
-                IsCancelled = updated.IsCancelled,
-                Price = updated.Price,
-                Status = updated.Status
+                TicketId = existing.TicketId,
+                BookId = existing.BookId,
+                TripId = existing.TripId,
+                SeatId = existing.SeatId,
+                CreatedAt = book?.CreatedAt ?? DateTime.MinValue,
+                CustomerId = book?.CustomerId ?? string.Empty,
+                IsCancelled = existing.isCancelled,
+                Price = existing.Price,
+                Status = existing.Status
             };
         }
 
@@ -133,9 +139,77 @@ namespace IBTSS.Service.Services.TicketService
             if (deleted) await _unitOfWork.CompleteAsync();
             return deleted;
         }
-        public async Task<List<Book>> GetByCustomerIdAsync(string customerId)
+
+        public async Task<List<TicketResponse>> AddMultipleAsync(MultiTicketRequest request)
         {
-            return await _unitOfWork.Tickets.GetByCustomerIdAsync(customerId);
+            var trip = await _unitOfWork.Trips.GetByIdAsync(request.TripId)
+                       ?? throw new Exception("Trip not found");
+
+            var book = await _unitOfWork.Books.GetByIdAsync(request.BookId)
+                       ?? throw new Exception("Book not found");
+
+            var tickets = new List<Ticket>();
+
+            foreach (var seatId in request.SeatIds)
+            {
+                var seat = await _unitOfWork.Seats.GetByIdAsync(seatId);
+                if (seat == null || seat.IsBooked)
+                    throw new Exception($"Seat {seatId} is already booked or does not exist");
+
+                seat.IsBooked = true;
+                await _unitOfWork.Seats.UpdateAsync(seat);
+
+                tickets.Add(new Ticket
+                {
+                    TicketId = Guid.NewGuid().ToString(),
+                    BookId = request.BookId,
+                    TripId = request.TripId,
+                    SeatId = seatId,
+                    isCancelled = false,
+                    IsDelete = false,
+                    Price = request.Price > 0 ? request.Price : trip.Price,
+                    CreatedAt = book.CreatedAt,
+                    Status = book.Status
+                });
+            }
+
+            await _unitOfWork.Tickets.AddRangeAsync(tickets);
+            await _unitOfWork.CompleteAsync();
+
+            return tickets.Select(t => new TicketResponse
+            {
+                TicketId = t.TicketId,
+                BookId = t.BookId,
+                TripId = t.TripId,
+                SeatId = t.SeatId,
+                CustomerId = book.CustomerId,
+                CreatedAt = t.CreatedAt,
+                Price = t.Price,
+                IsCancelled = t.isCancelled,
+                Status = t.Status
+            }).ToList();
         }
+        public async Task<List<TicketResponse>> GetByCustomerIdAsync(string customerId)
+        {
+            var books = await _unitOfWork.Books.GetAllAsync();
+            var bookIds = books.Where(b => b.CustomerId == customerId).Select(b => b.BookId).ToList();
+
+            var tickets = await _unitOfWork.Tickets.GetAllAsync();
+            var filtered = tickets.Where(t => bookIds.Contains(t.BookId)).ToList();
+
+            return filtered.Select(t => new TicketResponse
+            {
+                TicketId = t.TicketId,
+                BookId = t.BookId,
+                TripId = t.TripId,
+                SeatId = t.SeatId,
+                CreatedAt = t.CreatedAt,
+                CustomerId = customerId,
+                IsCancelled = t.isCancelled,
+                Price = t.Price,
+                Status = t.Status
+            }).ToList();
+        }
+
     }
 }

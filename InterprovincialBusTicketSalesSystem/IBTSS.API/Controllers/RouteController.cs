@@ -1,10 +1,13 @@
 ﻿using IBTSS.Service.DTO.Request.Route;
 using IBTSS.Service.DTO.Response.Route;
 using IBTSS.Service.Services.RouteService;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace IBTSS.API.Controllers
 {
+    //admin only
+    [Authorize(Roles = "Admin")]
     [ApiController]
     [Route("api/[controller]")]
     public class RouteController : ControllerBase

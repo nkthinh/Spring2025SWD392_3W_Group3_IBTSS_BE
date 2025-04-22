@@ -5,6 +5,7 @@ using IBTSS.Service.DTO.Request.User;
 using IBTSS.Service.DTO.Response.User;
 using IBTSS.Service.Services.JWT;
 using IBTSS.Service.Services.UserService;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace IBTSS.API.Controllers
@@ -27,7 +28,8 @@ namespace IBTSS.API.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
-
+        //admin only
+        [Authorize(Roles = "Admin")]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(string id)
         {
@@ -45,7 +47,8 @@ namespace IBTSS.API.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
-
+        //admin only
+        [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(string id, [FromBody] AddUserRequest request)
         {
@@ -68,7 +71,8 @@ namespace IBTSS.API.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
-
+        //admin only
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(string id)
         {
@@ -110,7 +114,8 @@ namespace IBTSS.API.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
-
+        //admin only
+        [Authorize(Roles = "Admin")]
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] AddUserRequest request)
         {

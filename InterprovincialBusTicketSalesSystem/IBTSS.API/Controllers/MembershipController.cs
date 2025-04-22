@@ -19,7 +19,8 @@ namespace IBTSS.API.Controllers
             _service = service;
         }
 
-
+        //admin only
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
@@ -47,7 +48,8 @@ namespace IBTSS.API.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
-
+        //admin only
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<IActionResult> Create(MembershipRequest request)
         {
@@ -61,7 +63,8 @@ namespace IBTSS.API.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
-
+        //admin only
+        [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(string id, MembershipRequest request)
         {
@@ -75,7 +78,8 @@ namespace IBTSS.API.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
-
+        //admin only
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(string id)
         {

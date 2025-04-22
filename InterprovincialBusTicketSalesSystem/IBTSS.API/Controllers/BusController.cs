@@ -1,5 +1,6 @@
 ﻿using IBTSS.Service.DTO.Request.Bus;
 using IBTSS.Service.Services.BusService;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
@@ -16,7 +17,7 @@ namespace IBTSS.API.Controllers
         {
             _busService = busService;
         }
-
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<IActionResult> CreateBus([FromBody] BusRequest request)
         {
@@ -30,7 +31,7 @@ namespace IBTSS.API.Controllers
                 return StatusCode(500, new { message = "Internal server error", error = ex.Message });
             }
         }
-
+        [Authorize(Roles = "Admin")]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetBusById(string id)
         {
@@ -47,7 +48,7 @@ namespace IBTSS.API.Controllers
                 return StatusCode(500, new { message = "Internal server error", error = ex.Message });
             }
         }
-
+        
         [HttpGet]
         public async Task<IActionResult> GetAllBuses()
         {
@@ -61,6 +62,7 @@ namespace IBTSS.API.Controllers
                 return StatusCode(500, new { message = "Internal server error", error = ex.Message });
             }
         }
+        [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateBus(string id, [FromBody] BusUpdateRequest request)
         {

@@ -31,7 +31,6 @@ namespace IBTSS.Repository.Repositories.TransactionRepository
 
         public async Task<Transaction> AddAsync(Transaction transaction)
         {
-            // Bước 1: Tìm Book có trạng thái Pending của Customer
             var pendingBook = await _context.Books
                 .Include(b => b.Tickets)
                 .FirstOrDefaultAsync(b =>
@@ -40,8 +39,7 @@ namespace IBTSS.Repository.Repositories.TransactionRepository
 
             if (pendingBook == null)
             {
-                // Không có đơn đặt nào ở trạng thái Pending => không tạo transaction
-                return null; // hoặc throw new Exception("No pending booking found.");
+                return null;
             }
 
             transaction.TransactionId = Guid.NewGuid().ToString();
@@ -49,21 +47,48 @@ namespace IBTSS.Repository.Repositories.TransactionRepository
             transaction.PaymentStatus = "Paid";
             transaction.Amount = pendingBook.TotalPrice;
             pendingBook.Status = "Complete";
-
             pendingBook.TransactionId = transaction.TransactionId;
 
-            // ✅ Cập nhật trạng thái của từng Ticket trong Book
+            int ticketCount = 0;
+
+            // ✅ Cập nhật trạng thái của từng Ticket
             foreach (var ticket in pendingBook.Tickets)
             {
-                ticket.Status = "Complete";          // Hoặc "Confirmed"
-                ticket.IsDelete = false;         // Optional: đảm bảo chưa bị xóa
-                ticket.isCancelled = false;      // Optional: chưa bị hủy
+                ticket.Status = "Complete";
+                ticket.IsDelete = false;
+                ticket.isCancelled = false;
+                ticketCount++; // ✅ Đếm số vé đã xử lý
+            }
+
+            // ✅ Cập nhật điểm + membership cho customer
+            var customer = await _context.Customers
+                .FirstOrDefaultAsync(c => c.CustomerId == transaction.CustomerId);
+
+            if (customer != null && transaction.PaymentStatus == "Paid")
+            {
+                customer.Score += ticketCount;
+
+                // ✅ Cập nhật Membership nếu đủ điều kiện
+                var memberships = await _context.Memberships
+                    .Where(m => !m.IsDelete)
+                    .OrderByDescending(m => m.MinTicketsRequired)
+                    .ToListAsync();
+
+                foreach (var member in memberships)
+                {
+                    if (customer.Score >= member.MinTicketsRequired)
+                    {
+                        customer.MembershipId = member.MembershipId;
+                        break;
+                    }
+                }
             }
 
             _context.Transactions.Add(transaction);
             await _context.SaveChangesAsync();
             return transaction;
         }
+
 
         public async Task<Transaction?> UpdateAsync(string id, Transaction transaction)
         {

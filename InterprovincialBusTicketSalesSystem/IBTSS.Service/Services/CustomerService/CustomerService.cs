@@ -1,12 +1,6 @@
 ﻿using IBTSS.Repository.Entities;
 using IBTSS.Repository.UnitOfWork;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection.Metadata;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace IBTSS.Service.Services.CustomerService
 {
@@ -25,6 +19,20 @@ namespace IBTSS.Service.Services.CustomerService
                 throw new Exception("An error occurred while retrieving Customers.", ex);
             }
         }
+
+        public async Task<Customer?> GetByIdAsync(string id)
+        {
+            try
+            {
+                return await _unitOfWork.Customers.GetByIdAsync(id);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error fetching Customer with id: {id}");
+                throw;
+            }
+        }
+
         public async Task AddAsync(Customer c)
         {
             try
@@ -37,9 +45,21 @@ namespace IBTSS.Service.Services.CustomerService
                 _logger.LogError(ex, "Error adding Customer");
                 throw;
             }
-            
         }
 
+        public async Task UpdateAsync(Customer c)
+        {
+            try
+            {
+                _logger.LogInformation($"Updating Customer {c.CustomerId}");
+                await _unitOfWork.Customers.UpdateAsync(c);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error updating Customer {c.CustomerId}");
+                throw;
+            }
+        }
         public async Task<bool> GetByPhoneNumberAsync(string phoneNumber)
         {
             try
@@ -57,8 +77,7 @@ namespace IBTSS.Service.Services.CustomerService
         {
             try
             {
-                var customers = await _unitOfWork.Customers.GetAllAsync();
-                return customers.FirstOrDefault(c => c.PhoneNumber == phoneNumber);
+                return await _unitOfWork.Customers.LoginByPhoneAsync(phoneNumber);
             }
             catch (Exception ex)
             {
@@ -67,5 +86,18 @@ namespace IBTSS.Service.Services.CustomerService
             }
         }
 
+        public async Task DeleteAsync(string id)
+        {
+            try
+            {
+                _logger.LogInformation($"Deleting Customer {id}");
+                await _unitOfWork.Customers.DeleteAsync(id);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error deleting Customer {id}");
+                throw;
+            }
+        }
     }
 }

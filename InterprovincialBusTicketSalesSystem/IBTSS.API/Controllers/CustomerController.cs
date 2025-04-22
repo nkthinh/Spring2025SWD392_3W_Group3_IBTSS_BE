@@ -3,6 +3,7 @@ using IBTSS.Repository.Entities;
 using IBTSS.Service.DTO.Request.Customer;
 using IBTSS.Service.DTO.Response.Customer;
 using IBTSS.Service.Services.CustomerService;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,6 +13,7 @@ namespace IBTSS.API.Controllers
     [ApiController]
     public class CustomerController(IMapper mapper, ICustomerService customerService) : ControllerBase
     {
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
@@ -30,6 +32,42 @@ namespace IBTSS.API.Controllers
             {
                 return StatusCode(500, $"Internal server error: {ex.Message}"); // 500 Error
             }
+        }
+        [Authorize(Roles = "Admin")]
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById(string id)
+        {
+            var customer = await customerService.GetByIdAsync(id);
+            if (customer == null)
+                return NotFound(new { message = "Customer not found." });
+
+            var customerResponse = mapper.Map<CustomerResponse>(customer);
+            return Ok(customerResponse);
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(string id, [FromBody] CustomerRequest request)
+        {
+            var existing = await customerService.GetByIdAsync(id);
+            if (existing == null)
+                return NotFound(new { message = "Customer not found." });
+
+            var updatedCustomer = mapper.Map(request, existing);
+            await customerService.UpdateAsync(updatedCustomer);
+            return Ok(new { message = "Customer updated successfully." });
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(string id)
+        {
+            var existing = await customerService.GetByIdAsync(id);
+            if (existing == null)
+                return NotFound(new { message = "Customer not found." });
+
+            await customerService.DeleteAsync(id);
+            return Ok(new { message = "Customer deleted successfully." });
         }
 
         [HttpPost("register")]

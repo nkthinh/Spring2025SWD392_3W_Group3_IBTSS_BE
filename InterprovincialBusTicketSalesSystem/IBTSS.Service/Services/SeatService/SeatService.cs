@@ -89,17 +89,17 @@ namespace IBTSS.Service.Services.SeatService
         public async Task<SeatSummaryResponse> GetSeatAvailabilityByTripIdAsync(string tripId)
         {
             var trip = await _unitOfWork.Trips.GetByIdAsync(tripId);
-            if (trip == null || trip.IsDelete) throw new Exception("Trip not found");
+            if (trip == null || trip.IsDelete)
+                throw new Exception("Trip not found");
 
             var busId = trip.BusId;
 
             var seats = await _unitOfWork.Seats.GetAllAsync();
-            var busSeats = seats.Where(s => s.BusId == busId && !s.IsBooked).ToList();
-            var seatIds = busSeats.Select(s => s.SeatId).ToList();
+            var busSeats = seats.Where(s => s.BusId == busId).ToList();
 
             var tickets = await _unitOfWork.Tickets.GetAllAsync();
             var activeTickets = tickets
-                .Where(t => !t.isCancelled && !t.IsDelete && t.TripId == tripId && seatIds.Contains(t.SeatId))
+                .Where(t => !t.isCancelled && !t.IsDelete && t.TripId == tripId)
                 .Select(t => t.SeatId)
                 .Distinct()
                 .ToList();

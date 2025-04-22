@@ -2,6 +2,7 @@
 using IBTSS.Service.DTO.Request.Book;
 using IBTSS.Service.DTO.Response.Book;
 using IBTSS.Service.Services.BookService;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -47,14 +48,14 @@ namespace IBTSS.API.Controllers
             var result = await _service.CreateAsync(request);
             return Ok(result);
         }
-
+        [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(string id, [FromBody] CreateBookRequest request)
         {
             var updated = await _service.UpdateAsync(id, request);
             return updated == null ? NotFound() : Ok(updated);
         }
-
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(string id)
         {

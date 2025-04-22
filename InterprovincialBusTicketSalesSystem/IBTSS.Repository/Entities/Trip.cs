@@ -21,7 +21,7 @@ namespace IBTSS.Repository.Entities
         public string BusId { get; set; } = string.Empty;
 
         [ForeignKey("Driver")]
-        public string DriverId { get; set; } = string.Empty;
+        public string? DriverId { get; set; }
 
         public TimeOnly DepartureTime { get; set; }
         public string Date { get; set; } = string.Empty;

@@ -15,7 +15,9 @@ namespace IBTSS.Repository.Entities
         public int SeatCount { get; set; }
 
         public string BusType { get; set; } = string.Empty;
-
+        public string? Model { get; set; } // ✅ Dòng xe
+        public int? ModelYear { get; set; } // ✅ Đời xe (năm sản xuất)
+        public string? Color { get; set; }
         public bool IsDelete { get; set; }
 
         public virtual ICollection<Trip>? Trips { get; set; }

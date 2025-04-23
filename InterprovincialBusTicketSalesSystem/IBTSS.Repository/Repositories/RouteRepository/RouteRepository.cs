@@ -15,7 +15,6 @@ namespace IBTSS.Repository.Repositories.RouteRepository
         public async Task<List<Route>> GetAllAsync()
         {
             return await _context.Routes
-                .Where(r => !r.IsDelete)
                 .Include(r => r.LocationRoutes)
                 .Include(r => r.Trips)
                 .ToListAsync();

@@ -18,7 +18,7 @@ namespace IBTSS.Repository.Repositories.MembershipRepository
         }
 
         public async Task<List<Membership>> GetAllAsync() =>
-            await _context.Memberships.Where(m => !m.IsDelete).ToListAsync();
+            await _context.Memberships.ToListAsync();
 
         public async Task<Membership?> GetByIdAsync(string id) =>
             await _context.Memberships.FirstOrDefaultAsync(m => m.MembershipId == id && !m.IsDelete);

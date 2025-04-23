@@ -85,7 +85,7 @@ namespace IBTSS.Service.Services.TicketService
                 isCancelled = false,
                 IsDelete = false,
                 Price = trip.Price,
-                Status = "Pending"
+                Status = "Đang xử lý"
             };
 
             await _unitOfWork.Tickets.AddAsync(ticket);
@@ -215,7 +215,7 @@ namespace IBTSS.Service.Services.TicketService
             var ticket = await _unitOfWork.Tickets.GetByIdAsync(ticketId);
             if (ticket == null) return null;
 
-            ticket.Status = "Cancel";
+            ticket.Status = "Vé Đã Hủy";
             ticket.isCancelled = true;
 
             if (!string.IsNullOrEmpty(ticket.SeatId))
@@ -226,6 +226,7 @@ namespace IBTSS.Service.Services.TicketService
                     seat.IsBooked = false;
                     await _unitOfWork.Seats.UpdateAsync(seat);
                 }
+                ticket.SeatId = null;
             }
 
             await _unitOfWork.Tickets.UpdateAsync(ticket);

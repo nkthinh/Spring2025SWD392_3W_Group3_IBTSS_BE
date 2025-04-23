@@ -33,7 +33,7 @@ namespace IBTSS.API.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}"); // 500 Error
             }
         }
-        [Authorize(Roles = "Admin")]
+     
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(string id)
         {

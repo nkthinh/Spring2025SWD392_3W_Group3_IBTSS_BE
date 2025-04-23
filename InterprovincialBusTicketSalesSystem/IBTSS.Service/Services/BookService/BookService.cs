@@ -13,9 +13,9 @@ namespace IBTSS.Service.Services.BookService
     public class BookService : IBookService
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IMapper _mapper; // ✅ THÊM
+        private readonly IMapper _mapper; 
 
-        public BookService(IUnitOfWork unitOfWork, IMapper mapper) // ✅ THÊM IMapper
+        public BookService(IUnitOfWork unitOfWork, IMapper mapper) 
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;

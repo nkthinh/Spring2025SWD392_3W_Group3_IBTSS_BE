@@ -1,4 +1,5 @@
 ﻿using IBTSS.Service.DTO.Request.Trip;
+using IBTSS.Service.DTO.Response.Customer;
 using IBTSS.Service.DTO.Response.Trip;
 using System;
 using System.Collections.Generic;
@@ -20,6 +21,10 @@ namespace IBTSS.Service.Services.TripService
         Task<IEnumerable<TripSearchDto>> SearchByDateAsync(string date);
         Task<IEnumerable<TripSearchDto>> SearchByKeywordAsync(string keyword);
         //Task<IEnumerable<TripSearchDto>> SearchByLocationAndRouteAsync(string locationName, string routeName);
+        Task<List<TripResponse>> GetTripsByDriverIdAsync(string driverId);
+        Task<List<CustomerResponseByTrip>> GetCustomersByTripAsync(string tripId);
+
+        Task<TripResponse?> CompleteTripAsync(string tripId);
 
 
     }

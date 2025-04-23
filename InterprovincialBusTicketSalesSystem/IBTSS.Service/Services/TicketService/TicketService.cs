@@ -37,7 +37,7 @@ namespace IBTSS.Service.Services.TicketService
                 CustomerId = t.Book?.CustomerId ?? string.Empty,
                 IsCancelled = t.isCancelled,
                 Price = t.Price,
-                Status = "Pending"
+                Status = t.Status
             }).ToList();
         }
 
@@ -56,7 +56,7 @@ namespace IBTSS.Service.Services.TicketService
                 CustomerId = t.Book?.CustomerId ?? string.Empty,
                 IsCancelled = t.isCancelled,
                 Price = t.Price,
-                Status = "Pending"
+                Status = t.Status
             };
         }
 
@@ -210,6 +210,43 @@ namespace IBTSS.Service.Services.TicketService
                 Status = t.Status
             }).ToList();
         }
+        public async Task<TicketResponse?> CancelTicketAsync(string ticketId)
+        {
+            var ticket = await _unitOfWork.Tickets.GetByIdAsync(ticketId);
+            if (ticket == null) return null;
+
+            ticket.Status = "Cancel";
+            ticket.isCancelled = true;
+
+            if (!string.IsNullOrEmpty(ticket.SeatId))
+            {
+                var seat = await _unitOfWork.Seats.GetByIdAsync(ticket.SeatId);
+                if (seat != null)
+                {
+                    seat.IsBooked = false;
+                    await _unitOfWork.Seats.UpdateAsync(seat);
+                }
+            }
+
+            await _unitOfWork.Tickets.UpdateAsync(ticket);
+            await _unitOfWork.CompleteAsync();
+
+            var book = await _unitOfWork.Books.GetByIdAsync(ticket.BookId);
+
+            return new TicketResponse
+            {
+                TicketId = ticket.TicketId,
+                BookId = ticket.BookId,
+                TripId = ticket.TripId,
+                SeatId = ticket.SeatId,
+                CreatedAt = ticket.CreatedAt,
+                CustomerId = book?.CustomerId ?? "",
+                IsCancelled = ticket.isCancelled,
+                Price = ticket.Price,
+                Status = ticket.Status
+            };
+        }
+
 
     }
 }

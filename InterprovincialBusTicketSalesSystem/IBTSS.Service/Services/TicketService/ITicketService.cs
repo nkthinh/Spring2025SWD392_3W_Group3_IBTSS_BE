@@ -18,6 +18,8 @@ namespace IBTSS.Service.Services.TicketService
         Task<bool> DeleteAsync(string id);
         Task<List<TicketResponse>> AddMultipleAsync(MultiTicketRequest request);
         Task<List<TicketResponse>> GetByCustomerIdAsync(string customerId);
+        Task<TicketResponse?> CancelTicketAsync(string ticketId);
+
 
     }
 }

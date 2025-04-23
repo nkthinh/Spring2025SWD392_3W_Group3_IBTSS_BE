@@ -52,6 +52,13 @@ namespace IBTSS.API.Controllers
             if (updated == null) return NotFound();
             return Ok(updated);
         }
+        [HttpPut("cancel/{id}")]
+        public async Task<ActionResult<TicketResponse>> CancelTicket(string id)
+        {
+            var result = await _ticketService.CancelTicketAsync(id);
+            if (result == null) return NotFound();
+            return Ok(result);
+        }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(string id)

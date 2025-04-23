@@ -11,5 +11,6 @@ namespace IBTSS.Service.DTO.Response.Seat
         public string SeatId { get; set; } = string.Empty;
         public string BusId { get; set; } = string.Empty;
         public bool IsDelete { get; set; }
+        public bool IsBooked { get; set; }
     }
 }

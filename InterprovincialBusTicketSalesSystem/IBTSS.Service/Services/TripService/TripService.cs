@@ -2,6 +2,7 @@
 using IBTSS.Repository.Enum;
 using IBTSS.Repository.UnitOfWork;
 using IBTSS.Service.DTO.Request.Trip;
+using IBTSS.Service.DTO.Response.Customer;
 using IBTSS.Service.DTO.Response.LocationRoute;
 using IBTSS.Service.DTO.Response.Trip;
 using Microsoft.EntityFrameworkCore;
@@ -262,5 +263,79 @@ namespace IBTSS.Service.Services.TripService
                     }).ToList() ?? new List<LocationStopDto>()
             };
         }
+        public async Task<List<TripResponse>> GetTripsByDriverIdAsync(string driverId)
+        {
+            var trips = await _unitOfWork.Trips.GetAllAsync();
+            return trips
+                .Where(t => t.DriverId == driverId && t.Status != "Completed")
+                .Select(t => new TripResponse
+                {
+                    TripId = t.TripId,
+                    RouteId = t.RouteId,
+                    BusId = t.BusId,
+                    DriverId = t.DriverId,
+                    DepartureTime = t.DepartureTime.ToString("HH:mm"),
+                    Date = t.Date,
+                    Direction = t.Direction,
+                    IsDelete = t.IsDelete,
+                    Price = t.Price,
+                    Status = t.Status
+                }).ToList();
+        }
+        public async Task<List<CustomerResponseByTrip>> GetCustomersByTripAsync(string tripId)
+        {
+            var tickets = await _unitOfWork.Tickets.GetAllAsync();
+            var tripTickets = tickets.Where(t => t.TripId == tripId && !t.isCancelled);
+
+            var bookIds = tripTickets.Select(t => t.BookId).Distinct().ToList();
+            var books = await _unitOfWork.Books.GetAllAsync();
+            var customerIds = books
+                .Where(b => bookIds.Contains(b.BookId))
+                .Select(b => b.CustomerId)
+                .Distinct()
+                .ToList();
+
+            var customers = await _unitOfWork.Customers.GetAllAsync();
+
+            var result = customers
+                .Where(c => customerIds.Contains(c.CustomerId))
+                .Select(c => new CustomerResponseByTrip
+                {
+                    CustomerId = c.CustomerId,
+                    Name = c.Name,
+                    PhoneNumber = c.PhoneNumber,
+                    Score = c.Score,
+                    RankName = c.Membership?.RankName ?? "Default"
+                })
+                .ToList();
+
+            return result;
+        }
+
+        public async Task<TripResponse?> CompleteTripAsync(string tripId)
+        {
+            var trip = await _unitOfWork.Trips.GetByIdAsync(tripId);
+            if (trip == null) return null;
+
+            trip.Status = "Completed";
+            var updated = await _unitOfWork.Trips.UpdateAsync(trip);
+            await _unitOfWork.CompleteAsync();
+
+            return new TripResponse
+            {
+                TripId = updated.TripId,
+                RouteId = updated.RouteId,
+                BusId = updated.BusId,
+                DriverId = updated.DriverId,
+                DepartureTime = updated.DepartureTime.ToString("HH:mm"),
+                Date = updated.Date,
+                Direction = updated.Direction,
+                IsDelete = updated.IsDelete,
+                Price = updated.Price,
+                Status = updated.Status
+            };
+        }
+
+
     }
 }

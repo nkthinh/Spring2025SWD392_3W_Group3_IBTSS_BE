@@ -83,6 +83,27 @@ namespace IBTSS.API.Controllers
                 return Ok(result);
             }
 
+            [HttpGet("assigned/{driverId}")]
+            public async Task<ActionResult<List<TripResponse>>> GetTripsByDriver(string driverId)
+            {
+                var result = await _tripService.GetTripsByDriverIdAsync(driverId);
+                return Ok(result);
+            }
+            [HttpGet("{tripId}/customers")]
+            public async Task<IActionResult> GetCustomersByTrip(string tripId)
+            {
+                var result = await _tripService.GetCustomersByTripAsync(tripId);
+                return Ok(result);
+            }
+
+            [HttpPut("complete/{tripId}")]
+            public async Task<IActionResult> CompleteTrip(string tripId)
+            {
+                var result = await _tripService.CompleteTripAsync(tripId);
+                if (result == null) return NotFound();
+                return Ok(result);
+            }
+
 
         }
     }

@@ -19,7 +19,7 @@ namespace IBTSS.Repository.Repositories.SeatRepository
             await _context.Seats.Where(s => !s.IsBooked).ToListAsync();
 
         public async Task<Seat?> GetByIdAsync(string id) =>
-            await _context.Seats.FirstOrDefaultAsync(s => s.SeatId == id && !s.IsBooked);
+            await _context.Seats.FirstOrDefaultAsync(s => s.SeatId == id && !s.IsDelete);
 
         public async Task<Seat> AddAsync(Seat seat)
         {

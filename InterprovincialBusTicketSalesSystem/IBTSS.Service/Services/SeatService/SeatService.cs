@@ -26,7 +26,8 @@ namespace IBTSS.Service.Services.SeatService
             {
                 SeatId = s.SeatId,
                 BusId = s.BusId,
-                IsDelete = s.IsBooked
+                IsDelete = s.IsDelete,
+                IsBooked = s.IsBooked
             }).ToList();
         }
 
@@ -39,7 +40,8 @@ namespace IBTSS.Service.Services.SeatService
             {
                 SeatId = seat.SeatId,
                 BusId = seat.BusId,
-                IsDelete = seat.IsBooked
+                IsDelete = seat.IsDelete,
+                IsBooked = seat.IsBooked
             };
         }
 
@@ -58,7 +60,8 @@ namespace IBTSS.Service.Services.SeatService
             {
                 SeatId = created.SeatId,
                 BusId = created.BusId,
-                IsDelete = created.IsBooked
+                IsDelete = created.IsDelete,
+                IsBooked = created.IsBooked
             };
         }
 
@@ -76,7 +79,8 @@ namespace IBTSS.Service.Services.SeatService
             {
                 SeatId = updated.SeatId,
                 BusId = updated.BusId,
-                IsDelete = updated.IsBooked
+                IsDelete = updated.IsDelete,
+                IsBooked = updated.IsBooked
             };
         }
 

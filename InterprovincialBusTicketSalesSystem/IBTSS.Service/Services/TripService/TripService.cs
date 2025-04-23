@@ -335,6 +335,29 @@ namespace IBTSS.Service.Services.TripService
                 Status = updated.Status
             };
         }
+        public async Task<TripResponse?> AssignDriverAsync(string tripId, string driverId)
+        {
+            var trip = await _unitOfWork.Trips.GetByIdAsync(tripId);
+            if (trip == null) return null;
+
+            trip.DriverId = driverId;
+            var updated = await _unitOfWork.Trips.UpdateAsync(trip);
+            await _unitOfWork.CompleteAsync();
+
+            return new TripResponse
+            {
+                TripId = updated.TripId,
+                RouteId = updated.RouteId,
+                BusId = updated.BusId,
+                DriverId = updated.DriverId,
+                DepartureTime = updated.DepartureTime.ToString("HH:mm"),
+                Date = updated.Date,
+                Direction = updated.Direction,
+                IsDelete = updated.IsDelete,
+                Price = updated.Price,
+                Status = updated.Status
+            };
+        }
 
 
     }

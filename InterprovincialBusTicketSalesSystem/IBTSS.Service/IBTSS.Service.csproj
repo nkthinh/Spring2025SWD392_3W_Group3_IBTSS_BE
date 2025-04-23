@@ -18,4 +18,8 @@
     <ProjectReference Include="..\IBTSS.Repository\IBTSS.Repository.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Services\Staff\" />
+  </ItemGroup>
+
 </Project>

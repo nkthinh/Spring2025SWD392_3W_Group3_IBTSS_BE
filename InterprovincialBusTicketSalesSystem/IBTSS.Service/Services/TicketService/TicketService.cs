@@ -246,6 +246,17 @@ namespace IBTSS.Service.Services.TicketService
                 Status = ticket.Status
             };
         }
+        public async Task<bool> ConfirmBoardingAsync(string ticketId)
+        {
+            var ticket = await _unitOfWork.Tickets.GetByIdAsync(ticketId);
+            if (ticket == null) return false;
+
+            ticket.Status = "Boarded";
+            await _unitOfWork.Tickets.UpdateAsync(ticket);
+            await _unitOfWork.CompleteAsync();
+
+            return true;
+        }
 
 
     }

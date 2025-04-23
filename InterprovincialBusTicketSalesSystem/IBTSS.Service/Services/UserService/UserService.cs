@@ -39,9 +39,15 @@ namespace IBTSS.Service.Services.UserService
 
         public async Task UpdateUserAsync(User user)
         {
+            if (!string.IsNullOrEmpty(user.PasswordHash))
+            {
+                user.PasswordHash = HashPassword(user.PasswordHash);
+            }
+
             await _unitOfWork.Users.UpdateUserAsync(user);
             await _unitOfWork.CompleteAsync();
         }
+
 
         public async Task DeleteUserAsync(string userId)
         {

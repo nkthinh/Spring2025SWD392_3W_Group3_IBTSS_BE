@@ -19,6 +19,7 @@ namespace IBTSS.Service.Services.TicketService
         Task<List<TicketResponse>> AddMultipleAsync(MultiTicketRequest request);
         Task<List<TicketResponse>> GetByCustomerIdAsync(string customerId);
         Task<TicketResponse?> CancelTicketAsync(string ticketId);
+        Task<bool> ConfirmBoardingAsync(string ticketId);
 
 
     }

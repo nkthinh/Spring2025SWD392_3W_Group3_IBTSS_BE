@@ -2,6 +2,7 @@
 using IBTSS.Service.DTO.Request.Transaction;
 using IBTSS.Service.DTO.Response.Transaction;
 using IBTSS.Service.Services.TransactionService;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace IBTSS.API.Controllers
@@ -119,6 +120,19 @@ namespace IBTSS.API.Controllers
                 return StatusCode(500, "Internal server error");
             }
         }
-
+        [HttpGet("revenue-by-month")]
+        //[Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetRevenueByMonth([FromQuery] int year, [FromQuery] int month)
+        {
+            try
+            {
+                var result = await _transactionService.GetRevenueByMonthAsync(year, month);
+                return Ok(result);
+            }
+            catch
+            {
+                return StatusCode(500, "Internal server error");
+            }
+        }
     }
 }

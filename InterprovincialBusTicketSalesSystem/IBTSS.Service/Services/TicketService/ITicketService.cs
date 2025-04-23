@@ -20,6 +20,7 @@ namespace IBTSS.Service.Services.TicketService
         Task<List<TicketResponse>> GetByCustomerIdAsync(string customerId);
         Task<TicketResponse?> CancelTicketAsync(string ticketId);
         Task<bool> ConfirmBoardingAsync(string ticketId);
+        Task<bool> ChangeSeatAsync(string ticketId, string newSeatId);
 
 
     }

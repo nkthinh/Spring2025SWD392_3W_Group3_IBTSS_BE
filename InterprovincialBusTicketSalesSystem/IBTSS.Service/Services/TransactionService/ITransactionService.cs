@@ -17,6 +17,6 @@ namespace IBTSS.Service.Services.TransactionService
         Task<TransactionResponse> AddAsync(TransactionRequest request);
         Task<TransactionResponse?> UpdateAsync(string id, TransactionRequest request);
         Task<bool> DeleteAsync(string id);
-
+        Task<List<object>> GetRevenueByMonthAsync(int year, int month);
     }
 }

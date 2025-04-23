@@ -4,6 +4,7 @@ using IBTSS.Repository;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace IBTSS.Repository.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250423143727_Add_originalPrice")]
+    partial class Add_originalPrice
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -89,9 +92,6 @@ namespace IBTSS.Repository.Migrations
                 {
                     b.Property<string>("CustomerId")
                         .HasColumnType("nvarchar(450)");
-
-                    b.Property<int?>("DiscountQuotaLeft")
-                        .HasColumnType("int");
 
                     b.Property<string>("MembershipId")
                         .HasColumnType("nvarchar(450)");

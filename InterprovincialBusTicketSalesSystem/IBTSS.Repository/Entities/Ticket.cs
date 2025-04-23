@@ -24,7 +24,7 @@ namespace IBTSS.Repository.Entities
 
         public bool isCancelled { get; set; }
         public bool IsDelete { get; set; }
-
+        public int? OriginalPrice { get; set; }
         public int Price { get; set; }
         public DateTime CreatedAt { get; set; } // ✅ thêm
         public string Status { get; set; } = string.Empty; // ✅ thêm

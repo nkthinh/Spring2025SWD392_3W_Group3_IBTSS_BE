@@ -258,6 +258,36 @@ namespace IBTSS.Service.Services.TicketService
             return true;
         }
 
+        public async Task<bool> ChangeSeatAsync(string ticketId, string newSeatId)
+        {
+            var ticket = await _unitOfWork.Tickets.GetByIdAsync(ticketId);
+            if (ticket == null || ticket.Status != "Complete") return false;
+
+            var book = await _unitOfWork.Books.GetByIdAsync(ticket.BookId);
+            if (book == null) return false;
+
+            var transaction = await _unitOfWork.Transactions.GetByIdAsync(book.TransactionId ?? "");
+            if (transaction == null || transaction.PaymentStatus != "Paid") return false;
+
+            var newSeat = await _unitOfWork.Seats.GetByIdAsync(newSeatId);
+            if (newSeat == null || newSeat.IsBooked) return false;
+
+            var oldSeat = await _unitOfWork.Seats.GetByIdAsync(ticket.SeatId ?? "");
+            if (oldSeat != null)
+            {
+                oldSeat.IsBooked = false;
+                await _unitOfWork.Seats.UpdateAsync(oldSeat);
+            }
+
+            newSeat.IsBooked = true;
+            ticket.SeatId = newSeatId;
+
+            await _unitOfWork.Seats.UpdateAsync(newSeat);
+            await _unitOfWork.Tickets.UpdateAsync(ticket);
+            await _unitOfWork.CompleteAsync();
+
+            return true;
+        }
 
     }
 }

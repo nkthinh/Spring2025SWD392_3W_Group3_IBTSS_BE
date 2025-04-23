@@ -63,5 +63,31 @@ namespace IBTSS.Service.Services.TransactionService
         {
             return await _repository.DeleteAsync(id);
         }
+        //thong ke doanh thu thro thang
+        public async Task<List<object>> GetRevenueByMonthAsync(int year, int month)
+        {
+            var transactions = await _repository.GetAllAsync();
+
+            var filtered = transactions
+                .Where(t => t.CreatedAt.Year == year && t.CreatedAt.Month == month && t.PaymentStatus == "Paid")
+                .GroupBy(t => t.CreatedAt.Day)
+                .ToDictionary(g => g.Key, g => g.Sum(t => t.Amount));
+
+            // Lấy số ngày trong tháng
+            int daysInMonth = DateTime.DaysInMonth(year, month);
+
+            var result = Enumerable.Range(1, daysInMonth)
+                .Select(day => new
+                {
+                    day,
+                    amount = filtered.ContainsKey(day) ? filtered[day] : 0
+                })
+                .Cast<object>()
+                .ToList();
+
+            return result;
+        }
+
+
     }
 }

@@ -13,9 +13,9 @@ namespace IBTSS.Service.Services.BookService
     public class BookService : IBookService
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IMapper _mapper; 
+        private readonly IMapper _mapper;
 
-        public BookService(IUnitOfWork unitOfWork, IMapper mapper) 
+        public BookService(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
@@ -44,8 +44,19 @@ namespace IBTSS.Service.Services.BookService
 
             await _unitOfWork.Books.AddAsync(book);
 
-            var tickets = new List<Ticket>();
+            // ✅ Lấy thông tin giảm giá từ Membership và quota
+            var customer = await _unitOfWork.Customers.GetByIdAsync(request.CustomerId);
+            float discountRate = 0f;
+            int discountQuotaLeft = customer?.DiscountQuotaLeft ?? 0;
+            bool hasDiscount = customer?.MembershipId != null && discountQuotaLeft > 0;
 
+            if (hasDiscount)
+            {
+                var membership = await _unitOfWork.Memberships.GetByIdAsync(customer.MembershipId);
+                discountRate = membership?.DiscountRate ?? 0;
+            }
+
+            var tickets = new List<Ticket>();
             foreach (var seatId in request.Seats)
             {
                 var seat = await _unitOfWork.Seats.GetByIdAsync(seatId);
@@ -55,13 +66,20 @@ namespace IBTSS.Service.Services.BookService
                 seat.IsBooked = true;
                 await _unitOfWork.Seats.UpdateAsync(seat);
 
+                bool applyDiscount = hasDiscount && discountQuotaLeft > 0;
+                int discountedPrice = applyDiscount ? (int)(trip.Price * (1 - discountRate)) : trip.Price;
+
+                if (applyDiscount)
+                    discountQuotaLeft--;
+
                 var ticket = new Ticket
                 {
                     TicketId = Guid.NewGuid().ToString(),
                     BookId = book.BookId,
                     TripId = request.TripId,
                     SeatId = seatId,
-                    Price = trip.Price,
+                    OriginalPrice = trip.Price,
+                    Price = discountedPrice,
                     isCancelled = false,
                     IsDelete = false,
                     CreatedAt = book.CreatedAt,
@@ -72,12 +90,19 @@ namespace IBTSS.Service.Services.BookService
             }
 
             book.TotalPrice = tickets.Sum(t => t.Price);
-            book.Tickets = tickets; // ✅ GÁN tickets để AutoMapper map sang DTO
+            book.Tickets = tickets;
 
             await _unitOfWork.Tickets.AddRangeAsync(tickets);
+
+            // ✅ cập nhật quota còn lại của khách nếu có áp dụng giảm giá
+            if (hasDiscount && customer != null)
+            {
+                customer.DiscountQuotaLeft = discountQuotaLeft;
+                await _unitOfWork.Customers.UpdateAsync(customer);
+            }
+
             await _unitOfWork.CompleteAsync();
 
-            // ✅ DÙNG AutoMapper
             return _mapper.Map<BookResponse>(book);
         }
 

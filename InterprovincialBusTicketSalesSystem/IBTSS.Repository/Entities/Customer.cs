@@ -22,6 +22,7 @@ namespace IBTSS.Repository.Entities
         public string PhoneNumber { get; set; } = string.Empty;
 
         public string Name { get; set; } = string.Empty;
+        public int? DiscountQuotaLeft { get; set; } // số lượng vé còn được giảm
 
         public virtual Membership? Membership { get; set; }
         public virtual ICollection<Book>? Books { get; set; }

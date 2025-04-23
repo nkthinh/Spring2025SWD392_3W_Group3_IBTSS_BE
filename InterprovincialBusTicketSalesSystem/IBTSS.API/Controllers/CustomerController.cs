@@ -115,6 +115,24 @@ namespace IBTSS.API.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
+        [HttpGet("membership/{customerId}")]
+        public async Task<IActionResult> GetCustomerMembership(string customerId)
+        {
+            var customer = await customerService.GetByIdAsync(customerId);
+            if (customer == null)
+                return NotFound(new { message = "Customer not found." });
+
+            var membership = customer.Membership;
+
+            return Ok(new
+            {
+                customerId = customer.CustomerId,
+                name = customer.Name,
+                score = customer.Score,
+                rank = membership?.RankName ?? "Default",
+                discountRate = membership?.DiscountRate ?? 0
+            });
+        }
 
     }
 }

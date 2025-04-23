@@ -8,9 +8,10 @@ using IBTSS.Service.DTO.Response.Trip;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
-
+using System.Globalization;
 namespace IBTSS.Service.Services.TripService
 {
     public class TripService : ITripService
@@ -358,6 +359,19 @@ namespace IBTSS.Service.Services.TripService
                 Status = updated.Status
             };
         }
+        public async Task<List<object>> GetTripsForCalendarAsync()
+        {
+            var trips = await _unitOfWork.Trips.GetAllAsync();
+
+            return trips.Select(t => new
+            {
+                id = t.TripId,
+                title = $"{t.Route?.RouteName ?? "Chuyến"} ({t.DepartureTime:hh\\:mm})",
+                start = t.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
+                end = t.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)
+            }).Cast<object>().ToList();
+        }
+
 
 
     }

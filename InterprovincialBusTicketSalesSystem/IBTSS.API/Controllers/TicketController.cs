@@ -67,5 +67,12 @@ namespace IBTSS.API.Controllers
             if (!result) return NotFound();
             return NoContent();
         }
+        [HttpPut("change-seat/{ticketId}")]
+        public async Task<IActionResult> ChangeSeat(string ticketId, [FromQuery] string newSeatId)
+        {
+            var result = await _ticketService.ChangeSeatAsync(ticketId, newSeatId);
+            return result ? Ok("Seat updated successfully.") : BadRequest("Seat update failed.");
+        }
+
     }
 }

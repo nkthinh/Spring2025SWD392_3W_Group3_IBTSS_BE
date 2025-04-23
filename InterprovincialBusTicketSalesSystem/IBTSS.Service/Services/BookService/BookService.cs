@@ -2,6 +2,7 @@
 using IBTSS.Repository.Entities;
 using IBTSS.Repository.UnitOfWork;
 using IBTSS.Service.DTO.Request.Book;
+using IBTSS.Service.DTO.Response;
 using IBTSS.Service.DTO.Response.Book;
 using System;
 using System.Collections.Generic;
@@ -158,5 +159,37 @@ namespace IBTSS.Service.Services.BookService
 
             return tickets;
         }
+        public async Task<(List<BookResponse>, int)> GetFilteredAsync(BookQueryParameters query)
+        {
+            var books = await _unitOfWork.Books.GetAllAsync();
+            var filtered = books.AsQueryable();
+
+            if (!string.IsNullOrEmpty(query.Keyword))
+            {
+                filtered = filtered.Where(b => b.Customer != null && b.Customer.Name.Contains(query.Keyword, StringComparison.OrdinalIgnoreCase));
+            }
+
+            // Sort
+            filtered = query.SortBy switch
+            {
+                "date_asc" => filtered.OrderBy(b => b.CreatedAt),
+                "id_asc" => filtered.OrderBy(b => b.BookId),
+                "id_desc" => filtered.OrderByDescending(b => b.BookId),
+                _ => filtered.OrderByDescending(b => b.CreatedAt),
+            };
+
+            var totalCount = filtered.Count();
+
+            var items = filtered
+                .Skip((query.Page - 1) * query.PageSize)
+                .Take(query.PageSize)
+                .ToList();
+
+            var mapped = _mapper.Map<List<BookResponse>>(items);
+            return (mapped, totalCount);
+        }
+
+
+
     }
 }

@@ -103,6 +103,12 @@ namespace IBTSS.API.Controllers
                 if (result == null) return NotFound();
                 return Ok(result);
             }
+            [HttpGet("calendar")]
+            public async Task<IActionResult> GetTripsForCalendar([FromQuery] string? month)
+            {
+                var data = await _tripService.GetTripsForCalendarAsync(month);
+                return Ok(data);
+            }
 
 
         }

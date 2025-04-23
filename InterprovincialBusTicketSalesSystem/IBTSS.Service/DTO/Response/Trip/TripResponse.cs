@@ -15,6 +15,7 @@ namespace IBTSS.Service.DTO.Response.Trip
         public string BusId { get; set; } = string.Empty;
         public string BusType { get; set; } = string.Empty; // ✅ thêm
         public string DriverId { get; set; } = string.Empty;
+        public string DriverName { get; set; } = string.Empty; // ✅ thêm tên tài xế
         public string DepartureTime { get; set; } = string.Empty; // ✅ chuyển TimeOnly -> string
         public string Date { get; set; } = string.Empty;
         public string Direction { get; set; } = string.Empty;

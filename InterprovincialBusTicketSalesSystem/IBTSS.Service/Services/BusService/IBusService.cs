@@ -14,5 +14,7 @@ namespace IBTSS.Service.Services.BusService
         Task<BusResponse?> UpdateAsync(string id, BusUpdateRequest request);
         Task<BusResponse?> GetByIdAsync(string id);
         Task<List<BusResponse>> GetAllAsync();
+        Task<(List<BusResponse>, int)> GetFilteredAsync(BusQueryParameters query);
+
     }
 }

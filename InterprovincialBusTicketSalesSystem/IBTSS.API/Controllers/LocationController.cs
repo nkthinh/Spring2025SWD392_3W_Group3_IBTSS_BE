@@ -16,13 +16,34 @@ namespace IBTSS.API.Controllers
         {
             _locationService = locationService;
         }
-        [Authorize(Roles = "Admin")]
-        [HttpGet]
-        public async Task<IActionResult> GetAll()
-        {
-            var locations = await _locationService.GetAllAsync();
-            return Ok(locations);
-        }
+        //[Authorize(Roles = "Admin")]
+        //[HttpGet]
+        //public async Task<IActionResult> GetAll([FromQuery] LocationQueryParameters? query)
+        //{
+        //    if (query == null || (string.IsNullOrEmpty(query.Keyword) && string.IsNullOrEmpty(query.SortBy) && query.Page == 0 && query.PageSize == 0))
+        //    {
+        //        var locations = await _locationService.GetAllAsync();
+        //        return Ok(locations);
+        //    }
+
+        //    if (query.Page == 0) query.Page = 1;
+        //    if (query.PageSize == 0) query.PageSize = 10;
+
+        //    var (data, total) = await _locationService.GetFilteredAsync(query);
+
+        //    return Ok(new
+        //    {
+        //        Data = data,
+        //        Pagination = new
+        //        {
+        //            TotalCount = total,
+        //            PageSize = query.PageSize,
+        //            CurrentPage = query.Page,
+        //            TotalPages = (int)Math.Ceiling((double)total / query.PageSize)
+        //        }
+        //    });
+        //}
+
         [Authorize(Roles = "Admin")]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(string id)

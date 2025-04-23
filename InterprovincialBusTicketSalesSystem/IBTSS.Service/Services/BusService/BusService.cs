@@ -121,5 +121,46 @@ namespace IBTSS.Service.Services.BusService
                 BusType = updated.BusType
             };
         }
+        public async Task<(List<BusResponse>, int)> GetFilteredAsync(BusQueryParameters query)
+        {
+            var buses = await _unitOfWork.Buses.GetAllAsync();
+            var filtered = buses.AsQueryable();
+
+            if (!string.IsNullOrEmpty(query.Keyword))
+            {
+                filtered = filtered.Where(b =>
+                    (!string.IsNullOrEmpty(b.BusId) && b.BusId.Contains(query.Keyword, StringComparison.OrdinalIgnoreCase)) ||
+                    (!string.IsNullOrEmpty(b.Model) && b.Model.Contains(query.Keyword, StringComparison.OrdinalIgnoreCase))
+                );
+            }
+
+            filtered = query.SortBy switch
+            {
+                "model_asc" => filtered.OrderBy(b => b.Model),
+                "model_desc" => filtered.OrderByDescending(b => b.Model),
+                "id_desc" => filtered.OrderByDescending(b => b.BusId),
+                _ => filtered.OrderBy(b => b.BusId), // default: id_asc
+            };
+
+            var totalCount = filtered.Count();
+
+            var items = filtered
+                .Skip((query.Page - 1) * query.PageSize)
+                .Take(query.PageSize)
+                .ToList();
+
+            var mapped = items.Select(b => new BusResponse
+            {
+                BusId = b.BusId,
+                SeatCount = b.SeatCount,
+                BusType = b.BusType,
+                Model = b.Model,
+                ModelYear = b.ModelYear,
+                Color = b.Color
+            }).ToList();
+
+            return (mapped, totalCount);
+        }
+
     }
 }

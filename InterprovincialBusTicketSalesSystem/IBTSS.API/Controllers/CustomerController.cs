@@ -15,25 +15,42 @@ namespace IBTSS.API.Controllers
     {
         [Authorize(Roles = "Admin")]
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery] CustomerQueryParameters? query)
         {
             try
             {
-                var customers = await customerService.GetAllAsync();
-                if (!customers.Any())
+                if (query == null || (string.IsNullOrEmpty(query.Keyword) && string.IsNullOrEmpty(query.SortBy) && query.Page == 0 && query.PageSize == 0))
                 {
-                    return NotFound(new { message = "No blog contents found." });
+                    var all = await customerService.GetAllAsync();
+                    var mapped = mapper.Map<IEnumerable<CustomerResponse>>(all);
+                    return Ok(mapped);
                 }
 
-                var customerResponse = mapper.Map<IEnumerable<CustomerResponse>>(customers);
-                return Ok(customerResponse); // 200 OK
+                if (query.Page == 0) query.Page = 1;
+                if (query.PageSize == 0) query.PageSize = 10;
+
+                var (data, totalCount) = await customerService.GetFilteredAsync(query);
+
+                var pagination = new
+                {
+                    TotalCount = totalCount,
+                    PageSize = query.PageSize,
+                    CurrentPage = query.Page,
+                    TotalPages = (int)Math.Ceiling((double)totalCount / query.PageSize)
+                };
+
+                return Ok(new
+                {
+                    Data = data,
+                    Pagination = pagination
+                });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Internal server error: {ex.Message}"); // 500 Error
+                return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
-     
+
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(string id)
         {

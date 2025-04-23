@@ -1,4 +1,6 @@
 ﻿using IBTSS.Repository.Entities;
+using IBTSS.Service.DTO.Request.Customer;
+using IBTSS.Service.DTO.Response.Customer;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,6 +18,8 @@ namespace IBTSS.Service.Services.CustomerService
         Task DeleteAsync(string id);
         Task<bool> GetByPhoneNumberAsync(string phoneNumber);
         Task<Customer?> LoginByPhoneAsync(string phoneNumber);
+        Task<(List<CustomerResponse>, int)> GetFilteredAsync(CustomerQueryParameters query);
+
     }
 
 }

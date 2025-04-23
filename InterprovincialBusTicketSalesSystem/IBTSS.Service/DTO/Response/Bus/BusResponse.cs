@@ -12,6 +12,9 @@ namespace IBTSS.Service.DTO.Response.Bus
         public string BusId { get; set; } = string.Empty;
         public int SeatCount { get; set; }
         public string BusType { get; set; } = string.Empty;
+        public string? Model { get; set; } // ✅ Dòng xe
+        public int? ModelYear { get; set; } // ✅ Đời xe (năm sản xuất)
+        public string? Color { get; set; }
         public List<SeatAvailabilityResponse> Seats { get; set; } = new();
     }
 

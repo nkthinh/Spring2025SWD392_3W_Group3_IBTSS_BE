@@ -15,6 +15,8 @@ namespace IBTSS.Service.Services.LocationService
         Task<LocationResponse> AddAsync(LocationRequest request);
         Task<LocationResponse?> UpdateAsync(string id, LocationRequest request);
         Task<bool> DeleteAsync(string id);
+        //Task<(List<LocationResponse>, int)> GetFilteredAsync(LocationQueryParameters query);
+
     }
 
 }

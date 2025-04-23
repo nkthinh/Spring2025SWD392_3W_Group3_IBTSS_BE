@@ -1,11 +1,25 @@
-﻿using IBTSS.Repository.Entities;
+﻿using AutoMapper;
+using IBTSS.Repository.Entities;
 using IBTSS.Repository.UnitOfWork;
+using IBTSS.Service.DTO.Request.Customer;
+using IBTSS.Service.DTO.Response.Customer;
 using Microsoft.Extensions.Logging;
 
 namespace IBTSS.Service.Services.CustomerService
 {
-    public class CustomerService(IUnitOfWork _unitOfWork, ILogger<CustomerService> _logger) : ICustomerService
+    public class CustomerService : ICustomerService
     {
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly ILogger<CustomerService> _logger;
+        private readonly IMapper _mapper;
+
+        public CustomerService(IUnitOfWork unitOfWork, ILogger<CustomerService> logger, IMapper mapper)
+        {
+            _unitOfWork = unitOfWork;
+            _logger = logger;
+            _mapper = mapper;
+        }
+
         public async Task<IEnumerable<Customer>> GetAllAsync()
         {
             try
@@ -60,6 +74,21 @@ namespace IBTSS.Service.Services.CustomerService
                 throw;
             }
         }
+
+        public async Task DeleteAsync(string id)
+        {
+            try
+            {
+                _logger.LogInformation($"Deleting Customer {id}");
+                await _unitOfWork.Customers.DeleteAsync(id);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error deleting Customer {id}");
+                throw;
+            }
+        }
+
         public async Task<bool> GetByPhoneNumberAsync(string phoneNumber)
         {
             try
@@ -86,18 +115,35 @@ namespace IBTSS.Service.Services.CustomerService
             }
         }
 
-        public async Task DeleteAsync(string id)
+        public async Task<(List<CustomerResponse>, int)> GetFilteredAsync(CustomerQueryParameters query)
         {
-            try
+            var customers = await _unitOfWork.Customers.GetAllAsync();
+            var filtered = customers.AsQueryable();
+
+            if (!string.IsNullOrEmpty(query.Keyword))
             {
-                _logger.LogInformation($"Deleting Customer {id}");
-                await _unitOfWork.Customers.DeleteAsync(id);
+                filtered = filtered.Where(c =>
+                    (!string.IsNullOrEmpty(c.Name) && c.Name.Contains(query.Keyword, StringComparison.OrdinalIgnoreCase)) ||
+                    (!string.IsNullOrEmpty(c.PhoneNumber) && c.PhoneNumber.Contains(query.Keyword))
+                );
             }
-            catch (Exception ex)
+
+            filtered = query.SortBy switch
             {
-                _logger.LogError(ex, $"Error deleting Customer {id}");
-                throw;
-            }
+                "name_desc" => filtered.OrderByDescending(c => c.Name),
+                "score_desc" => filtered.OrderByDescending(c => c.Score),
+                _ => filtered.OrderBy(c => c.Name) // default: name_asc
+            };
+
+            var total = filtered.Count();
+
+            var result = filtered
+                .Skip((query.Page - 1) * query.PageSize)
+                .Take(query.PageSize)
+                .ToList();
+
+            var mapped = _mapper.Map<List<CustomerResponse>>(result);
+            return (mapped, total);
         }
     }
 }

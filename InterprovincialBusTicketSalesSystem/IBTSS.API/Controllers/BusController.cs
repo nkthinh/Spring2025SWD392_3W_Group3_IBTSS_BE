@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace IBTSS.API.Controllers
 {
@@ -50,12 +51,28 @@ namespace IBTSS.API.Controllers
         }
         
         [HttpGet]
-        public async Task<IActionResult> GetAllBuses()
+        public async Task<IActionResult> GetAllBuses([FromQuery] BusQueryParameters? query)
         {
             try
             {
-                var result = await _busService.GetAllAsync();
-                return Ok(result);
+                if (query == null || (string.IsNullOrEmpty(query.Keyword) && string.IsNullOrEmpty(query.SortBy) && query.Page == 0 && query.PageSize == 0))
+                {
+                    var all = await _busService.GetAllAsync();
+                    return Ok(all);
+                }
+                if (query.Page == 0) query.Page = 1;
+                if (query.PageSize == 0) query.PageSize = 10;
+                var (data, totalCount) = await _busService.GetFilteredAsync(query);
+
+                var pagination = new
+                {
+                    TotalCount = totalCount,
+                    PageSize = query.PageSize,
+                    CurrentPage = query.Page,
+                    TotalPages = (int)Math.Ceiling((double)totalCount / query.PageSize)
+                };
+
+                return Ok(new { Data = data, Pagination = pagination });
             }
             catch (Exception ex)
             {

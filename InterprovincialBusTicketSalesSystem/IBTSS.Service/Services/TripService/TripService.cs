@@ -319,21 +319,33 @@ namespace IBTSS.Service.Services.TripService
             if (trip == null) return null;
 
             trip.Status = "Hoàn Thành";
-            var updated = await _unitOfWork.Trips.UpdateAsync(trip);
+            await _unitOfWork.Trips.UpdateAsync(trip);
+
+            // Lấy BusId từ trip và reset toàn bộ ghế của bus đó
+            var busId = trip.BusId;
+            var seats = await _unitOfWork.Seats.GetAllAsync();
+            var seatsOfBus = seats.Where(s => s.BusId == busId && !s.IsDelete).ToList();
+
+            foreach (var seat in seatsOfBus)
+            {
+                seat.IsBooked = false;
+                await _unitOfWork.Seats.UpdateAsync(seat);
+            }
+
             await _unitOfWork.CompleteAsync();
 
             return new TripResponse
             {
-                TripId = updated.TripId,
-                RouteId = updated.RouteId,
-                BusId = updated.BusId,
-                DriverId = updated.DriverId,
-                DepartureTime = updated.DepartureTime.ToString("HH:mm"),
-                Date = updated.Date,
-                Direction = updated.Direction,
-                IsDelete = updated.IsDelete,
-                Price = updated.Price,
-                Status = updated.Status
+                TripId = trip.TripId,
+                RouteId = trip.RouteId,
+                BusId = trip.BusId,
+                DriverId = trip.DriverId,
+                DepartureTime = trip.DepartureTime.ToString("HH:mm"),
+                Date = trip.Date,
+                Direction = trip.Direction,
+                IsDelete = trip.IsDelete,
+                Price = trip.Price,
+                Status = trip.Status
             };
         }
         public async Task<TripResponse?> AssignDriverAsync(string tripId, string driverId)

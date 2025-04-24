@@ -36,7 +36,7 @@ namespace IBTSS.Repository.Repositories.TransactionRepository
                 .Include(b => b.Tickets)
                 .FirstOrDefaultAsync(b =>
                     b.CustomerId == transaction.CustomerId &&
-                    b.Status == "Pending");
+                    b.Status == "Đang xử lý");
 
             if (pendingBook == null)
             {
@@ -48,7 +48,7 @@ namespace IBTSS.Repository.Repositories.TransactionRepository
             transaction.CreatedAt = DateTime.UtcNow;
             transaction.PaymentStatus = "Paid";
             transaction.Amount = pendingBook.TotalPrice;
-            pendingBook.Status = "Complete";
+            pendingBook.Status = "Hoàn Thành";
 
             pendingBook.TransactionId = transaction.TransactionId;
 

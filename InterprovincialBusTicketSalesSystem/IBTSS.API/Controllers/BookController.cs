@@ -23,43 +23,79 @@ namespace IBTSS.API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var books = await _service.GetAllAsync();
-
-            // Ánh xạ sang danh sách DTO
-            var bookResponses = _mapper.Map<List<BookResponse>>(books);
-
-            return Ok(bookResponses);
+            try
+            {
+                var books = await _service.GetAllAsync();
+                var bookResponses = _mapper.Map<List<BookResponse>>(books);
+                return Ok(bookResponses);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
+
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(string id)
         {
-            var book = await _service.GetByIdAsync(id);
-            if (book == null) return NotFound();
-
-            var bookResponse = _mapper.Map<BookResponse>(book);
-            return Ok(bookResponse); // ✅ Trả về DTO, không vòng lặp
+            try
+            {
+                var book = await _service.GetByIdAsync(id);
+                if (book == null) return NotFound(new { message = "Not Found" });
+                var bookResponse = _mapper.Map<BookResponse>(book);
+                return Ok(bookResponse);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
-
-
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateBookRequest request)
         {
-            var result = await _service.CreateAsync(request);
-            return Ok(result);
+            try
+            {
+                var result = await _service.CreateAsync(request);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(string id, [FromBody] CreateBookRequest request)
         {
-            var updated = await _service.UpdateAsync(id, request);
-            return updated == null ? NotFound() : Ok(updated);
+            try
+            {
+                var updated = await _service.UpdateAsync(id, request);
+                if (updated == null)
+                    return NotFound(new { message = "Not Found" });
+
+                return Ok(updated);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(string id)
         {
-            var deleted = await _service.DeleteAsync(id);
-            return deleted ? Ok() : NotFound();
+            try
+            {
+                var deleted = await _service.DeleteAsync(id);
+                if (!deleted)
+                    return NotFound(new { message = "Not Found" });
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
         }
     }
 

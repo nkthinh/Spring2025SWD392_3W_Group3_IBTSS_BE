@@ -19,40 +19,82 @@ namespace IBTSS.API.Controllers
         [HttpGet]
         public async Task<ActionResult<List<SeatResponse>>> GetAll()
         {
-            var result = await _seatService.GetAllAsync();
-            return Ok(result);
+            try
+            {
+                var result = await _seatService.GetAllAsync();
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<SeatResponse>> GetById(string id)
         {
-            var result = await _seatService.GetByIdAsync(id);
-            if (result == null) return NotFound();
-            return Ok(result);
+            try
+            {
+                var result = await _seatService.GetByIdAsync(id);
+                if (result == null)
+                    return NotFound(new { message = $"Seat with ID '{id}' not found." });
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
         }
 
         [HttpPost]
         public async Task<ActionResult<SeatResponse>> Create([FromBody] SeatRequest request)
         {
-            var created = await _seatService.AddAsync(request);
-            return CreatedAtAction(nameof(GetById), new { id = created.SeatId }, created);
+            try
+            {
+                var created = await _seatService.AddAsync(request);
+                return CreatedAtAction(nameof(GetById), new { id = created.SeatId }, created);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
         }
 
         [HttpPut("{id}")]
         public async Task<ActionResult<SeatResponse>> Update(string id, [FromBody] SeatRequest request)
         {
-            var updated = await _seatService.UpdateAsync(id, request);
-            if (updated == null) return NotFound();
-            return Ok(updated);
+            try
+            {
+                var updated = await _seatService.UpdateAsync(id, request);
+                if (updated == null)
+                    return NotFound(new { message = $"Seat with ID '{id}' not found." });
+
+                return Ok(updated);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(string id)
         {
-            var result = await _seatService.DeleteAsync(id);
-            if (!result) return NotFound();
-            return NoContent();
+            try
+            {
+                var result = await _seatService.DeleteAsync(id);
+                if (!result)
+                    return NotFound(new { message = $"Seat with ID '{id}' not found." });
+
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
         }
+
         [HttpGet("trip/{tripId}/availability")]
         public async Task<ActionResult<SeatSummaryResponse>> GetAvailabilityByTrip(string tripId)
         {
@@ -63,10 +105,8 @@ namespace IBTSS.API.Controllers
             }
             catch (Exception ex)
             {
-                return NotFound(ex.Message);
+                return StatusCode(500, new { message = ex.Message });
             }
         }
-
-
     }
 }

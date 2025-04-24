@@ -1,12 +1,10 @@
 ﻿using IBTSS.Service.DTO.Request.Membership;
 using IBTSS.Service.Services.MembershipService;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace IBTSS.API.Controllers
 {
-    //admin only
     [Authorize(Roles = "Admin")]
     [ApiController]
     [Route("api/[controller]")]
@@ -19,7 +17,6 @@ namespace IBTSS.API.Controllers
             _service = service;
         }
 
-
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
@@ -30,7 +27,7 @@ namespace IBTSS.API.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
+                return StatusCode(500, new { message = ex.Message });
             }
         }
 
@@ -40,16 +37,19 @@ namespace IBTSS.API.Controllers
             try
             {
                 var result = await _service.GetByIdAsync(id);
-                return result == null ? NotFound() : Ok(result);
+                if (result == null)
+                    return NotFound(new { message = $"Membership with ID '{id}' not found." });
+
+                return Ok(result);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
+                return StatusCode(500, new { message = ex.Message });
             }
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(MembershipRequest request)
+        public async Task<IActionResult> Create([FromBody] MembershipRequest request)
         {
             try
             {
@@ -58,21 +58,24 @@ namespace IBTSS.API.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
+                return StatusCode(500, new { message = ex.Message });
             }
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(string id, MembershipRequest request)
+        public async Task<IActionResult> Update(string id, [FromBody] MembershipRequest request)
         {
             try
             {
                 var result = await _service.UpdateAsync(id, request);
-                return result == null ? NotFound() : Ok(result);
+                if (result == null)
+                    return NotFound(new { message = $"Membership with ID '{id}' not found." });
+
+                return Ok(result);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
+                return StatusCode(500, new { message = ex.Message });
             }
         }
 
@@ -82,12 +85,15 @@ namespace IBTSS.API.Controllers
             try
             {
                 var deleted = await _service.DeleteAsync(id);
-                return deleted ? NoContent() : NotFound();
+                if (!deleted)
+                    return NotFound(new { message = $"Membership with ID '{id}' not found." });
+
+                return NoContent();
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
+                return StatusCode(500, new { message = ex.Message });
             }
         }
     }
-    }
+}

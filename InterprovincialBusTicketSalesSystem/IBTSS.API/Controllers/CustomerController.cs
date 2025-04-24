@@ -3,7 +3,6 @@ using IBTSS.Repository.Entities;
 using IBTSS.Service.DTO.Request.Customer;
 using IBTSS.Service.DTO.Response.Customer;
 using IBTSS.Service.Services.CustomerService;
-using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 
 namespace IBTSS.API.Controllers
@@ -20,44 +19,45 @@ namespace IBTSS.API.Controllers
                 var customers = await customerService.GetAllAsync();
                 if (!customers.Any())
                 {
-                    return NotFound(new { message = "No blog contents found." });
+                    return NotFound(new { message = "No customers found." });
                 }
 
                 var customerResponse = mapper.Map<IEnumerable<CustomerResponse>>(customers);
-                return Ok(customerResponse); // 200 OK
+                return Ok(customerResponse);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Internal server error: {ex.Message}"); // 500 Error
+                return StatusCode(500, new { message = ex.Message });
             }
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Resgister([FromBody] CustomerRequest customerrequest)
+        public async Task<IActionResult> Register([FromBody] CustomerRequest customerRequest)
         {
             try
             {
-                var customer = mapper.Map<Customer>(customerrequest);
+                var customer = mapper.Map<Customer>(customerRequest);
                 if (customer == null)
                 {
-                    return BadRequest("Customer is null");
+                    return BadRequest(new { message = "Customer data is invalid." });
                 }
-                // Kiểm tra số điện thoại đã tồn tại chưa
+
                 var isUnique = await customerService.GetByPhoneNumberAsync(customer.PhoneNumber);
                 if (!isUnique)
                 {
-                    return BadRequest(new { message = "PhoneNumber is extisted." });
+                    return BadRequest(new { message = "Phone number already exists." });
                 }
+
                 await customerService.AddAsync(customer);
                 var customerResponse = mapper.Map<CustomerResponse>(customer);
                 return Ok(customerResponse);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
+                return StatusCode(500, new { message = ex.Message });
             }
-
         }
+
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] CustomerLoginRequest customerLoginRequest)
         {
@@ -74,9 +74,8 @@ namespace IBTSS.API.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
+                return StatusCode(500, new { message = ex.Message });
             }
         }
-
     }
 }

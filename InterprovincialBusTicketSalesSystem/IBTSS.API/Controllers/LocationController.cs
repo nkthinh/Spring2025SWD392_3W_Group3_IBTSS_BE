@@ -19,39 +19,80 @@ namespace IBTSS.API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var locations = await _locationService.GetAllAsync();
-            return Ok(locations);
+            try
+            {
+                var locations = await _locationService.GetAllAsync();
+                return Ok(locations);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(string id)
         {
-            var location = await _locationService.GetByIdAsync(id);
-            if (location == null) return NotFound($"Location with ID {id} not found.");
-            return Ok(location);
+            try
+            {
+                var location = await _locationService.GetByIdAsync(id);
+                if (location == null)
+                    return NotFound(new { message = $"Location with ID '{id}' not found." });
+
+                return Ok(location);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
         }
 
         [HttpPost]
-        public async Task<IActionResult> Add(LocationRequest request)
+        public async Task<IActionResult> Add([FromBody] LocationRequest request)
         {
-            var created = await _locationService.AddAsync(request);
-            return CreatedAtAction(nameof(GetById), new { id = created.LocationId }, created);
+            try
+            {
+                var created = await _locationService.AddAsync(request);
+                return CreatedAtAction(nameof(GetById), new { id = created.LocationId }, created);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(string id, LocationRequest request)
+        public async Task<IActionResult> Update(string id, [FromBody] LocationRequest request)
         {
-            var updated = await _locationService.UpdateAsync(id, request);
-            if (updated == null) return NotFound($"Location with ID {id} not found.");
-            return Ok(updated);
+            try
+            {
+                var updated = await _locationService.UpdateAsync(id, request);
+                if (updated == null)
+                    return NotFound(new { message = $"Location with ID '{id}' not found." });
+
+                return Ok(updated);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(string id)
         {
-            var deleted = await _locationService.DeleteAsync(id);
-            if (!deleted) return NotFound($"Location with ID {id} not found.");
-            return NoContent();
+            try
+            {
+                var deleted = await _locationService.DeleteAsync(id);
+                if (!deleted)
+                    return NotFound(new { message = $"Location with ID '{id}' not found." });
+
+                return NoContent(); // 204 No Content
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
         }
     }
 }

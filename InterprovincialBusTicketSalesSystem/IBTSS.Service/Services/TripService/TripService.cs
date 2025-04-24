@@ -267,7 +267,7 @@ namespace IBTSS.Service.Services.TripService
         {
             var trips = await _unitOfWork.Trips.GetAllAsync();
             return trips
-                .Where(t => t.DriverId == driverId && t.Status != "Completed")
+                .Where(t => t.DriverId == driverId && t.Status != "Hoàn Thành")
                 .Select(t => new TripResponse
                 {
                     TripId = t.TripId,
@@ -305,7 +305,7 @@ namespace IBTSS.Service.Services.TripService
                     Name = c.Name,
                     PhoneNumber = c.PhoneNumber,
                     Score = c.Score,
-                    RankName = c.Membership?.RankName ?? "Default"
+                    RankName = c.Membership?.RankName ?? "Bronve"
                 })
                 .ToList();
 
@@ -317,7 +317,7 @@ namespace IBTSS.Service.Services.TripService
             var trip = await _unitOfWork.Trips.GetByIdAsync(tripId);
             if (trip == null) return null;
 
-            trip.Status = "Completed";
+            trip.Status = "Hoàn Thành";
             var updated = await _unitOfWork.Trips.UpdateAsync(trip);
             await _unitOfWork.CompleteAsync();
 

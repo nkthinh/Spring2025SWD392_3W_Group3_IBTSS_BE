@@ -27,7 +27,7 @@ namespace IBTSS.API.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+                return StatusCode(500, new { message = ex.Message });
             }
         }
 
@@ -38,13 +38,13 @@ namespace IBTSS.API.Controllers
             {
                 var result = await _busService.GetByIdAsync(id);
                 if (result == null)
-                    return NotFound(new { message = "Bus not found" });
+                    return NotFound(new { message = "Not Found Bus" });
 
                 return Ok(result);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+                return StatusCode(500, new { message = ex.Message });
             }
         }
 
@@ -58,9 +58,10 @@ namespace IBTSS.API.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+                return StatusCode(500, new { message = ex.Message });
             }
         }
+
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateBus(string id, [FromBody] BusUpdateRequest request)
         {
@@ -68,13 +69,13 @@ namespace IBTSS.API.Controllers
             {
                 var result = await _busService.UpdateAsync(id, request);
                 if (result == null)
-                    return NotFound(new { message = "Bus not found" });
+                    return NotFound(new { message = "Not Found Bus To Update" });
 
                 return Ok(result);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = "Internal server error", error = ex.Message });
+                return StatusCode(500, new { message = ex.Message });
             }
         }
     }

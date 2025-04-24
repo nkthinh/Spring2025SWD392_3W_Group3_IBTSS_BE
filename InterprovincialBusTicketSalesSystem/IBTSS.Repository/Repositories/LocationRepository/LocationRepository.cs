@@ -16,7 +16,7 @@ namespace IBTSS.Repository.Repositories.LocationRepository
             _context = context;
         }    
     public async Task<List<Location>> GetAllAsync() =>
-        await _context.Locations.Where(l => !l.IsDelete).ToListAsync();
+        await _context.Locations.ToListAsync();
 
         public async Task<Location?> GetByIdAsync(string id) =>
             await _context.Locations.FirstOrDefaultAsync(l => l.LocationId == id && !l.IsDelete);

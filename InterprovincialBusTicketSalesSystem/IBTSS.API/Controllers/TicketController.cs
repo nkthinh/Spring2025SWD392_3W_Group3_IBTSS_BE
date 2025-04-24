@@ -19,53 +19,111 @@ namespace IBTSS.API.Controllers
         [HttpGet]
         public async Task<ActionResult<List<TicketResponse>>> GetAll()
         {
-            var result = await _ticketService.GetAllAsync();
-            return Ok(result);
+            try
+            {
+                var result = await _ticketService.GetAllAsync();
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<TicketResponse>> GetById(string id)
         {
-            var result = await _ticketService.GetByIdAsync(id);
-            if (result == null) return NotFound();
-            return Ok(result);
+            try
+            {
+                var result = await _ticketService.GetByIdAsync(id);
+                if (result == null)
+                    return NotFound(new { message = $"Ticket with ID '{id}' not found." });
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
         }
 
         [HttpGet("by-customer/{customerId}")]
         public async Task<IActionResult> GetTicketsByCustomer(string customerId)
         {
-            var tickets = await _ticketService.GetByCustomerIdAsync(customerId);
-            return Ok(tickets);
+            try
+            {
+                var tickets = await _ticketService.GetByCustomerIdAsync(customerId);
+                return Ok(tickets);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
         }
 
         [HttpPost]
         public async Task<ActionResult<TicketResponse>> Create([FromBody] TicketRequest request)
         {
-            var created = await _ticketService.AddAsync(request);
-            return CreatedAtAction(nameof(GetById), new { id = created.TicketId }, created);
+            try
+            {
+                var created = await _ticketService.AddAsync(request);
+                return CreatedAtAction(nameof(GetById), new { id = created.TicketId }, created);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
         }
 
         [HttpPut("{id}")]
         public async Task<ActionResult<TicketResponse>> Update(string id, [FromBody] TicketRequest request)
         {
-            var updated = await _ticketService.UpdateAsync(id, request);
-            if (updated == null) return NotFound();
-            return Ok(updated);
+            try
+            {
+                var updated = await _ticketService.UpdateAsync(id, request);
+                if (updated == null)
+                    return NotFound(new { message = $"Ticket with ID '{id}' not found." });
+
+                return Ok(updated);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
         }
+
         [HttpPut("cancel/{id}")]
         public async Task<ActionResult<TicketResponse>> CancelTicket(string id)
         {
-            var result = await _ticketService.CancelTicketAsync(id);
-            if (result == null) return NotFound();
-            return Ok(result);
+            try
+            {
+                var result = await _ticketService.CancelTicketAsync(id);
+                if (result == null)
+                    return NotFound(new { message = $"Ticket with ID '{id}' not found." });
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(string id)
         {
-            var result = await _ticketService.DeleteAsync(id);
-            if (!result) return NotFound();
-            return NoContent();
+            try
+            {
+                var result = await _ticketService.DeleteAsync(id);
+                if (!result)
+                    return NotFound(new { message = $"Ticket with ID '{id}' not found." });
+
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
         }
     }
 }

@@ -16,7 +16,7 @@ namespace IBTSS.Repository.Repositories.TripRepository
             _context = context;
         }
         public async Task<List<Trip>> GetAllAsync() =>
-          await _context.Trips.Where(m => !m.IsDelete).ToListAsync();
+          await _context.Trips.ToListAsync();
 
         public async Task<Trip?> GetByIdAsync(string id) =>
       await _context.Trips

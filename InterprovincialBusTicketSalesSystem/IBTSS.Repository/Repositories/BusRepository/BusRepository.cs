@@ -21,7 +21,6 @@ namespace IBTSS.Repository.Repositories.BusRepository
         {
             return await _context.Buses
                 .Include(b => b.Seats)
-                .Where(b => !b.IsDelete)
                 .ToListAsync();
         }
 

@@ -27,6 +27,9 @@ namespace IBTSS.Service.Services.BusService
                 BusId = request.BusId,
                 BusType = request.BusType,
                 SeatCount = request.SeatCount,
+                Model = request.Model,
+                ModelYear = request.ModelYear,
+                Color = request.Color,
                 IsDelete = false
             };
 
@@ -52,6 +55,9 @@ namespace IBTSS.Service.Services.BusService
                 BusId = bus.BusId,
                 BusType = bus.BusType,
                 SeatCount = bus.SeatCount,
+                Model = bus.Model,
+                ModelYear = bus.ModelYear,
+                Color = bus.Color,
                 Seats = seats.Select(s => new SeatAvailabilityResponse
                 {
                     SeatId = s.SeatId,
@@ -76,6 +82,9 @@ namespace IBTSS.Service.Services.BusService
                 BusId = bus.BusId,
                 BusType = bus.BusType,
                 SeatCount = bus.SeatCount,
+                Model = bus.Model,
+                ModelYear = bus.ModelYear,
+                Color = bus.Color,
                 Seats = bus.Seats
                     .Where(s => !s.IsBooked)
                     .Select(s => new SeatAvailabilityResponse
@@ -94,6 +103,9 @@ namespace IBTSS.Service.Services.BusService
                 BusId = b.BusId,
                 BusType = b.BusType,
                 SeatCount = b.SeatCount,
+                Model = b.Model,
+                ModelYear = b.ModelYear,
+                Color = b.Color,
                 Seats = b.Seats
                     .Where(s => !s.IsBooked)
                     .Select(s => new SeatAvailabilityResponse
@@ -108,8 +120,11 @@ namespace IBTSS.Service.Services.BusService
             var bus = await _unitOfWork.Buses.GetByIdAsync(id);
             if (bus == null) return null;
 
-            // SeatCount KHÔNG được cập nhật
             bus.BusType = request.BusType;
+            //bus.SeatCount = request.SeatCount;
+            bus.Model = request.Model;
+            bus.ModelYear = request.ModelYear;
+            bus.Color = request.Color;
 
             var updated = await _unitOfWork.Buses.UpdateAsync(bus);
             await _unitOfWork.CompleteAsync();
@@ -118,7 +133,10 @@ namespace IBTSS.Service.Services.BusService
             {
                 BusId = updated.BusId,
                 SeatCount = updated.SeatCount,
-                BusType = updated.BusType
+                BusType = updated.BusType,
+                Model = updated.Model,
+                ModelYear = updated.ModelYear,
+                Color = updated.Color,
             };
         }
         public async Task<(List<BusResponse>, int)> GetFilteredAsync(BusQueryParameters query)

@@ -120,11 +120,63 @@ namespace IBTSS.Service.Services.BusService
             var bus = await _unitOfWork.Buses.GetByIdAsync(id);
             if (bus == null) return null;
 
+            var oldSeatCount = bus.SeatCount;
+            var newSeatCount = request.SeatCount;
+
+            // Cập nhật thông tin cơ bản
             bus.BusType = request.BusType;
-            //bus.SeatCount = request.SeatCount;
             bus.Model = request.Model;
             bus.ModelYear = request.ModelYear;
             bus.Color = request.Color;
+
+            // Tăng số lượng ghế
+            if (newSeatCount > oldSeatCount)
+            {
+                var seatsToAdd = newSeatCount - oldSeatCount;
+                var newSeats = new List<Seat>();
+
+                for (int i = 0; i < seatsToAdd; i++)
+                {
+                    newSeats.Add(new Seat
+                    {
+                        BusId = bus.BusId,
+                        IsBooked = false,
+                        IsDelete = false
+                    });
+                }
+
+                await _unitOfWork.Seats.AddMultipleAsync(newSeats);
+            }
+            // Giảm số lượng ghế
+            else if (newSeatCount < oldSeatCount)
+            {
+                var countToRemove = oldSeatCount - newSeatCount;
+
+                if (request.SeatIdsToRemove == null || request.SeatIdsToRemove.Count != countToRemove)
+                {
+                    throw new Exception($"Must provide exactly {countToRemove} seat IDs to remove.");
+                }
+
+                foreach (var seatId in request.SeatIdsToRemove)
+                {
+                    var seat = await _unitOfWork.Seats.GetByIdAsync(seatId);
+                    if (seat == null || seat.BusId != id)
+                    {
+                        throw new Exception($"Invalid SeatId: {seatId} or seat does not belong to this bus.");
+                    }
+
+                    if (seat.IsBooked)
+                    {
+                        throw new Exception($"Cannot remove seat {seatId} because it is currently booked.");
+                    }
+
+                    seat.IsDelete = true;
+                    await _unitOfWork.Seats.UpdateAsync(seat);
+                }
+            }
+
+            // Cập nhật lại số ghế
+            bus.SeatCount = newSeatCount;
 
             var updated = await _unitOfWork.Buses.UpdateAsync(bus);
             await _unitOfWork.CompleteAsync();
@@ -137,7 +189,15 @@ namespace IBTSS.Service.Services.BusService
                 Model = updated.Model,
                 ModelYear = updated.ModelYear,
                 Color = updated.Color,
+                Seats = updated.Seats
+                    .Where(s => !s.IsDelete)
+                    .Select(s => new SeatAvailabilityResponse
+                    {
+                        SeatId = s.SeatId,
+                        IsBooked = s.IsBooked
+                    }).ToList()
             };
         }
+
     }
 }

@@ -92,7 +92,11 @@ namespace IBTSS.API.Controllers
                 if (result == null)
                     return NotFound(new { message = "Not Found Bus To Update" });
 
-                return Ok(result);
+                return Ok(new
+                {
+                    message = "Deleted successfully",
+                    data = result
+                });
             }
             catch (Exception ex)
             {

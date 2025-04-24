@@ -81,7 +81,11 @@ namespace IBTSS.API.Controllers
             try
             {
                 var result = await _service.CreateAsync(request);
-                return Ok(result);
+                return Ok(new
+                {
+                    message = "Created successfully",
+                    data = result
+                });
             }
             catch (Exception ex)
             {
@@ -117,7 +121,7 @@ namespace IBTSS.API.Controllers
                 if (!deleted)
                     return NotFound(new { message = "Not Found" });
 
-                return Ok();
+                return Ok(new { message = "Deleted successfully" });
             }
             catch (Exception ex)
             {

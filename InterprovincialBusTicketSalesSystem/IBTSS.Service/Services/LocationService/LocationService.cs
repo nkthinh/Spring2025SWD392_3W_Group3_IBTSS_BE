@@ -99,6 +99,18 @@ namespace IBTSS.Service.Services.LocationService
                     l.LocationName.Contains(query.Keyword, StringComparison.OrdinalIgnoreCase));
             }
 
+            // 🔽 Sort by LocationName
+            if (!string.IsNullOrEmpty(query.SortBy))
+            {
+                if (query.SortBy.Equals("LocationName", StringComparison.OrdinalIgnoreCase))
+                {
+                    filtered = filtered.OrderBy(l => l.LocationName);
+                }
+                else if (query.SortBy.Equals("-LocationName", StringComparison.OrdinalIgnoreCase))
+                {
+                    filtered = filtered.OrderByDescending(l => l.LocationName);
+                }
+            }
             var total = filtered.Count();
 
             if (query.PageSize == -1)

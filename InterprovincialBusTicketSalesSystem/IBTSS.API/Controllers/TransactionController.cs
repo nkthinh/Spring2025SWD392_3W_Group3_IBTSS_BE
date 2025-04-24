@@ -97,7 +97,11 @@ namespace IBTSS.API.Controllers
                 if (created == null)
                     return BadRequest(new { message = "No pending booking found for the customer." });
 
-                return CreatedAtAction(nameof(GetById), new { id = created.TransactionId }, created);
+                return Ok(new
+                {
+                    message = "Created successfully",
+                    data = created
+                });
             }
             catch (Exception ex)
             {
@@ -131,7 +135,7 @@ namespace IBTSS.API.Controllers
                 if (!deleted)
                     return NotFound(new { message = $"Transaction with ID '{id}' not found." });
 
-                return NoContent();
+                return Ok(new { message = "Deleted successfully" });
             }
             catch (Exception ex)
             {

@@ -77,7 +77,11 @@ namespace IBTSS.API.Controllers
             try
             {
                 var created = await _seatService.AddAsync(request);
-                return CreatedAtAction(nameof(GetById), new { id = created.SeatId }, created);
+                return Ok(new
+                {
+                    message = "Created successfully",
+                    data = created
+                });
             }
             catch (Exception ex)
             {
@@ -111,7 +115,7 @@ namespace IBTSS.API.Controllers
                 if (!result)
                     return NotFound(new { message = $"Seat with ID '{id}' not found." });
 
-                return NoContent();
+                return Ok(new { message = "Deleted successfully" });
             }
             catch (Exception ex)
             {

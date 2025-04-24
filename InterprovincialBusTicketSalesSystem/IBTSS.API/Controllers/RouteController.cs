@@ -81,7 +81,11 @@ namespace IBTSS.API.Controllers
             try
             {
                 var result = await _routeService.AddAsync(request);
-                return CreatedAtAction(nameof(GetById), new { id = result.RouteId }, result);
+                return Ok(new
+                {
+                    message = "Created successfully",
+                    data = result
+                });
             }
             catch (Exception ex)
             {
@@ -115,7 +119,7 @@ namespace IBTSS.API.Controllers
                 if (!result)
                     return NotFound(new { message = $"Route with ID '{id}' not found." });
 
-                return NoContent();
+                return Ok(new { message = "Deleted successfully" });
             }
             catch (Exception ex)
             {

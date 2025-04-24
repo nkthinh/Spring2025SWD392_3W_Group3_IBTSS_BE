@@ -19,7 +19,7 @@ namespace IBTSS.Repository.Repositories.LocationRepository
         await _context.Locations.ToListAsync();
 
         public async Task<Location?> GetByIdAsync(string id) =>
-            await _context.Locations.FirstOrDefaultAsync(l => l.LocationId == id && !l.IsDelete);
+            await _context.Locations.FirstOrDefaultAsync(l => l.LocationId == id);
 
         public async Task<Location> AddAsync(Location location)
         {

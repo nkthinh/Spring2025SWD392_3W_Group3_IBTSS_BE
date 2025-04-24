@@ -15,22 +15,8 @@ namespace IBTSS.API.Controllers
     [Route("api/[controller]")]
     public class UserController(IUserService userService, IMapper mapper, JwtService jwtService) : ControllerBase
     {
+       
         [HttpGet]
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> GetAll()
-        {
-            try
-            {
-                var users = await userService.GetAllAsync();
-                var response = mapper.Map<IEnumerable<AddUserResponse>>(users);
-                return Ok(response);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = ex.Message });
-            }
-        }
-        [HttpGet("filter")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetFiltered([FromQuery] QueryParameters query)
         {

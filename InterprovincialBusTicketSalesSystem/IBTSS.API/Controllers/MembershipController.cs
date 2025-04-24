@@ -7,6 +7,7 @@ using IBTSS.Service.DTO.Response.Membership;
 using IBTSS.Service.Services.CustomerService;
 using IBTSS.Service.Services.MembershipService;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace IBTSS.API.Controllers
@@ -87,7 +88,11 @@ namespace IBTSS.API.Controllers
             try
             {
                 var result = await _service.AddAsync(request);
-                return CreatedAtAction(nameof(GetById), new { id = result.MembershipId }, result);
+                return Ok(new
+                {
+                    message = "Created successfully",
+                    data = result
+                });
             }
             catch (Exception ex)
             {
@@ -123,7 +128,8 @@ namespace IBTSS.API.Controllers
                 if (!deleted)
                     return NotFound(new { message = $"Membership with ID '{id}' not found." });
 
-                return NoContent();
+                return Ok(new { message = "Deleted successfully" });
+
             }
             catch (Exception ex)
             {

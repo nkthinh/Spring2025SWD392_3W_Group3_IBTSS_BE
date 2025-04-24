@@ -86,7 +86,11 @@ namespace IBTSS.API.Controllers
             try
             {
                 var created = await _ticketService.AddAsync(request);
-                return CreatedAtAction(nameof(GetById), new { id = created.TicketId }, created);
+                return Ok(new
+                {
+                    message = "Created successfully",
+                    data = created
+                });
             }
             catch (Exception ex)
             {
@@ -151,7 +155,7 @@ namespace IBTSS.API.Controllers
                 if (!result)
                     return NotFound(new { message = $"Ticket with ID '{id}' not found." });
 
-                return NoContent();
+                return Ok(new { message = "Deleted successfully" });
             }
             catch (Exception ex)
             {

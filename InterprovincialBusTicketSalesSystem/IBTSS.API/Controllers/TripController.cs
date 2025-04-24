@@ -149,8 +149,8 @@ namespace IBTSS.API.Controllers
         [HttpGet("search")]
         public async Task<ActionResult<IEnumerable<TripSearchDto>>> SearchTrips(
             [FromQuery] string keyword,
-            [FromQuery] string date,
-            [FromQuery] string type)
+            [FromQuery] string? date,
+            [FromQuery] string? type)
         {
             try
             {

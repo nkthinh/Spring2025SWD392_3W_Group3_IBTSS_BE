@@ -119,18 +119,25 @@ namespace IBTSS.Repository.Repositories.TripRepository
                 .ToListAsync();
         }
 
-        public async Task<List<Trip>> SearchTripsByKeywordAndDateAsync(string keyword, string date)
+        public async Task<List<Trip>> SearchTripsByKeywordAndDateAsync(string keyword, string? date)
         {
-            return await _context.Trips
-                .Where(t => !t.IsDelete &&
-                            t.Date == date &&
-                            (t.Route.RouteName.Contains(keyword) ||
-                             t.Route.LocationRoutes.Any(lr => lr.Location.LocationName.Contains(keyword))))
+            var query = _context.Trips
                 .Include(t => t.Route)
                     .ThenInclude(r => r.LocationRoutes)
                         .ThenInclude(lr => lr.Location)
-                .ToListAsync();
+                .Where(t => !t.IsDelete &&
+                            (t.Route.RouteName.Contains(keyword) ||
+                             t.Route.LocationRoutes.Any(lr => lr.Location.LocationName.Contains(keyword))))
+                .AsQueryable();
+
+            if (!string.IsNullOrEmpty(date))
+            {
+                query = query.Where(t => t.Date == date);
+            }
+
+            return await query.ToListAsync();
         }
+
 
     }
 }

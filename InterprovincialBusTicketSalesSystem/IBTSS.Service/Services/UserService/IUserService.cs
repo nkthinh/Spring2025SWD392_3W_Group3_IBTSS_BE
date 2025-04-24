@@ -19,6 +19,6 @@ namespace IBTSS.Service.Services.UserService
         Task DeleteUserAsync(string userId);
         User? GetByUsername(string username);
         User? Authenticate(string username, string password);
-        Task<(List<LoginUserResponse>, int)> GetFilteredAsync(QueryParameters query);
+        Task<(List<AddUserResponse>, int)> GetFilteredAsync(QueryParameters query);
     }
 }

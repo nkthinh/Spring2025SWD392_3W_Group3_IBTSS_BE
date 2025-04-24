@@ -77,7 +77,7 @@ namespace IBTSS.Service.Services.UserService
             var hash = sha256.ComputeHash(bytes);
             return Convert.ToBase64String(hash);
         }
-        public async Task<(List<LoginUserResponse>, int)> GetFilteredAsync(QueryParameters query)
+        public async Task<(List<AddUserResponse>, int)> GetFilteredAsync(QueryParameters query)
         {
             var customers = await _unitOfWork.Customers.GetAllAsync();
             var filtered = customers.AsQueryable();
@@ -102,7 +102,7 @@ namespace IBTSS.Service.Services.UserService
 
             if (query.PageSize == -1)
             {
-                var allMapped = _mapper.Map<List<LoginUserResponse>>(filtered.ToList());
+                var allMapped = _mapper.Map<List<AddUserResponse>>(filtered.ToList());
                 return (allMapped, allMapped.Count);
             }
 
@@ -111,7 +111,7 @@ namespace IBTSS.Service.Services.UserService
                 .Take(query.PageSize)
                 .ToList();
 
-            var mapped = _mapper.Map<List<LoginUserResponse>>(result);
+            var mapped = _mapper.Map<List<AddUserResponse>>(result);
             return (mapped, total);
         }
     }

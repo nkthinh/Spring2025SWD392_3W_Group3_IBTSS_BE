@@ -51,7 +51,7 @@ namespace IBTSS.API.Controllers
         }
         
         [HttpGet]
-        public async Task<IActionResult> GetAllBuses([FromQuery] BusQueryParameters? query)
+        public async Task<IActionResult> GetFiltered([FromQuery] BusQueryParameters? query)
         {
             try
             {

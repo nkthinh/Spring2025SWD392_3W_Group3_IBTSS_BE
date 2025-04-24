@@ -30,7 +30,7 @@ namespace IBTSS.API.Controllers
             //
 
             [HttpGet]
-            public async Task<IActionResult> Get([FromQuery] QueryParameters? query)
+            public async Task<IActionResult> GetFiltered([FromQuery] QueryParameters? query)
             {
                 // Nếu không truyền gì hoặc toàn bộ là mặc định → GetAll
                 if (query == null ||

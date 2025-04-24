@@ -24,7 +24,7 @@ namespace IBTSS.API.Controllers
             return Ok(result);
         }
         [HttpGet]
-        public async Task<IActionResult> Get([FromQuery] QueryParameters? query)
+        public async Task<IActionResult> GetFiltered([FromQuery] QueryParameters? query)
         {
             if (query == null ||
                 (string.IsNullOrEmpty(query.Keyword) && string.IsNullOrEmpty(query.SortBy) && query.Page == 0 && query.PageSize == 0))

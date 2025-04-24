@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using IBTSS.Repository.Entities;
 using IBTSS.Repository.Enum;
+using IBTSS.Service.DTO.Request.Trip;
 using IBTSS.Service.DTO.Request.User;
 using IBTSS.Service.DTO.Response.User;
 using IBTSS.Service.Services.JWT;
@@ -15,6 +16,7 @@ namespace IBTSS.API.Controllers
     public class UserController(IUserService userService, IMapper mapper, JwtService jwtService) : ControllerBase
     {
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetAll()
         {
             try
@@ -22,6 +24,20 @@ namespace IBTSS.API.Controllers
                 var users = await userService.GetAllAsync();
                 var response = mapper.Map<IEnumerable<AddUserResponse>>(users);
                 return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+        [HttpGet("filter")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetFiltered([FromQuery] QueryParameters query)
+        {
+            try
+            {
+                var (data, total) = await userService.GetFilteredAsync(query);
+                return Ok(new { Total = total, Data = data });
             }
             catch (Exception ex)
             {

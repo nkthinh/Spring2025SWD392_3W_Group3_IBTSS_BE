@@ -15,7 +15,7 @@ namespace IBTSS.API.Controllers
     {
         [Authorize(Roles = "Admin")]
         [HttpGet]
-        public async Task<IActionResult> GetAll([FromQuery] CustomerQueryParameters? query)
+        public async Task<IActionResult> GetFiltered([FromQuery] CustomerQueryParameters? query)
         {
             try
             {

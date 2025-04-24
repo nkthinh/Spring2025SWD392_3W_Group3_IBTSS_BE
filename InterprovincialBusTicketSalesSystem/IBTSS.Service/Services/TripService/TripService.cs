@@ -388,96 +388,91 @@ namespace IBTSS.Service.Services.TripService
                 hasDriver = !string.IsNullOrEmpty(t.DriverId)
             }).Cast<object>().ToList();
         }
-        //public async Task<(List<TripResponse>, int)> GetFilteredAsync(TripQueryParameters query)
-        //{
-        //    var trips = await _unitOfWork.Trips.GetAllAsync();
+        //phan trang
+        public async Task<(List<TripResponse>, int)> GetFilteredAsync(QueryParameters query)
+        {
+            var trips = await _unitOfWork.Trips.GetAllAsync();
 
-        //    // Include các thông tin liên kết nếu có
-        //    foreach (var t in trips)
-        //    {
-        //        // Load điều kiện nếu chưa được Include sẵn (tùy thuộc vào repo)
-        //        t.Route ??= await _unitOfWork.Routes.GetByIdAsync(t.RouteId);
-        //        t.Bus ??= await _unitOfWork.Buses.GetByIdAsync(t.BusId);
-        //        if (!string.IsNullOrEmpty(t.DriverId))
-        //        {
-        //            t.Driver ??= await _unitOfWork.Users.GetByIdAsync(t.DriverId);
-        //        }
-        //    }
+            foreach (var t in trips)
+            {
+                t.Route ??= await _unitOfWork.Routes.GetByIdAsync(t.RouteId);
+                t.Bus ??= await _unitOfWork.Buses.GetByIdAsync(t.BusId);
+                if (!string.IsNullOrEmpty(t.DriverId))
+                {
+                    t.Driver ??= await _unitOfWork.Users.GetByIdAsync(t.DriverId);
+                }
+            }
 
-        //    var filtered = trips.AsQueryable();
+            var filtered = trips.AsQueryable();
 
-        //    // Keyword search theo RouteName hoặc DriverId
-        //    if (!string.IsNullOrEmpty(query.Keyword))
-        //    {
-        //        filtered = filtered.Where(t =>
-        //            (!string.IsNullOrEmpty(t.Route?.RouteName) && t.Route.RouteName.Contains(query.Keyword, StringComparison.OrdinalIgnoreCase)) ||
-        //            (!string.IsNullOrEmpty(t.DriverId) && t.DriverId.Contains(query.Keyword, StringComparison.OrdinalIgnoreCase))
-        //        );
-        //    }
+            if (!string.IsNullOrEmpty(query.Keyword))
+            {
+                filtered = filtered.Where(t =>
+                      (t.Route != null && t.Route.RouteName != null && t.Route.RouteName.Contains(query.Keyword, StringComparison.OrdinalIgnoreCase)) ||
+                    (!string.IsNullOrEmpty(t.DriverId) && t.DriverId.Contains(query.Keyword, StringComparison.OrdinalIgnoreCase))
+                    );
 
-        //    // Sorting
-        //    filtered = query.SortBy switch
-        //    {
-        //        "date_asc" => filtered.OrderBy(t => t.Date),
-        //        "price_asc" => filtered.OrderBy(t => t.Price),
-        //        "price_desc" => filtered.OrderByDescending(t => t.Price),
-        //        _ => filtered.OrderByDescending(t => t.Date) // default: date_desc
-        //    };
+            }
 
-        //    var total = filtered.Count();
+            filtered = query.SortBy switch
+            {
+                "date_asc" => filtered.OrderBy(t => t.Date),
+                "price_asc" => filtered.OrderBy(t => t.Price),
+                "price_desc" => filtered.OrderByDescending(t => t.Price),
+                _ => filtered.OrderByDescending(t => t.Date)
+            };
 
-        //    // Nếu PageSize = -1 → trả tất cả
-        //    if (query.PageSize == -1)
-        //    {
-        //        var allMapped = filtered.Select(t => MapToResponse(t)).ToList();
-        //        return (allMapped, allMapped.Count);
-        //    }
+            var total = filtered.Count();
 
-        //    // Phân trang bình thường
-        //    var paged = filtered
-        //        .Skip((query.Page - 1) * query.PageSize)
-        //        .Take(query.PageSize)
-        //        .ToList();
+            if (query.PageSize == -1)
+            {
+                var allMapped = filtered.Select(t => MapToResponse(t)).ToList();
+                return (allMapped, allMapped.Count);
+            }
 
-        //    var mapped = paged.Select(t => MapToResponse(t)).ToList();
+            var paged = filtered
+                .Skip((query.Page - 1) * query.PageSize)
+                .Take(query.PageSize)
+                .ToList();
 
-        //    return (mapped, total);
-        //}
-        //private TripResponse MapToResponse(Trip t)
-        //{
-        //    var locationRoutes = new List<LocationRouteResponse>();
-        //    if (t.Route?.LocationRoutes != null)
-        //    {
-        //        locationRoutes = t.Route.LocationRoutes
-        //            .OrderBy(lr => lr.StopOrder)
-        //            .Select(lr => new LocationRouteResponse
-        //            {
-        //                LocationId = lr.LocationId,
-        //                LocationName = lr.Location?.LocationName ?? "",
-        //                StopOrder = lr.StopOrder,
-        //                StopDuration = lr.StopDuration
-        //            }).ToList();
-        //    }
+            var mapped = paged.Select(t => MapToResponse(t)).ToList();
+            return (mapped, total);
+        }
 
-        //    return new TripResponse
-        //    {
-        //        TripId = t.TripId,
-        //        RouteId = t.RouteId,
-        //        RouteName = t.Route?.RouteName ?? "",
-        //        BusId = t.BusId,
-        //        BusType = t.Bus?.BusType ?? "",
-        //        DriverId = t.DriverId ?? "",
-        //        DriverName = t.Driver?.Name ?? "",
-        //        DepartureTime = t.DepartureTime.ToString("HH:mm"),
-        //        Date = t.Date,
-        //        Direction = t.Direction,
-        //        IsDelete = t.IsDelete,
-        //        Price = t.Price,
-        //        Status = t.Status,
-        //        LocationRoutes = locationRoutes
-        //    };
-        //}
+        private TripResponse MapToResponse(Trip t)
+        {
+            var locationRoutes = new List<LocationRouteResponse>();
+            if (t.Route?.LocationRoutes != null)
+            {
+                locationRoutes = t.Route.LocationRoutes
+                    .OrderBy(lr => lr.StopOrder)
+                    .Select(lr => new LocationRouteResponse
+                    {
+                        LocationId = lr.LocationId,
+                        LocationName = lr.Location?.LocationName ?? "",
+                        StopOrder = lr.StopOrder,
+                        StopDuration = lr.StopDuration
+                    }).ToList();
+            }
 
+            return new TripResponse
+            {
+                TripId = t.TripId,
+                RouteId = t.RouteId,
+                RouteName = t.Route?.RouteName ?? "",
+                BusId = t.BusId,
+                BusType = t.Bus?.BusType ?? "",
+                DriverId = t.DriverId ?? "",
+                DriverName = t.Driver?.Name ?? "",
+                DepartureTime = t.DepartureTime.ToString("HH:mm"),
+                Date = t.Date,
+                Direction = t.Direction,
+                IsDelete = t.IsDelete,
+                Price = t.Price,
+                Status = t.Status,
+                LocationRoutes = locationRoutes
+            };
+        }
 
 
     }

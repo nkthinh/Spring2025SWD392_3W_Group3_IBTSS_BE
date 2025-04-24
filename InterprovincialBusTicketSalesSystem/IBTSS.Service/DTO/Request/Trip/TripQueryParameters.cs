@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace IBTSS.Service.DTO.Request.Trip
 {
-    public class TripQueryParameters
+    public class QueryParameters
     {
         public string? Keyword { get; set; } // tìm theo RouteName, DriverId,...
         public string? SortBy { get; set; } = "date_desc"; // date_asc, price_asc, price_desc

@@ -1,5 +1,6 @@
 ﻿using IBTSS.Repository.Entities;
 using IBTSS.Service.DTO.Request.Transaction;
+using IBTSS.Service.DTO.Request.Trip;
 using IBTSS.Service.DTO.Response.Transaction;
 using System;
 using System.Collections.Generic;
@@ -18,5 +19,6 @@ namespace IBTSS.Service.Services.TransactionService
         Task<TransactionResponse?> UpdateAsync(string id, TransactionRequest request);
         Task<bool> DeleteAsync(string id);
         Task<List<object>> GetRevenueByMonthAsync(int year, int month);
+        Task<(List<TransactionResponse>, int)> GetFilteredAsync(QueryParameters query);
     }
 }

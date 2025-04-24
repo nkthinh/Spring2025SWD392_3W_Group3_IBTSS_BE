@@ -1,4 +1,7 @@
 ﻿using IBTSS.Repository.Entities;
+using IBTSS.Service.DTO.Request.Trip;
+using IBTSS.Service.DTO.Response.Customer;
+using IBTSS.Service.DTO.Response.User;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,5 +19,6 @@ namespace IBTSS.Service.Services.UserService
         Task DeleteUserAsync(string userId);
         User? GetByUsername(string username);
         User? Authenticate(string username, string password);
+        Task<(List<LoginUserResponse>, int)> GetFilteredAsync(QueryParameters query);
     }
 }

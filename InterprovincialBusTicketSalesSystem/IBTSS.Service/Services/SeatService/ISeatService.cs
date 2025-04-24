@@ -1,4 +1,5 @@
 ﻿using IBTSS.Service.DTO.Request.Seat;
+using IBTSS.Service.DTO.Request.Trip;
 using IBTSS.Service.DTO.Response.Seat;
 using System;
 using System.Collections.Generic;
@@ -16,6 +17,7 @@ namespace IBTSS.Service.Services.SeatService
         Task<SeatResponse?> UpdateAsync(string id, SeatRequest request);
         Task<bool> DeleteAsync(string id);
         Task<SeatSummaryResponse> GetSeatAvailabilityByTripIdAsync(string tripId);
+        Task<(List<SeatResponse>, int)> GetFilteredAsync(QueryParameters query);
 
     }
 }

@@ -154,13 +154,29 @@ namespace IBTSS.Service.Services.BusService
 
             filtered = query.SortBy switch
             {
-                "model_asc" => filtered.OrderBy(b => b.Model),
-                "model_desc" => filtered.OrderByDescending(b => b.Model),
+                "modelyear_asc" => filtered.OrderBy(b => b.ModelYear),
+                "modelyear_desc" => filtered.OrderByDescending(b => b.ModelYear),
                 "id_desc" => filtered.OrderByDescending(b => b.BusId),
-                _ => filtered.OrderBy(b => b.BusId), // default: id_asc
+                "seatcount_desc"=>filtered.OrderByDescending(b => b.SeatCount),
+                "seatcount_asc" => filtered.OrderBy(b => b.SeatCount),
+                _ => filtered.OrderBy(b => b.BusId)
             };
 
             var totalCount = filtered.Count();
+
+            if (query.PageSize == -1)
+            {
+                var allMapped = filtered.Select(b => new BusResponse
+                {
+                    BusId = b.BusId,
+                    SeatCount = b.SeatCount,
+                    BusType = b.BusType,
+                    Model = b.Model,
+                    ModelYear = b.ModelYear,
+                    Color = b.Color
+                }).ToList();
+                return (allMapped, allMapped.Count);
+            }
 
             var items = filtered
                 .Skip((query.Page - 1) * query.PageSize)

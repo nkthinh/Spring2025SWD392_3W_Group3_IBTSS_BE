@@ -132,10 +132,18 @@ namespace IBTSS.Service.Services.CustomerService
             {
                 "name_desc" => filtered.OrderByDescending(c => c.Name),
                 "score_desc" => filtered.OrderByDescending(c => c.Score),
-                _ => filtered.OrderBy(c => c.Name) // default: name_asc
+                "membership_asc"=>filtered.OrderBy(c=>c.MembershipId),
+                "membership_desc" => filtered.OrderByDescending(c => c.MembershipId),
+                _ => filtered.OrderBy(c => c.Name)
             };
 
             var total = filtered.Count();
+
+            if (query.PageSize == -1)
+            {
+                var allMapped = _mapper.Map<List<CustomerResponse>>(filtered.ToList());
+                return (allMapped, allMapped.Count);
+            }
 
             var result = filtered
                 .Skip((query.Page - 1) * query.PageSize)

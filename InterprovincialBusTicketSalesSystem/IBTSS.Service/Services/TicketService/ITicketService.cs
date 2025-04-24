@@ -1,5 +1,6 @@
 ﻿using IBTSS.Repository.Entities;
 using IBTSS.Service.DTO.Request.Ticket;
+using IBTSS.Service.DTO.Request.Trip;
 using IBTSS.Service.DTO.Response.Ticket;
 using System;
 using System.Collections.Generic;
@@ -21,7 +22,7 @@ namespace IBTSS.Service.Services.TicketService
         Task<TicketResponse?> CancelTicketAsync(string ticketId);
         Task<bool> ConfirmBoardingAsync(string ticketId);
         Task<bool> ChangeSeatAsync(string ticketId, string newSeatId);
-
+        Task<(List<TicketResponse>, int)> GetFilteredAsync(QueryParameters query);
 
     }
 }

@@ -2,6 +2,7 @@
 using IBTSS.Repository.Repositories.MembershipRepository;
 using IBTSS.Repository.UnitOfWork;
 using IBTSS.Service.DTO.Request.Membership;
+using IBTSS.Service.DTO.Request.Trip;
 using IBTSS.Service.DTO.Response.Membership;
 using System;
 using System.Collections.Generic;
@@ -100,6 +101,56 @@ namespace IBTSS.Service.Services.MembershipService
             if (deleted) await _unitOfWork.CompleteAsync();
             return deleted;
         }
+        public async Task<(List<MembershipResponse>, int)> GetFilteredAsync(QueryParameters query)
+        {
+            var memberships = await _unitOfWork.Memberships.GetAllAsync();
+            var filtered = memberships.AsQueryable();
+
+            if (!string.IsNullOrEmpty(query.Keyword))
+            {
+                filtered = filtered.Where(m => m.RankName.Contains(query.Keyword, StringComparison.OrdinalIgnoreCase));
+            }
+
+            filtered = query.SortBy switch
+            {
+                "rank_desc" => filtered.OrderByDescending(m => m.RankName),
+                "minTickets" => filtered.OrderBy(m => m.MinTicketsRequired),
+                _ => filtered.OrderBy(m => m.RankName)
+            };
+
+            var total = filtered.Count();
+
+            if (query.PageSize == -1)
+            {
+                var allMapped = filtered.Select(m => new MembershipResponse
+                {
+                    MembershipId = m.MembershipId,
+                    RankName = m.RankName,
+                    MinTicketsRequired = m.MinTicketsRequired,
+                    DiscountRate = m.DiscountRate,
+                    Description = m.Description
+                }).ToList();
+
+                return (allMapped, allMapped.Count);
+            }
+
+            var paged = filtered
+                .Skip((query.Page - 1) * query.PageSize)
+                .Take(query.PageSize)
+                .ToList();
+
+            var mapped = paged.Select(m => new MembershipResponse
+            {
+                MembershipId = m.MembershipId,
+                RankName = m.RankName,
+                MinTicketsRequired = m.MinTicketsRequired,
+                DiscountRate = m.DiscountRate,
+                Description = m.Description
+            }).ToList();
+
+            return (mapped, total);
+        }
+
     }
 
 }

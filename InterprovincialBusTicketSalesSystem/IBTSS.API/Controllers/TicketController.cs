@@ -1,4 +1,5 @@
 ﻿using IBTSS.Service.DTO.Request.Ticket;
+using IBTSS.Service.DTO.Request.Trip;
 using IBTSS.Service.DTO.Response.Ticket;
 using IBTSS.Service.Services.TicketService;
 using Microsoft.AspNetCore.Mvc;
@@ -21,6 +22,31 @@ namespace IBTSS.API.Controllers
         {
             var result = await _ticketService.GetAllAsync();
             return Ok(result);
+        }
+        [HttpGet]
+        public async Task<IActionResult> Get([FromQuery] QueryParameters? query)
+        {
+            if (query == null ||
+                (string.IsNullOrEmpty(query.Keyword) && string.IsNullOrEmpty(query.SortBy) && query.Page == 0 && query.PageSize == 0))
+            {
+                var all = await _ticketService.GetAllAsync();
+                return Ok(all);
+            }
+
+            if (query.Page == 0) query.Page = 1;
+            if (query.PageSize == 0) query.PageSize = 10;
+
+            var (data, total) = await _ticketService.GetFilteredAsync(query);
+
+            var pagination = new
+            {
+                TotalCount = total,
+                PageSize = query.PageSize,
+                CurrentPage = query.Page,
+                TotalPages = query.PageSize == -1 ? 1 : (int)Math.Ceiling((double)total / query.PageSize)
+            };
+
+            return Ok(new { Data = data, Pagination = pagination });
         }
 
         [HttpGet("{id}")]

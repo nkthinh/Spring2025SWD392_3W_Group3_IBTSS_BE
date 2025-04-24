@@ -1,4 +1,5 @@
 ﻿using IBTSS.Service.DTO.Request.Seat;
+using IBTSS.Service.DTO.Request.Trip;
 using IBTSS.Service.DTO.Response.Seat;
 using IBTSS.Service.Services.SeatService;
 using Microsoft.AspNetCore.Mvc;
@@ -17,11 +18,35 @@ namespace IBTSS.API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<SeatResponse>>> GetAll()
+        public async Task<IActionResult> Get([FromQuery] QueryParameters? query)
         {
-            var result = await _seatService.GetAllAsync();
-            return Ok(result);
+            if (query == null ||
+                (string.IsNullOrEmpty(query.Keyword) && string.IsNullOrEmpty(query.SortBy) && query.Page == 0 && query.PageSize == 0))
+            {
+                var seats = await _seatService.GetAllAsync();
+                return Ok(seats);
+            }
+
+            if (query.Page == 0) query.Page = 1;
+            if (query.PageSize == 0) query.PageSize = 10;
+
+            var (data, total) = await _seatService.GetFilteredAsync(query);
+
+            var pagination = new
+            {
+                TotalCount = total,
+                PageSize = query.PageSize,
+                CurrentPage = query.Page,
+                TotalPages = query.PageSize == -1 ? 1 : (int)Math.Ceiling((double)total / query.PageSize)
+            };
+
+            return Ok(new
+            {
+                Data = data,
+                Pagination = pagination
+            });
         }
+
 
         [HttpGet("{id}")]
         public async Task<ActionResult<SeatResponse>> GetById(string id)

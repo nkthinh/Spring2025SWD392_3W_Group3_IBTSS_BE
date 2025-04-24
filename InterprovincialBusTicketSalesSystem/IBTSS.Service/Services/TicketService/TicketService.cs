@@ -1,6 +1,7 @@
 ﻿using IBTSS.Repository.Entities;
 using IBTSS.Repository.UnitOfWork;
 using IBTSS.Service.DTO.Request.Ticket;
+using IBTSS.Service.DTO.Request.Trip;
 using IBTSS.Service.DTO.Response.Ticket;
 using IBTSS.Service.Services.CustomerService;
 using Microsoft.Extensions.Logging;
@@ -288,6 +289,72 @@ namespace IBTSS.Service.Services.TicketService
             await _unitOfWork.CompleteAsync();
 
             return true;
+        }
+        //filter
+        public async Task<(List<TicketResponse>, int)> GetFilteredAsync(QueryParameters query)
+        {
+            var tickets = await _unitOfWork.Tickets.GetAllAsync();
+            var filtered = tickets.AsQueryable();
+
+            if (!string.IsNullOrEmpty(query.Keyword))
+            {
+                var keyword = query.Keyword.Trim();
+                filtered = filtered.Where(t =>
+                    t.Book != null &&
+                    t.Book.CustomerId != null &&
+                    t.Book.CustomerId.Contains(keyword, StringComparison.OrdinalIgnoreCase));
+
+            }
+
+            filtered = query.SortBy switch
+            {
+                "price_asc" => filtered.OrderBy(t => t.Price),
+                "price_desc" => filtered.OrderByDescending(t => t.Price),
+                "created_desc" => filtered.OrderByDescending(t => t.CreatedAt),
+                "created_asc" => filtered.OrderBy(t => t.CreatedAt),
+                _ => filtered.OrderByDescending(t => t.CreatedAt)
+            };
+
+            var total = filtered.Count();
+
+            if (query.PageSize == -1)
+            {
+                var all = filtered.ToList();
+                var mapped = all.Select(t => new TicketResponse
+                {
+                    TicketId = t.TicketId,
+                    BookId = t.BookId,
+                    TripId = t.TripId,
+                    SeatId = t.SeatId,
+                    CreatedAt = t.Book?.CreatedAt ?? DateTime.MinValue,
+                    CustomerId = t.Book?.CustomerId ?? string.Empty,
+                    IsCancelled = t.isCancelled,
+                    Price = t.Price,
+                    Status = t.Status
+                }).ToList();
+
+                return (mapped, mapped.Count);
+            }
+
+            var paged = filtered
+                .Skip((query.Page - 1) * query.PageSize)
+                .Take(query.PageSize)
+                .ToList();
+
+            var result = paged.Select(t => new TicketResponse
+            {
+                TicketId = t.TicketId,
+                BookId = t.BookId,
+                TripId = t.TripId,
+                SeatId = t.SeatId,
+                CreatedAt = t.Book?.CreatedAt ?? DateTime.MinValue,
+                CustomerId = t.Book?.CustomerId ?? string.Empty,
+                IsCancelled = t.isCancelled,
+                Price = t.Price,
+                Status = t.Status
+            }).ToList();
+
+            return (result, total);
         }
 
     }

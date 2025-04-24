@@ -21,11 +21,44 @@ namespace IBTSS.API.Controllers
                 _tripService = tripService;
             }
 
+            //[HttpGet]
+            //public async Task<ActionResult<List<TripResponse>>> GetAll()
+            //{
+            //    var trips = await _tripService.GetAllAsync();
+            //    return Ok(trips);
+            //}
+            //
+
             [HttpGet]
-            public async Task<ActionResult<List<TripResponse>>> GetAll()
+            public async Task<IActionResult> Get([FromQuery] QueryParameters? query)
             {
-                var trips = await _tripService.GetAllAsync();
-                return Ok(trips);
+                // Nếu không truyền gì hoặc toàn bộ là mặc định → GetAll
+                if (query == null ||
+                    (string.IsNullOrEmpty(query.Keyword) && string.IsNullOrEmpty(query.SortBy) && query.Page == 0 && query.PageSize == 0))
+                {
+                    var allTrips = await _tripService.GetAllAsync();
+                    return Ok(allTrips);
+                }
+
+                // Nếu không có Page hoặc PageSize thì gán mặc định
+                if (query.Page == 0) query.Page = 1;
+                if (query.PageSize == 0) query.PageSize = 10;
+
+                var (data, totalCount) = await _tripService.GetFilteredAsync(query);
+
+                var pagination = new
+                {
+                    TotalCount = totalCount,
+                    PageSize = query.PageSize,
+                    CurrentPage = query.Page,
+                    TotalPages = query.PageSize == -1 ? 1 : (int)Math.Ceiling((double)totalCount / query.PageSize)
+                };
+
+                return Ok(new
+                {
+                    Data = data,
+                    Pagination = pagination
+                });
             }
 
             [HttpGet("{id}")]

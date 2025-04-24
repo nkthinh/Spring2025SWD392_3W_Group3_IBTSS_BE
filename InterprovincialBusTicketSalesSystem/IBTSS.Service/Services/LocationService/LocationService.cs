@@ -1,6 +1,7 @@
 ﻿using IBTSS.Repository.Entities;
 using IBTSS.Repository.UnitOfWork;
 using IBTSS.Service.DTO.Request.Location;
+using IBTSS.Service.DTO.Request.Trip;
 using IBTSS.Service.DTO.Response.Location;
 using System;
 using System.Collections.Generic;
@@ -86,6 +87,46 @@ namespace IBTSS.Service.Services.LocationService
             if (deleted) await _unitOfWork.CompleteAsync();
             return deleted;
         }
+        public async Task<(List<LocationResponse>, int)> GetFilteredAsync(QueryParameters query)
+        {
+            var locations = await _unitOfWork.Locations.GetAllAsync();
+            var filtered = locations.AsQueryable();
+
+            if (!string.IsNullOrEmpty(query.Keyword))
+            {
+                filtered = filtered.Where(l =>
+                    !string.IsNullOrEmpty(l.LocationName) &&
+                    l.LocationName.Contains(query.Keyword, StringComparison.OrdinalIgnoreCase));
+            }
+
+            var total = filtered.Count();
+
+            if (query.PageSize == -1)
+            {
+                var allMapped = filtered.Select(x => new LocationResponse
+                {
+                    LocationId = x.LocationId,
+                    LocationName = x.LocationName,
+                    IsDelete = x.IsDelete
+                }).ToList();
+                return (allMapped, allMapped.Count);
+            }
+
+            var paged = filtered
+                .Skip((query.Page - 1) * query.PageSize)
+                .Take(query.PageSize)
+                .ToList();
+
+            var mapped = paged.Select(x => new LocationResponse
+            {
+                LocationId = x.LocationId,
+                LocationName = x.LocationName,
+                IsDelete = x.IsDelete
+            }).ToList();
+
+            return (mapped, total);
+        }
+
     }
 
 }

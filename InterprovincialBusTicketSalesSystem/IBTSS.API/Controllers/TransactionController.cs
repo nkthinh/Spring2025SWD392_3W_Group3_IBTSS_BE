@@ -1,5 +1,6 @@
 ﻿using IBTSS.Repository.Entities;
 using IBTSS.Service.DTO.Request.Transaction;
+using IBTSS.Service.DTO.Request.Trip;
 using IBTSS.Service.DTO.Response.Transaction;
 using IBTSS.Service.Services.TransactionService;
 using Microsoft.AspNetCore.Authorization;
@@ -31,7 +32,37 @@ namespace IBTSS.API.Controllers
                 return StatusCode(500, "Internal server error");
             }
         }
+        [HttpGet]
+        public async Task<IActionResult> GetAll([FromQuery] QueryParameters? query)
+        {
+            try
+            {
+                if (query == null || (string.IsNullOrEmpty(query.Keyword) && query.PageSize == 0 && query.Page == 0 && string.IsNullOrEmpty(query.SortBy)))
+                {
+                    var all = await _transactionService.GetAllAsync();
+                    return Ok(all);
+                }
 
+                if (query.Page == 0) query.Page = 1;
+                if (query.PageSize == 0) query.PageSize = 10;
+
+                var (data, totalCount) = await _transactionService.GetFilteredAsync(query);
+
+                var pagination = new
+                {
+                    TotalCount = totalCount,
+                    PageSize = query.PageSize,
+                    CurrentPage = query.Page,
+                    TotalPages = (int)Math.Ceiling((double)totalCount / query.PageSize)
+                };
+
+                return Ok(new { Data = data, Pagination = pagination });
+            }
+            catch
+            {
+                return StatusCode(500, "Internal server error");
+            }
+        }
         [HttpGet("{id}")]
         public async Task<ActionResult<TransactionResponse>> GetById(string id)
         {

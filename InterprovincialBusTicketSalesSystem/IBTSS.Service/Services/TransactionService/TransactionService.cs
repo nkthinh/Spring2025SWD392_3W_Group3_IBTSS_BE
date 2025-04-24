@@ -3,6 +3,7 @@ using IBTSS.Repository.Entities;
 using IBTSS.Repository.Repositories.TicketRepository;
 using IBTSS.Repository.Repositories.TransactionRepository;
 using IBTSS.Service.DTO.Request.Transaction;
+using IBTSS.Service.DTO.Request.Trip;
 using IBTSS.Service.DTO.Response.Transaction;
 
 namespace IBTSS.Service.Services.TransactionService
@@ -86,6 +87,41 @@ namespace IBTSS.Service.Services.TransactionService
                 .ToList();
 
             return result;
+        }
+        public async Task<(List<TransactionResponse>, int)> GetFilteredAsync(QueryParameters query)
+        {
+            var transactions = await _repository.GetAllAsync();
+            var filtered = transactions.AsQueryable();
+
+            if (!string.IsNullOrEmpty(query.Keyword))
+            {
+                filtered = filtered.Where(t =>
+                    t.CustomerId.Contains(query.Keyword, StringComparison.OrdinalIgnoreCase) ||
+                    t.TransactionId.Contains(query.Keyword, StringComparison.OrdinalIgnoreCase));
+            }
+
+            filtered = query.SortBy switch
+            {
+                "amount_desc" => filtered.OrderByDescending(t => t.Amount),
+                "amount_asc" => filtered.OrderBy(t => t.Amount),
+                _ => filtered.OrderByDescending(t => t.CreatedAt),
+            };
+
+            var total = filtered.Count();
+
+            if (query.PageSize == -1)
+            {
+                var all = _mapper.Map<List<TransactionResponse>>(filtered.ToList());
+                return (all, total);
+            }
+
+            var paged = filtered
+                .Skip((query.Page - 1) * query.PageSize)
+                .Take(query.PageSize)
+                .ToList();
+
+            var mapped = _mapper.Map<List<TransactionResponse>>(paged);
+            return (mapped, total);
         }
 
 

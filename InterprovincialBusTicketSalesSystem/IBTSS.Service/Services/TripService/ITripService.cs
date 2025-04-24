@@ -27,7 +27,7 @@ namespace IBTSS.Service.Services.TripService
         Task<TripResponse?> CompleteTripAsync(string tripId);
         Task<TripResponse?> AssignDriverAsync(string tripId, string driverId);
         Task<List<object>> GetTripsForCalendarAsync(string? month);
-        //Task<(List<TripResponse>, int)> GetFilteredAsync(TripQueryParameters query);
+        Task<(List<TripResponse>, int)> GetFilteredAsync(QueryParameters query);
 
     }
 }

@@ -163,22 +163,28 @@ namespace IBTSS.Service.Services.BookService
         {
             var books = await _unitOfWork.Books.GetAllAsync();
             var filtered = books.AsQueryable();
-
+            //keyword=custromerId
             if (!string.IsNullOrEmpty(query.Keyword))
             {
-                filtered = filtered.Where(b => b.Customer != null && b.Customer.Name.Contains(query.Keyword, StringComparison.OrdinalIgnoreCase));
+                filtered = filtered.Where(b => b.Customer != null && b.Customer.CustomerId.Contains(query.Keyword, StringComparison.OrdinalIgnoreCase));
             }
 
             // Sort
             filtered = query.SortBy switch
             {
-                "date_asc" => filtered.OrderBy(b => b.CreatedAt),
-                "id_asc" => filtered.OrderBy(b => b.BookId),
-                "id_desc" => filtered.OrderByDescending(b => b.BookId),
+                "date_asc" => filtered.OrderBy(b => b.CreatedAt),  
+                "price_desc"=>filtered.OrderByDescending(b=>b.TotalPrice),
+                "price_asc" => filtered.OrderBy(b => b.TotalPrice),
                 _ => filtered.OrderByDescending(b => b.CreatedAt),
             };
 
             var totalCount = filtered.Count();
+
+            if (query.PageSize == -1)
+            {
+                var allMapped = _mapper.Map<List<BookResponse>>(filtered.ToList());
+                return (allMapped, allMapped.Count);
+            }
 
             var items = filtered
                 .Skip((query.Page - 1) * query.PageSize)
@@ -187,6 +193,7 @@ namespace IBTSS.Service.Services.BookService
 
             var mapped = _mapper.Map<List<BookResponse>>(items);
             return (mapped, totalCount);
+
         }
 
 

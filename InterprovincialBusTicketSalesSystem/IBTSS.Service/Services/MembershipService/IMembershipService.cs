@@ -1,4 +1,5 @@
 ﻿using IBTSS.Service.DTO.Request.Membership;
+using IBTSS.Service.DTO.Request.Trip;
 using IBTSS.Service.DTO.Response.Membership;
 using System;
 using System.Collections.Generic;
@@ -15,6 +16,7 @@ namespace IBTSS.Service.Services.MembershipService
         Task<MembershipResponse> AddAsync(MembershipRequest request);
         Task<MembershipResponse?> UpdateAsync(string id, MembershipRequest request);
         Task<bool> DeleteAsync(string id);
+        Task<(List<MembershipResponse>, int)> GetFilteredAsync(QueryParameters query);
     }
 
 }

@@ -1,6 +1,7 @@
 ﻿using IBTSS.Repository.Entities;
 using IBTSS.Repository.UnitOfWork;
 using IBTSS.Service.DTO.Request.Seat;
+using IBTSS.Service.DTO.Request.Trip;
 using IBTSS.Service.DTO.Response.Seat;
 using System;
 using System.Collections.Generic;
@@ -121,6 +122,56 @@ namespace IBTSS.Service.Services.SeatService
                 BookedSeats = seatResponses.Count(s => s.IsBooked),
                 Seats = seatResponses
             };
+        }
+        public async Task<(List<SeatResponse>, int)> GetFilteredAsync(QueryParameters query)
+        {
+            var seats = await _unitOfWork.Seats.GetAllAsync();
+            var filtered = seats.AsQueryable();
+
+            if (!string.IsNullOrEmpty(query.Keyword))
+            {
+                var keyword = query.Keyword.Trim();
+                filtered = filtered.Where(s =>
+                    s.SeatId.Contains(keyword, StringComparison.OrdinalIgnoreCase) ||
+                    s.BusId.Contains(keyword, StringComparison.OrdinalIgnoreCase));
+            }
+
+            filtered = query.SortBy switch
+            {
+                "bus_desc" => filtered.OrderByDescending(s => s.BusId),
+                "bus_asc" => filtered.OrderBy(s => s.BusId),
+                _ => filtered.OrderBy(s => s.SeatId)
+            };
+
+            var total = filtered.Count();
+
+            if (query.PageSize == -1)
+            {
+                var allMapped = filtered.Select(s => new SeatResponse
+                {
+                    SeatId = s.SeatId,
+                    BusId = s.BusId,
+                    IsDelete = s.IsDelete,
+                    IsBooked = s.IsBooked
+                }).ToList();
+
+                return (allMapped, allMapped.Count);
+            }
+
+            var paged = filtered
+                .Skip((query.Page - 1) * query.PageSize)
+                .Take(query.PageSize)
+                .ToList();
+
+            var mapped = paged.Select(s => new SeatResponse
+            {
+                SeatId = s.SeatId,
+                BusId = s.BusId,
+                IsDelete = s.IsDelete,
+                IsBooked = s.IsBooked
+            }).ToList();
+
+            return (mapped, total);
         }
 
     }

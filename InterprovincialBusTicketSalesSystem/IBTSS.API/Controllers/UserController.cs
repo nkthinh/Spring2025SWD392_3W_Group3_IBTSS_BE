@@ -27,7 +27,7 @@ namespace IBTSS.API.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
+                return StatusCode(500, new { message = ex.Message });
             }
         }
         [HttpGet("filter")]
@@ -53,14 +53,14 @@ namespace IBTSS.API.Controllers
             {
                 var user = await userService.GetByIdAsync(id);
                 if (user == null)
-                    return NotFound();
+                    return NotFound(new { message = $"User with ID '{id}' not found." });
 
                 var response = mapper.Map<AddUserResponse>(user);
                 return Ok(response);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
+                return StatusCode(500, new { message = ex.Message });
             }
         }
         //admin only
@@ -72,19 +72,19 @@ namespace IBTSS.API.Controllers
             {
                 var user = await userService.GetByIdAsync(id);
                 if (user == null)
-                    return NotFound();
+                    return NotFound(new { message = $"User with ID '{id}' not found." });
 
                 user.Name = request.Name;
                 user.PhoneNumber = request.PhoneNumber;
                 user.Role = request.Role;
-                user.PasswordHash = request.Password; // sẽ được mã hóa trong Service
+                user.PasswordHash = request.Password;
 
                 await userService.UpdateUserAsync(user);
                 return Ok(mapper.Map<AddUserResponse>(user));
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
+                return StatusCode(500, new { message = ex.Message });
             }
         }
         //admin only
@@ -96,14 +96,14 @@ namespace IBTSS.API.Controllers
             {
                 var user = await userService.GetByIdAsync(id);
                 if (user == null)
-                    return NotFound();
+                    return NotFound(new { message = $"User with ID '{id}' not found." });
 
                 await userService.DeleteUserAsync(id);
-                return Ok(new { message = "User deleted (soft delete) successfully" });
+                return Ok(new { message = "User deleted (soft delete) successfully." });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
+                return StatusCode(500, new { message = ex.Message });
             }
         }
 
@@ -114,20 +114,20 @@ namespace IBTSS.API.Controllers
             {
                 var user = userService.Authenticate(request.Username, request.Password);
                 if (user == null)
-                    return Unauthorized(new { message = "Invalid username or password" });
+                    return Unauthorized(new { message = "Invalid username or password." });
 
                 var token = jwtService.GenerateToken(user);
                 var userResponse = mapper.Map<LoginUserResponse>(user);
 
                 return Ok(new
                 {
-                    User = userResponse,
-                    Token = token
+                    user = userResponse,
+                    token = token
                 });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
+                return StatusCode(500, new { message = ex.Message });
             }
         }
         //admin only
@@ -152,12 +152,11 @@ namespace IBTSS.API.Controllers
 
                 await userService.AddUserAsync(user);
                 var response = mapper.Map<AddUserResponse>(user);
-
                 return Ok(response);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
+                return StatusCode(500, new { message = ex.Message });
             }
         }
     }

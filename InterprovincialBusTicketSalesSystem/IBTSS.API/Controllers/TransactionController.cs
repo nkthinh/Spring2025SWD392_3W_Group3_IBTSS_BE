@@ -45,11 +45,12 @@ namespace IBTSS.API.Controllers
 
                 return Ok(new { Data = data, Pagination = pagination });
             }
-            catch
+            catch (Exception ex)
             {
-                return StatusCode(500, "Internal server error");
+                return StatusCode(500, new { message = ex.Message });
             }
         }
+
         [HttpGet("{id}")]
         public async Task<ActionResult<TransactionResponse>> GetById(string id)
         {
@@ -57,15 +58,16 @@ namespace IBTSS.API.Controllers
             {
                 var result = await _transactionService.GetByIdAsync(id);
                 if (result == null)
-                    return NotFound();
+                    return NotFound(new { message = $"Transaction with ID '{id}' not found." });
 
                 return Ok(result);
             }
-            catch
+            catch (Exception ex)
             {
-                return StatusCode(500, "Internal server error");
+                return StatusCode(500, new { message = ex.Message });
             }
         }
+
         [HttpGet("by-customer/{customerId}")]
         public async Task<ActionResult<List<TransactionResponse>>> GetByCustomerId(string customerId)
         {
@@ -73,13 +75,13 @@ namespace IBTSS.API.Controllers
             {
                 var result = await _transactionService.GetByCustomerIdAsync(customerId);
                 if (result == null || !result.Any())
-                    return NotFound();
+                    return NotFound(new { message = $"No transactions found for customer '{customerId}'." });
 
                 return Ok(result);
             }
-            catch
+            catch (Exception ex)
             {
-                return StatusCode(500, "Internal server error");
+                return StatusCode(500, new { message = ex.Message });
             }
         }
 
@@ -89,36 +91,34 @@ namespace IBTSS.API.Controllers
             try
             {
                 if (string.IsNullOrWhiteSpace(request.CustomerId))
-                    return BadRequest("CustomerId is required.");
+                    return BadRequest(new { message = "CustomerId is required." });
 
                 var created = await _transactionService.AddAsync(request);
+                if (created == null)
+                    return BadRequest(new { message = "No pending booking found for the customer." });
+
                 return CreatedAtAction(nameof(GetById), new { id = created.TransactionId }, created);
             }
             catch (Exception ex)
             {
-                if (ex.Message.Contains("No pending booking"))
-                    return BadRequest(ex.Message);
-
-                return StatusCode(500, "An error occurred while creating the transaction.");
+                return StatusCode(500, new { message = ex.Message });
             }
-
         }
 
-
         [HttpPut("{id}")]
-        public async Task<ActionResult<TransactionResponse>> Update(string CustomerId, [FromBody] TransactionRequest request)
+        public async Task<ActionResult<TransactionResponse>> Update(string id, [FromBody] TransactionRequest request)
         {
             try
             {
-                var updated = await _transactionService.UpdateAsync(CustomerId, request);
+                var updated = await _transactionService.UpdateAsync(id, request);
                 if (updated == null)
-                    return NotFound();
+                    return NotFound(new { message = $"Transaction with ID '{id}' not found." });
 
                 return Ok(updated);
             }
-            catch
+            catch (Exception ex)
             {
-                return StatusCode(500, "Internal server error");
+                return StatusCode(500, new { message = ex.Message });
             }
         }
 
@@ -129,17 +129,17 @@ namespace IBTSS.API.Controllers
             {
                 var deleted = await _transactionService.DeleteAsync(id);
                 if (!deleted)
-                    return NotFound();
+                    return NotFound(new { message = $"Transaction with ID '{id}' not found." });
 
                 return NoContent();
             }
-            catch
+            catch (Exception ex)
             {
-                return StatusCode(500, "Internal server error");
+                return StatusCode(500, new { message = ex.Message });
             }
         }
+
         [HttpGet("revenue-by-month")]
-        //[Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetRevenueByMonth([FromQuery] int year, [FromQuery] int month)
         {
             try
@@ -147,9 +147,9 @@ namespace IBTSS.API.Controllers
                 var result = await _transactionService.GetRevenueByMonthAsync(year, month);
                 return Ok(result);
             }
-            catch
+            catch (Exception ex)
             {
-                return StatusCode(500, "Internal server error");
+                return StatusCode(500, new { message = ex.Message });
             }
         }
     }

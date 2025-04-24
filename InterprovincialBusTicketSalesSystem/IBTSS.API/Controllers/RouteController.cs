@@ -11,7 +11,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace IBTSS.API.Controllers
 {
-    //admin only
     [Authorize(Roles = "Admin")]
     [ApiController]
     [Route("api/[controller]")]
@@ -19,13 +18,13 @@ namespace IBTSS.API.Controllers
     {
         private readonly IRouteService _routeService;
         private readonly IMapper _mapper;
+
         public RouteController(IRouteService routeService, IMapper mapper)
         {
             _routeService = routeService;
             _mapper = mapper;
         }
 
-  
         [HttpGet]
         public async Task<IActionResult> GetFiltered([FromQuery] QueryParameters? query)
         {
@@ -51,17 +50,14 @@ namespace IBTSS.API.Controllers
                     TotalPages = (int)Math.Ceiling((double)totalCount / query.PageSize)
                 };
 
-                return Ok(new
-                {
-                    Data = data,
-                    Pagination = pagination
-                });
+                return Ok(new { Data = data, Pagination = pagination });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
+                return StatusCode(500, new { message = ex.Message });
             }
         }
+
         [HttpGet("{id}")]
         public async Task<ActionResult<RouteResponse>> GetById(string id)
         {
@@ -69,55 +65,61 @@ namespace IBTSS.API.Controllers
             {
                 var result = await _routeService.GetByIdAsync(id);
                 if (result == null)
-                    return NotFound();
+                    return NotFound(new { message = $"Route with ID '{id}' not found." });
+
                 return Ok(result);
             }
-            catch
+            catch (Exception ex)
             {
-                return StatusCode(500, "Internal server error");
+                return StatusCode(500, new { message = ex.Message });
             }
         }
+
         [HttpPost]
-        public async Task<ActionResult<RouteResponse>> Add(RouteRequest request)
+        public async Task<ActionResult<RouteResponse>> Add([FromBody] RouteRequest request)
         {
             try
             {
                 var result = await _routeService.AddAsync(request);
                 return CreatedAtAction(nameof(GetById), new { id = result.RouteId }, result);
             }
-            catch
+            catch (Exception ex)
             {
-                return StatusCode(500, "Internal server error");
+                return StatusCode(500, new { message = ex.Message });
             }
         }
-        [HttpPut]
-        public async Task<ActionResult<RouteResponse>> Update(string id, RouteRequest request)
+
+        [HttpPut("{id}")]
+        public async Task<ActionResult<RouteResponse>> Update(string id, [FromBody] RouteRequest request)
         {
             try
             {
                 var result = await _routeService.UpdateAsync(id, request);
                 if (result == null)
-                    return NotFound();
+                    return NotFound(new { message = $"Route with ID '{id}' not found." });
+
                 return Ok(result);
             }
-            catch
+            catch (Exception ex)
             {
-                return StatusCode(500, "Internal server error");
+                return StatusCode(500, new { message = ex.Message });
             }
         }
+
         [HttpDelete("{id}")]
-        public async Task<ActionResult<bool>> Delete(string id)
+        public async Task<ActionResult> Delete(string id)
         {
             try
             {
                 var result = await _routeService.DeleteAsync(id);
                 if (!result)
-                    return NotFound();
-                return Ok(result);
+                    return NotFound(new { message = $"Route with ID '{id}' not found." });
+
+                return NoContent();
             }
-            catch
+            catch (Exception ex)
             {
-                return StatusCode(500, "Internal server error");
+                return StatusCode(500, new { message = ex.Message });
             }
         }
     }

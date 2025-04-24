@@ -40,7 +40,7 @@ namespace IBTSS.Service.Services.BookService
                 CreatedAt = DateTime.UtcNow,
                 TicketCount = request.Seats.Count,
                 TotalPrice = 0,
-                Status = "Pending"
+                Status = "Đang xử lý"
             };
 
             await _unitOfWork.Books.AddAsync(book);
@@ -84,7 +84,7 @@ namespace IBTSS.Service.Services.BookService
                     isCancelled = false,
                     IsDelete = false,
                     CreatedAt = book.CreatedAt,
-                    Status = "Pending"
+                    Status = "Đang xử lý"
                 };
 
                 tickets.Add(ticket);
@@ -113,7 +113,7 @@ namespace IBTSS.Service.Services.BookService
             if (existing == null) return null;
 
             existing.CustomerId = request.CustomerId;
-            existing.Status = "Updated";
+            existing.Status = "Đã cập nhật";
             await _unitOfWork.Books.UpdateAsync(existing);
             await _unitOfWork.CompleteAsync();
             return existing;

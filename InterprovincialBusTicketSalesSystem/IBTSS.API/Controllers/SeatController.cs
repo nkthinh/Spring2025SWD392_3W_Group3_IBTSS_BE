@@ -20,64 +20,105 @@ namespace IBTSS.API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetFiltered([FromQuery] QueryParameters? query)
         {
-            if (query == null ||
-                (string.IsNullOrEmpty(query.Keyword) && string.IsNullOrEmpty(query.SortBy) && query.Page == 0 && query.PageSize == 0))
+            try
             {
-                var seats = await _seatService.GetAllAsync();
-                return Ok(seats);
+                if (query == null ||
+                    (string.IsNullOrEmpty(query.Keyword) && string.IsNullOrEmpty(query.SortBy) && query.Page == 0 && query.PageSize == 0))
+                {
+                    var seats = await _seatService.GetAllAsync();
+                    return Ok(seats);
+                }
+
+                if (query.Page == 0) query.Page = 1;
+                if (query.PageSize == 0) query.PageSize = 10;
+
+                var (data, total) = await _seatService.GetFilteredAsync(query);
+
+                var pagination = new
+                {
+                    TotalCount = total,
+                    PageSize = query.PageSize,
+                    CurrentPage = query.Page,
+                    TotalPages = query.PageSize == -1 ? 1 : (int)Math.Ceiling((double)total / query.PageSize)
+                };
+
+                return Ok(new
+                {
+                    Data = data,
+                    Pagination = pagination
+                });
             }
-
-            if (query.Page == 0) query.Page = 1;
-            if (query.PageSize == 0) query.PageSize = 10;
-
-            var (data, total) = await _seatService.GetFilteredAsync(query);
-
-            var pagination = new
+            catch (Exception ex)
             {
-                TotalCount = total,
-                PageSize = query.PageSize,
-                CurrentPage = query.Page,
-                TotalPages = query.PageSize == -1 ? 1 : (int)Math.Ceiling((double)total / query.PageSize)
-            };
-
-            return Ok(new
-            {
-                Data = data,
-                Pagination = pagination
-            });
+                return StatusCode(500, new { message = ex.Message });
+            }
         }
-
 
         [HttpGet("{id}")]
         public async Task<ActionResult<SeatResponse>> GetById(string id)
         {
-            var result = await _seatService.GetByIdAsync(id);
-            if (result == null) return NotFound();
-            return Ok(result);
+            try
+            {
+                var result = await _seatService.GetByIdAsync(id);
+                if (result == null)
+                    return NotFound(new { message = $"Seat with ID '{id}' not found." });
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
         }
 
         [HttpPost]
         public async Task<ActionResult<SeatResponse>> Create([FromBody] SeatRequest request)
         {
-            var created = await _seatService.AddAsync(request);
-            return CreatedAtAction(nameof(GetById), new { id = created.SeatId }, created);
+            try
+            {
+                var created = await _seatService.AddAsync(request);
+                return CreatedAtAction(nameof(GetById), new { id = created.SeatId }, created);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
         }
 
         [HttpPut("{id}")]
         public async Task<ActionResult<SeatResponse>> Update(string id, [FromBody] SeatRequest request)
         {
-            var updated = await _seatService.UpdateAsync(id, request);
-            if (updated == null) return NotFound();
-            return Ok(updated);
+            try
+            {
+                var updated = await _seatService.UpdateAsync(id, request);
+                if (updated == null)
+                    return NotFound(new { message = $"Seat with ID '{id}' not found." });
+
+                return Ok(updated);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(string id)
         {
-            var result = await _seatService.DeleteAsync(id);
-            if (!result) return NotFound();
-            return NoContent();
+            try
+            {
+                var result = await _seatService.DeleteAsync(id);
+                if (!result)
+                    return NotFound(new { message = $"Seat with ID '{id}' not found." });
+
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
         }
+
         [HttpGet("trip/{tripId}/availability")]
         public async Task<ActionResult<SeatSummaryResponse>> GetAvailabilityByTrip(string tripId)
         {
@@ -88,10 +129,8 @@ namespace IBTSS.API.Controllers
             }
             catch (Exception ex)
             {
-                return NotFound(ex.Message);
+                return StatusCode(500, new { message = ex.Message });
             }
         }
-
-
     }
 }

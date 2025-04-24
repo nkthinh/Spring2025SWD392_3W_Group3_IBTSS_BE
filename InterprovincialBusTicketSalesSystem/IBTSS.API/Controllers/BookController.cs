@@ -23,65 +23,106 @@ namespace IBTSS.API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetFiltered([FromQuery] BookQueryParameters? query)
         {
-            if (query == null ||
-                (string.IsNullOrEmpty(query.Keyword) && string.IsNullOrEmpty(query.SortBy) && query.Page == 0 && query.PageSize == 0))
+            try
             {
-                var books = await _service.GetAllAsync();
-                var mapped = _mapper.Map<List<BookResponse>>(books);
-                return Ok(mapped);
+                if (query == null ||
+                    (string.IsNullOrEmpty(query.Keyword) && string.IsNullOrEmpty(query.SortBy) && query.Page == 0 && query.PageSize == 0))
+                {
+                    var books = await _service.GetAllAsync();
+                    var mapped = _mapper.Map<List<BookResponse>>(books);
+                    return Ok(mapped);
+                }
+
+                if (query.Page == 0) query.Page = 1;
+                if (query.PageSize == 0) query.PageSize = 10;
+
+                var (data, totalCount) = await _service.GetFilteredAsync(query);
+
+                var pagination = new
+                {
+                    TotalCount = totalCount,
+                    PageSize = query.PageSize,
+                    CurrentPage = query.Page,
+                    TotalPages = (int)Math.Ceiling((double)totalCount / query.PageSize)
+                };
+
+                return Ok(new
+                {
+                    Data = data,
+                    Pagination = pagination
+                });
             }
-
-            if (query.Page == 0) query.Page = 1;
-            if (query.PageSize == 0) query.PageSize = 10;
-
-            var (data, totalCount) = await _service.GetFilteredAsync(query);
-
-            var pagination = new
+            catch (Exception ex)
             {
-                TotalCount = totalCount,
-                PageSize = query.PageSize,
-                CurrentPage = query.Page,
-                TotalPages = (int)Math.Ceiling((double)totalCount / query.PageSize)
-            };
-
-            return Ok(new
-            {
-                Data = data,
-                Pagination = pagination
-            });
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(string id)
         {
-            var book = await _service.GetByIdAsync(id);
-            if (book == null) return NotFound();
+            try
+            {
+                var book = await _service.GetByIdAsync(id);
+                if (book == null) return NotFound(new { message = "Not Found" });
 
-            var bookResponse = _mapper.Map<BookResponse>(book);
-            return Ok(bookResponse);
+                var bookResponse = _mapper.Map<BookResponse>(book);
+                return Ok(bookResponse);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
 
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateBookRequest request)
         {
-            var result = await _service.CreateAsync(request);
-            return Ok(result);
+            try
+            {
+                var result = await _service.CreateAsync(request);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
         }
 
         [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(string id, [FromBody] CreateBookRequest request)
         {
-            var updated = await _service.UpdateAsync(id, request);
-            return updated == null ? NotFound() : Ok(updated);
+            try
+            {
+                var updated = await _service.UpdateAsync(id, request);
+                if (updated == null)
+                    return NotFound(new { message = "Not Found" });
+
+                return Ok(updated);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
         }
 
         [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(string id)
         {
-            var deleted = await _service.DeleteAsync(id);
-            return deleted ? Ok() : NotFound();
+            try
+            {
+                var deleted = await _service.DeleteAsync(id);
+                if (!deleted)
+                    return NotFound(new { message = "Not Found" });
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
         }
     }
 }

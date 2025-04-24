@@ -17,12 +17,14 @@ namespace IBTSS.API.Controllers
     {
         private readonly ILocationService _locationService;
         private readonly IMapper _mapper;
+
         public LocationController(ILocationService locationService, IMapper mapper)
         {
             _locationService = locationService;
             _mapper = mapper;
         }
-        [Authorize(Roles = "Admin")]       
+
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public async Task<IActionResult> GetFiltered([FromQuery] QueryParameters? query)
         {
@@ -31,7 +33,7 @@ namespace IBTSS.API.Controllers
                 if (query == null || (string.IsNullOrEmpty(query.Keyword) && string.IsNullOrEmpty(query.SortBy) && query.Page == 0 && query.PageSize == 0))
                 {
                     var all = await _locationService.GetAllAsync();
-                    var mapped = _mapper.Map<IEnumerable<CustomerResponse>>(all);
+                    var mapped = _mapper.Map<IEnumerable<LocationResponse>>(all);
                     return Ok(mapped);
                 }
 
@@ -48,50 +50,81 @@ namespace IBTSS.API.Controllers
                     TotalPages = (int)Math.Ceiling((double)totalCount / query.PageSize)
                 };
 
-                return Ok(new
-                {
-                    Data = data,
-                    Pagination = pagination
-                });
+                return Ok(new { Data = data, Pagination = pagination });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
+                return StatusCode(500, new { message = ex.Message });
             }
         }
-
-
 
         [Authorize(Roles = "Admin")]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(string id)
         {
-            var location = await _locationService.GetByIdAsync(id);
-            if (location == null) return NotFound($"Location with ID {id} not found.");
-            return Ok(location);
+            try
+            {
+                var location = await _locationService.GetByIdAsync(id);
+                if (location == null)
+                    return NotFound(new { message = $"Location with ID '{id}' not found." });
+
+                return Ok(location);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
         }
+
         [Authorize(Roles = "Admin")]
         [HttpPost]
-        public async Task<IActionResult> Add(LocationRequest request)
+        public async Task<IActionResult> Add([FromBody] LocationRequest request)
         {
-            var created = await _locationService.AddAsync(request);
-            return CreatedAtAction(nameof(GetById), new { id = created.LocationId }, created);
+            try
+            {
+                var created = await _locationService.AddAsync(request);
+                return CreatedAtAction(nameof(GetById), new { id = created.LocationId }, created);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
         }
+
         [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(string id, LocationRequest request)
+        public async Task<IActionResult> Update(string id, [FromBody] LocationRequest request)
         {
-            var updated = await _locationService.UpdateAsync(id, request);
-            if (updated == null) return NotFound($"Location with ID {id} not found.");
-            return Ok(updated);
+            try
+            {
+                var updated = await _locationService.UpdateAsync(id, request);
+                if (updated == null)
+                    return NotFound(new { message = $"Location with ID '{id}' not found." });
+
+                return Ok(updated);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
         }
+
         [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(string id)
         {
-            var deleted = await _locationService.DeleteAsync(id);
-            if (!deleted) return NotFound($"Location with ID {id} not found.");
-            return NoContent();
+            try
+            {
+                var deleted = await _locationService.DeleteAsync(id);
+                if (!deleted)
+                    return NotFound(new { message = $"Location with ID '{id}' not found." });
+
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
         }
     }
 }

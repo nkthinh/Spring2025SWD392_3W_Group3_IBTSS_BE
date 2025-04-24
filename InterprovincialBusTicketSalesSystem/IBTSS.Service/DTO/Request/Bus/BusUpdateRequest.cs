@@ -13,6 +13,7 @@ namespace IBTSS.Service.DTO.Request.Bus
         public string? Model { get; set; }
         public int? ModelYear { get; set; }
         public string? Color { get; set; }
+        public List<string>? SeatIdsToRemove { get; set; }
     }
 
 }

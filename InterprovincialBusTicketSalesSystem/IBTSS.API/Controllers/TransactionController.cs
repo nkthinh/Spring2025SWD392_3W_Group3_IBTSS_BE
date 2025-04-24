@@ -20,19 +20,6 @@ namespace IBTSS.API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<TransactionResponse>>> GetAll()
-        {
-            try
-            {
-                var result = await _transactionService.GetAllAsync();
-                return Ok(result);
-            }
-            catch
-            {
-                return StatusCode(500, "Internal server error");
-            }
-        }
-        [HttpGet]
         public async Task<IActionResult> GetFiltered([FromQuery] QueryParameters? query)
         {
             try

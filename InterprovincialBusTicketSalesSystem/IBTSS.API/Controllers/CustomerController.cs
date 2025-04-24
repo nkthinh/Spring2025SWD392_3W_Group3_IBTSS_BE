@@ -9,8 +9,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace IBTSS.API.Controllers
 {
-    [Route("customers")]
     [ApiController]
+    [Route("api/[controller]")]
     public class CustomerController(IMapper mapper, ICustomerService customerService) : ControllerBase
     {
         [Authorize(Roles = "Admin")]
@@ -147,7 +147,8 @@ namespace IBTSS.API.Controllers
                 name = customer.Name,
                 score = customer.Score,
                 rank = membership?.RankName ?? "Default",
-                discountRate = membership?.DiscountRate ?? 0
+                discountRate = membership?.DiscountRate ?? 0,
+                discountQuotaLeft = customer?.DiscountQuotaLeft??0
             });
         }
 

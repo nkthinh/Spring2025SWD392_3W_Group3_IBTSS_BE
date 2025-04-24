@@ -21,6 +21,7 @@ using IBTSS.Service.Services.LocationService;
 using IBTSS.Service.Services.MembershipService;
 using IBTSS.Service.Services.RouteService;
 using IBTSS.Service.Services.SeatService;
+using IBTSS.Service.Services.SMSService;
 using IBTSS.Service.Services.TicketService;
 using IBTSS.Service.Services.TransactionService;
 using IBTSS.Service.Services.TripService;
@@ -51,7 +52,7 @@ namespace IBTSS.API
             services.AddScoped<ILocationService, LocationService>();
             services.AddScoped<IRouteService, RouteService>();
             services.AddScoped<IBookService, BookService>();
-
+            services.AddScoped<SmsService>();
 
             // Đăng ký các Repository
             services.AddScoped<ICustomerRepository, CustomerRepository>();

@@ -49,7 +49,7 @@ namespace IBTSS.API.Controllers
                 return StatusCode(500, new { message = "Internal server error", error = ex.Message });
             }
         }
-        
+
         [HttpGet]
         public async Task<IActionResult> GetFiltered([FromQuery] BusQueryParameters? query)
         {

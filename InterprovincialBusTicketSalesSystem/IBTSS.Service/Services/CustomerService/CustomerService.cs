@@ -65,8 +65,41 @@ namespace IBTSS.Service.Services.CustomerService
         {
             try
             {
+                // ✅ Tính tổng số vé đã hoàn thành (không huỷ)
+                var tickets = await _unitOfWork.Tickets.GetAllAsync();
+                var completedTickets = tickets.Count(t =>
+                    t.Book != null &&
+                    t.Book.CustomerId == c.CustomerId &&
+                    !t.isCancelled);
+
+                // ✅ Lấy tất cả Membership
+                var memberships = await _unitOfWork.Memberships.GetAllAsync();
+
+                // ✅ Sắp xếp theo độ ưu tiên rank cao trước
+                var eligibleMembership = memberships
+                    .OrderByDescending(m => m.MinTicketsRequired)
+                    .FirstOrDefault(m => completedTickets >= m.MinTicketsRequired);
+
+                if (eligibleMembership != null)
+                {
+                    // Nếu khách chưa có hạng hoặc hạng mới cao hơn → lên hạng
+                    if (c.MembershipId == null || c.MembershipId != eligibleMembership.MembershipId)
+                    {
+                        c.MembershipId = eligibleMembership.MembershipId;
+                        c.DiscountQuotaLeft = 5;
+                        _logger.LogInformation($"Customer {c.CustomerId} promoted to {eligibleMembership.RankName} with 5 discount quota.");
+                    }
+                    // Nếu đã có hạng nhưng chưa có quota, thì bổ sung quota
+                    else if (c.DiscountQuotaLeft == null)
+                    {
+                        c.DiscountQuotaLeft = 5;
+                        _logger.LogInformation($"Customer {c.CustomerId} already has rank {eligibleMembership.RankName}, quota initialized.");
+                    }
+                }
+
                 _logger.LogInformation($"Updating Customer {c.CustomerId}");
                 await _unitOfWork.Customers.UpdateAsync(c);
+                await _unitOfWork.CompleteAsync(); // ✅ QUAN TRỌNG: Save thay đổi
             }
             catch (Exception ex)
             {
@@ -74,6 +107,7 @@ namespace IBTSS.Service.Services.CustomerService
                 throw;
             }
         }
+
 
         public async Task DeleteAsync(string id)
         {

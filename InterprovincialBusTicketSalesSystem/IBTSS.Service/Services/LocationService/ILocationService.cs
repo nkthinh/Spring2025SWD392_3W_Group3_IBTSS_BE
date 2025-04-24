@@ -1,4 +1,5 @@
 ﻿using IBTSS.Service.DTO.Request.Location;
+using IBTSS.Service.DTO.Request.Trip;
 using IBTSS.Service.DTO.Response.Location;
 using System;
 using System.Collections.Generic;
@@ -15,7 +16,7 @@ namespace IBTSS.Service.Services.LocationService
         Task<LocationResponse> AddAsync(LocationRequest request);
         Task<LocationResponse?> UpdateAsync(string id, LocationRequest request);
         Task<bool> DeleteAsync(string id);
-        //Task<(List<LocationResponse>, int)> GetFilteredAsync(LocationQueryParameters query);
+        Task<(List<LocationResponse>, int)> GetFilteredAsync(QueryParameters query);
 
     }
 

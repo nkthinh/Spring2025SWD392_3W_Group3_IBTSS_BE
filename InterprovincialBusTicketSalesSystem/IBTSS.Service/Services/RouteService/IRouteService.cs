@@ -1,4 +1,5 @@
 ﻿using IBTSS.Service.DTO.Request.Route;
+using IBTSS.Service.DTO.Request.Trip;
 using IBTSS.Service.DTO.Response.Route;
 using System;
 using System.Collections.Generic;
@@ -15,5 +16,6 @@ namespace IBTSS.Service.Services.RouteService
         Task<RouteResponse> AddAsync(RouteRequest request);
         Task<RouteResponse> UpdateAsync(string id,RouteRequest request);
         Task<bool> DeleteAsync(string id);
+        Task<(List<RouteResponse>, int)> GetFilteredAsync(QueryParameters query);
     }
 }

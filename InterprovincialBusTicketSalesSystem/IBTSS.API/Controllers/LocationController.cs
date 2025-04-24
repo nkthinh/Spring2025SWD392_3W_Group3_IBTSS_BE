@@ -1,5 +1,10 @@
-﻿using IBTSS.Service.DTO.Request.Location;
+﻿using AutoMapper;
+using IBTSS.Service.DTO.Request.Customer;
+using IBTSS.Service.DTO.Request.Location;
+using IBTSS.Service.DTO.Request.Trip;
+using IBTSS.Service.DTO.Response.Customer;
 using IBTSS.Service.DTO.Response.Location;
+using IBTSS.Service.Services.CustomerService;
 using IBTSS.Service.Services.LocationService;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -11,18 +16,52 @@ namespace IBTSS.API.Controllers
     public class LocationController : ControllerBase
     {
         private readonly ILocationService _locationService;
-
-        public LocationController(ILocationService locationService)
+        private readonly IMapper _mapper;
+        public LocationController(ILocationService locationService, IMapper mapper)
         {
             _locationService = locationService;
+            _mapper = mapper;
         }
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]       
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetFiltered([FromQuery] QueryParameters? query)
         {
-            var locations = await _locationService.GetAllAsync();
-            return Ok(locations);
+            try
+            {
+                if (query == null || (string.IsNullOrEmpty(query.Keyword) && string.IsNullOrEmpty(query.SortBy) && query.Page == 0 && query.PageSize == 0))
+                {
+                    var all = await _locationService.GetAllAsync();
+                    var mapped = _mapper.Map<IEnumerable<CustomerResponse>>(all);
+                    return Ok(mapped);
+                }
+
+                if (query.Page == 0) query.Page = 1;
+                if (query.PageSize == 0) query.PageSize = 10;
+
+                var (data, totalCount) = await _locationService.GetFilteredAsync(query);
+
+                var pagination = new
+                {
+                    TotalCount = totalCount,
+                    PageSize = query.PageSize,
+                    CurrentPage = query.Page,
+                    TotalPages = (int)Math.Ceiling((double)totalCount / query.PageSize)
+                };
+
+                return Ok(new
+                {
+                    Data = data,
+                    Pagination = pagination
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
+
+
+
         [Authorize(Roles = "Admin")]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(string id)

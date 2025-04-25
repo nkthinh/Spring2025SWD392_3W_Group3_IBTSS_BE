@@ -1,9 +1,5 @@
-﻿using IBTSS.Repository.Entities;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace IBTSS.Service.DTO.Response.Trip
 {
@@ -14,11 +10,25 @@ namespace IBTSS.Service.DTO.Response.Trip
         public string BusType { get; set; } = string.Empty;
 
         public string RouteName { get; set; } = string.Empty;
-        public string DepartureTime { get; set; }
-        public string Date { get; set; } = string.Empty;
+
+        // Sử dụng DateTime cho DepartureTime và Date
+        public DateTime DepartureTime { get; set; }
+        public DateTime Date { get; set; } = DateTime.MinValue;
+
         public decimal Price { get; set; }
 
-        public List<LocationStopDto> Stops { get; set; } = new();
-    }
+        // Stops sẽ được khởi tạo dưới dạng danh sách rỗng
+        public List<LocationStopDto> Stops { get; set; } = new List<LocationStopDto>();
 
+        // Phương thức để trả về chuỗi đã định dạng cho DepartureTime và Date
+        public string GetFormattedDepartureTime()
+        {
+            return DepartureTime.ToString("HH:mm");  // Ví dụ định dạng: 00:00
+        }
+
+        public string GetFormattedDate()
+        {
+            return Date.ToString("dd-MM-yyyy");  // Ví dụ định dạng: 25-04-2025
+        }
+    }
 }

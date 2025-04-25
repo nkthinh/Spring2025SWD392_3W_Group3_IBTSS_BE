@@ -28,7 +28,7 @@ namespace IBTSS.Repository.Repositories.BusRepository
         {
             return await _context.Buses
                 .Include(b => b.Seats)
-                .FirstOrDefaultAsync(b => b.BusId == id && !b.IsDelete);
+                .FirstOrDefaultAsync(b => b.BusId == id);
         }
 
         public async Task<Bus> AddAsync(Bus bus)

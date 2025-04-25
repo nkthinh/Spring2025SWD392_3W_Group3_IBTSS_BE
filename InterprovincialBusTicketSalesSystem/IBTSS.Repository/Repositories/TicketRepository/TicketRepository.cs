@@ -21,7 +21,7 @@ namespace IBTSS.Repository.Repositories.TicketRepository
             await _context.Tickets.Where(t => !t.IsDelete).ToListAsync();
 
         public async Task<Ticket?> GetByIdAsync(string id) =>
-            await _context.Tickets.FirstOrDefaultAsync(t => t.TicketId == id && !t.IsDelete);
+            await _context.Tickets.FirstOrDefaultAsync(t => t.TicketId == id);
 
         public async Task AddAsync(Ticket ticket)
         {

@@ -25,7 +25,7 @@ namespace IBTSS.Repository.Repositories.RouteRepository
             return await _context.Routes
                 .Include(r => r.LocationRoutes)
                 .Include(r => r.Trips)
-                .FirstOrDefaultAsync(r => r.RouteId == id && !r.IsDelete);
+                .FirstOrDefaultAsync(r => r.RouteId == id);
         }
 
         public async Task<Route> AddAsync(Route route)

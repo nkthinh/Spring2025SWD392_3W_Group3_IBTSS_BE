@@ -62,8 +62,9 @@ namespace IBTSS.Service.Services.BookService
             {
                 var seat = await _unitOfWork.Seats.GetByIdAsync(seatId);
                 if (seat == null || seat.IsBooked)
+                {
                     throw new Exception($"Seat {seatId} is not available");
-
+                }
                 seat.IsBooked = true;
                 await _unitOfWork.Seats.UpdateAsync(seat);
 

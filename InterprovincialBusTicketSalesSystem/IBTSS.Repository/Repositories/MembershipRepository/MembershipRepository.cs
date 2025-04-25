@@ -21,7 +21,7 @@ namespace IBTSS.Repository.Repositories.MembershipRepository
             await _context.Memberships.ToListAsync();
 
         public async Task<Membership?> GetByIdAsync(string id) =>
-            await _context.Memberships.FirstOrDefaultAsync(m => m.MembershipId == id && !m.IsDelete);
+            await _context.Memberships.FirstOrDefaultAsync(m => m.MembershipId == id);
         public async Task<Membership> AddAsync(Membership membership)
         {
             // Lấy MembershipId lớn nhất đang có

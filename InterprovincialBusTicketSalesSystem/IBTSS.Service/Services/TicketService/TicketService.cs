@@ -290,6 +290,10 @@ namespace IBTSS.Service.Services.TicketService
 
             return true;
         }
+
+
+
+
         //filter
         public async Task<(List<TicketResponse>, int)> GetFilteredAsync(QueryParameters query)
         {
@@ -300,11 +304,14 @@ namespace IBTSS.Service.Services.TicketService
             {
                 var keyword = query.Keyword.Trim();
                 filtered = filtered.Where(t =>
-                    t.Book != null &&
-                    t.Book.CustomerId != null &&
-                    t.Book.CustomerId.Contains(keyword, StringComparison.OrdinalIgnoreCase));
-
+                     t.Book != null &&
+                    (t.Book.CustomerId != null && t.Book.CustomerId.Contains(keyword, StringComparison.OrdinalIgnoreCase)) || // Lọc theo CustomerId
+                     t.TripId.Contains(keyword)|| // Lọc theo TripId
+                      (t.Trip != null && t.Trip.Route != null && t.Trip.Route.RouteName.ToLower().Contains(keyword)) // Lọc theo RouteName
+                     );
             }
+     
+            // Sắp xếp vé theo các trường (Price, CreatedAt)
 
             filtered = query.SortBy switch
             {

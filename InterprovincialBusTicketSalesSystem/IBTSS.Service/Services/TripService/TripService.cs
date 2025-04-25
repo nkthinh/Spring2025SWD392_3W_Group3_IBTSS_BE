@@ -190,18 +190,21 @@ namespace IBTSS.Service.Services.TripService
 
             return trips.Select(t => new TripSearchDto
             {
-                RouteName = t.Route?.RouteName ?? "",
-                DepartureTime = t.DepartureTime.ToString("HH:mm"),
-                Date = t.Date,
-                Price = t.Price,
-                Stops = t.Route?.LocationRoutes?
-                    .OrderBy(lr => lr.StopOrder)
+                TripId = t.TripId,  // Ánh xạ TripId
+                BusId = t.BusId,    // Ánh xạ BusId
+                BusType = t.Bus != null ? t.Bus.BusType : "Unknown", // Ánh xạ BusType từ Bus nếu có
+                RouteName = t.Route.RouteName,  // Ánh xạ RouteName
+                DepartureTime = DateTime.Today.Add(t.DepartureTime.ToTimeSpan()), // Chuyển TimeOnly sang DateTime
+                Date = DateTime.TryParse(t.Date, out DateTime parsedDate) ? parsedDate : DateTime.MinValue, // Chuyển từ string sang DateTime
+                Price = t.Price, // Ánh xạ Price
+                Stops = t.Route.LocationRoutes
+                    .Where(lr => lr.Location != null)  // Kiểm tra để đảm bảo Location không phải null
                     .Select(lr => new LocationStopDto
                     {
-                        LocationName = lr.Location?.LocationName ?? "",
+                        LocationName = lr.Location?.LocationName ?? string.Empty,  // Đảm bảo không có lỗi nếu LocationName là null
                         StopOrder = lr.StopOrder,
                         StopDuration = lr.StopDuration
-                    }).ToList() ?? new List<LocationStopDto>()
+                    }).ToList()
             });
         }
 
@@ -219,8 +222,10 @@ namespace IBTSS.Service.Services.TripService
 
         public async Task<List<TripSearchDto>> SearchTripsAsync(string keyword, string? date, string? type)
         {
+            // Tìm chuyến đi theo từ khóa và ngày
             var trips = await _unitOfWork.Trips.SearchTripsByKeywordAndDateAsync(keyword, date);
 
+            // Áp dụng sắp xếp theo yêu cầu
             trips = type switch
             {
                 "earliest" => trips.OrderBy(t => t.DepartureTime).ToList(),
@@ -230,38 +235,49 @@ namespace IBTSS.Service.Services.TripService
                 _ => trips
             };
 
-            return trips.Select(t => new TripSearchDto
+            // Ánh xạ từ trips thành TripSearchDto
+            var tripDtos = trips.Select(t => new TripSearchDto
             {
-                RouteName = t.Route.RouteName,
-                DepartureTime = t.DepartureTime.ToString("HH:mm"),
-                Date = t.Date,
-                Price = t.Price,
-                Stops = t.Route.LocationRoutes.Select(lr => new LocationStopDto
-                {
-                    LocationName = lr.Location.LocationName
-                }).ToList()
+                TripId = t.TripId,  // Ánh xạ TripId
+                BusId = t.BusId,    // Ánh xạ BusId
+                BusType = t.Bus != null ? t.Bus.BusType : "Unknown", // Ánh xạ BusType từ Bus nếu có
+                RouteName = t.Route.RouteName,  // Ánh xạ RouteName
+                DepartureTime = DateTime.Today.Add(t.DepartureTime.ToTimeSpan()), // Chuyển TimeOnly sang DateTime
+                Date = DateTime.TryParse(t.Date, out DateTime parsedDate) ? parsedDate : DateTime.MinValue, // Chuyển từ string sang DateTime
+                Price = t.Price, // Ánh xạ Price
+                Stops = t.Route.LocationRoutes
+                    .Where(lr => lr.Location != null)  // Kiểm tra để đảm bảo Location không phải null
+                    .Select(lr => new LocationStopDto
+                    {
+                        LocationName = lr.Location?.LocationName ?? string.Empty,  // Đảm bảo không có lỗi nếu LocationName là null
+                        StopOrder = lr.StopOrder,
+                        StopDuration = lr.StopDuration
+                    }).ToList()
             }).ToList();
+
+            return tripDtos;  // Trả về kết quả
         }
+
 
         private TripSearchDto ConvertTripToDto(Trip t)
         {
             return new TripSearchDto
             {
-                TripId = t.TripId,
-                BusId = t.BusId,
-                BusType = t.Bus?.BusType ?? "",
-                RouteName = t.Route?.RouteName ?? "",
-                DepartureTime = t.DepartureTime.ToString("HH:mm"),
-                Date = t.Date,
-                Price = t.Price,
-                Stops = t.Route?.LocationRoutes?
-                    .OrderBy(lr => lr.StopOrder)
+                TripId = t.TripId,  // Ánh xạ TripId
+                BusId = t.BusId,    // Ánh xạ BusId
+                BusType = t.Bus != null ? t.Bus.BusType : "Unknown", // Ánh xạ BusType từ Bus nếu có
+                RouteName = t.Route.RouteName,  // Ánh xạ RouteName
+                DepartureTime = DateTime.Today.Add(t.DepartureTime.ToTimeSpan()), // Chuyển TimeOnly sang DateTime
+                Date = DateTime.TryParse(t.Date, out DateTime parsedDate) ? parsedDate : DateTime.MinValue, // Chuyển từ string sang DateTime
+                Price = t.Price, // Ánh xạ Price
+                Stops = t.Route.LocationRoutes
+                    .Where(lr => lr.Location != null)  // Kiểm tra để đảm bảo Location không phải null
                     .Select(lr => new LocationStopDto
                     {
-                        LocationName = lr.Location?.LocationName ?? "",
+                        LocationName = lr.Location?.LocationName ?? string.Empty,  // Đảm bảo không có lỗi nếu LocationName là null
                         StopOrder = lr.StopOrder,
                         StopDuration = lr.StopDuration
-                    }).ToList() ?? new List<LocationStopDto>()
+                    }).ToList()
             };
         }
         public async Task<List<TripResponse>> GetTripsByDriverIdAsync(string driverId)

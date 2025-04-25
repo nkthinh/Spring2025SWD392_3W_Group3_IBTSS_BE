@@ -15,21 +15,51 @@ namespace IBTSS.API.Controllers
     [Route("api/[controller]")]
     public class UserController(IUserService userService, IMapper mapper, JwtService jwtService) : ControllerBase
     {
-       
+
         [HttpGet]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetFiltered([FromQuery] QueryParameters query)
         {
             try
             {
-                var (data, total) = await userService.GetFilteredAsync(query);
-                return Ok(new { Total = total, Data = data });
+                // Nếu không có tham số query, trả về tất cả người dùng
+                if (query == null ||
+                    (string.IsNullOrEmpty(query.Keyword) && string.IsNullOrEmpty(query.SortBy) && query.Page == 0 && query.PageSize == 0))
+                {
+                    var users = await userService.GetAllAsync();
+                    var mapped = mapper.Map<List<AddUserResponse>>(users);
+                    return Ok(mapped);
+                }
+
+                // Nếu không có giá trị cho Page và PageSize, mặc định là Page = 1 và PageSize = 10
+                if (query.Page == 0) query.Page = 1;
+                if (query.PageSize == 0) query.PageSize = 10;
+
+                // Lấy dữ liệu đã lọc và tổng số bản ghi từ service
+                var (data, totalCount) = await userService.GetFilteredAsync(query);
+
+                // Tính toán số trang tổng cộng
+                var pagination = new
+                {
+                    TotalCount = totalCount,
+                    PageSize = query.PageSize,
+                    CurrentPage = query.Page,
+                    TotalPages = (int)Math.Ceiling((double)totalCount / query.PageSize)
+                };
+
+                // Trả về dữ liệu và thông tin phân trang
+                return Ok(new
+                {
+                    Data = data,
+                    Pagination = pagination
+                });
             }
             catch (Exception ex)
             {
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
+
         //admin only
         [Authorize(Roles = "Admin")]
         [HttpGet("{id}")]

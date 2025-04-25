@@ -217,7 +217,7 @@ namespace IBTSS.Service.Services.TripService
             return tripsByLocation.Select(t => ConvertTripToDto(t));
         }
 
-        public async Task<List<TripSearchDto>> SearchTripsAsync(string keyword, string date, string type)
+        public async Task<List<TripSearchDto>> SearchTripsAsync(string keyword, string? date, string? type)
         {
             var trips = await _unitOfWork.Trips.SearchTripsByKeywordAndDateAsync(keyword, date);
 
@@ -428,11 +428,12 @@ namespace IBTSS.Service.Services.TripService
 
             filtered = query.SortBy switch
             {
-                "date_asc" => filtered.OrderBy(t => t.Date),
+                "date_asc" => filtered.OrderBy(t => DateTime.ParseExact(t.Date, "dd-MM-yyyy", null)),
                 "price_asc" => filtered.OrderBy(t => t.Price),
                 "price_desc" => filtered.OrderByDescending(t => t.Price),
-                _ => filtered.OrderByDescending(t => t.Date)
+                _ => filtered.OrderByDescending(t => DateTime.ParseExact(t.Date, "dd-MM-yyyy", null))
             };
+
 
             var total = filtered.Count();
 

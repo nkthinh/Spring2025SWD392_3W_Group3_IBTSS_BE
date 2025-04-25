@@ -79,24 +79,16 @@ namespace IBTSS.Service.Services.UserService
         }
         public async Task<(List<AddUserResponse>, int)> GetFilteredAsync(QueryParameters query)
         {
-            var customers = await _unitOfWork.Customers.GetAllAsync();
-            var filtered = customers.AsQueryable();
+            var users = await _unitOfWork.Users.GetAllAsync();
+            var filtered = users.AsQueryable();
 
             if (!string.IsNullOrEmpty(query.Keyword))
             {
-                filtered = filtered.Where(c =>
-                    (!string.IsNullOrEmpty(c.Name) && c.Name.Contains(query.Keyword, StringComparison.OrdinalIgnoreCase)) ||
-                    (!string.IsNullOrEmpty(c.PhoneNumber) && c.PhoneNumber.Contains(query.Keyword))
+                filtered = filtered.Where(u =>
+                    (!string.IsNullOrEmpty(u.Name) && u.Name.Contains(query.Keyword, StringComparison.OrdinalIgnoreCase)) ||
+                    (!string.IsNullOrEmpty(u.PhoneNumber) && u.PhoneNumber.Contains(query.Keyword))
                 );
             }
-
-            filtered = query.SortBy switch
-            {
-                "name_desc" => filtered.OrderByDescending(c => c.Name),
-                "score_desc" => filtered.OrderByDescending(c => c.Score),
-                "DiscountQuotaLeft_desc" => filtered.OrderByDescending(c => c.DiscountQuotaLeft),
-                _ => filtered.OrderBy(c => c.Name)
-            };
 
             var total = filtered.Count();
 
@@ -114,5 +106,6 @@ namespace IBTSS.Service.Services.UserService
             var mapped = _mapper.Map<List<AddUserResponse>>(result);
             return (mapped, total);
         }
+
     }
 }

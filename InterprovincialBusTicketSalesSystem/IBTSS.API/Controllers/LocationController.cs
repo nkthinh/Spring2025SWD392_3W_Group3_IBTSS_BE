@@ -83,13 +83,18 @@ namespace IBTSS.API.Controllers
             try
             {
                 var created = await _locationService.AddAsync(request);
-                return CreatedAtAction(nameof(GetById), new { id = created.LocationId }, created);
+                return Ok(new
+                {
+                    message = "Location created successfully",
+                    data = created
+                });
             }
             catch (Exception ex)
             {
                 return StatusCode(500, new { message = ex.Message });
             }
         }
+
 
         [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
@@ -119,7 +124,7 @@ namespace IBTSS.API.Controllers
                 if (!deleted)
                     return NotFound(new { message = $"Location with ID '{id}' not found." });
 
-                return NoContent();
+                return Ok(new { message = "Deleted successfully" });
             }
             catch (Exception ex)
             {

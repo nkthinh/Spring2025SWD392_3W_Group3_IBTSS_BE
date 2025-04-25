@@ -72,7 +72,11 @@ namespace IBTSS.API.Controllers
             try
             {
                 var created = await _tripService.AddAsync(request);
-                return CreatedAtAction(nameof(GetById), new { id = created.TripId }, created);
+                return Ok(new
+                {
+                    message = "Created successfully",
+                    data = created
+                });
             }
             catch (Exception ex)
             {
@@ -106,7 +110,7 @@ namespace IBTSS.API.Controllers
                 if (!result)
                     return NotFound(new { message = $"Trip with ID '{id}' not found." });
 
-                return NoContent();
+                return Ok(new { message = "Deleted successfully" });
             }
             catch (Exception ex)
             {
@@ -145,8 +149,8 @@ namespace IBTSS.API.Controllers
         [HttpGet("search")]
         public async Task<ActionResult<IEnumerable<TripSearchDto>>> SearchTrips(
             [FromQuery] string keyword,
-            [FromQuery] string date,
-            [FromQuery] string type)
+            [FromQuery] string? date,
+            [FromQuery] string? type)
         {
             try
             {

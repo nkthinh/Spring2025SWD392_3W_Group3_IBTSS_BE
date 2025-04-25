@@ -5,7 +5,7 @@ using Twilio.Types;
 
 namespace IBTSS.Service.Services.SMSService
 {
-   
+
     public class SmsService
     {
         private const string AccountSid = "AC4c8412280f811dc09ba2b8cfb84a64f6";
@@ -15,6 +15,12 @@ namespace IBTSS.Service.Services.SMSService
         public void SendBookingConfirmation(string customerPhone, string customerName, string tripInfo)
         {
             TwilioClient.Init(AccountSid, AuthToken);
+
+            // Ensure the phone number starts with "+84" for Vietnam
+            if (!customerPhone.StartsWith("+84"))
+            {
+                customerPhone = $"+84{customerPhone.TrimStart('0')}";
+            }
 
             var messageBody = $"Chào {customerName}, bạn đã đặt vé thành công cho chuyến đi: {tripInfo}. Cảm ơn bạn!";
 
@@ -27,5 +33,4 @@ namespace IBTSS.Service.Services.SMSService
             Console.WriteLine($"Tin nhắn gửi thành công! SID: {message.Sid}");
         }
     }
-
-}
+    }

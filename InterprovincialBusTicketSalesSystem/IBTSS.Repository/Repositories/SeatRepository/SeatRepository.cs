@@ -21,7 +21,7 @@ namespace IBTSS.Repository.Repositories.SeatRepository
 
         public async Task<Seat?> GetByIdAsync(string id) =>
 
-            await _context.Seats.FirstOrDefaultAsync(s => s.SeatId == id && !s.IsDelete);
+            await _context.Seats.FirstOrDefaultAsync(s => s.SeatId == id);
 
         public async Task<Seat> AddAsync(Seat seat)
         {

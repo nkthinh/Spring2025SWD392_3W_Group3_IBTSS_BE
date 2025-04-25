@@ -24,7 +24,7 @@ namespace IBTSS.Repository.Repositories.TripRepository
               .ThenInclude(r => r.LocationRoutes)
                   .ThenInclude(lr => lr.Location)
           .Include(t => t.Bus)
-          .FirstOrDefaultAsync(t => t.TripId == id && !t.IsDelete);
+          .FirstOrDefaultAsync(t => t.TripId == id);
 
         public async Task<Trip> AddAsync(Trip trip)
         {

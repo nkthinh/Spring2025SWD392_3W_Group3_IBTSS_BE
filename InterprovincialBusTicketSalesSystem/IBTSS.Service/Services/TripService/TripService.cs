@@ -421,7 +421,9 @@ namespace IBTSS.Service.Services.TripService
             {
                 filtered = filtered.Where(t =>
                       (t.Route != null && t.Route.RouteName != null && t.Route.RouteName.Contains(query.Keyword, StringComparison.OrdinalIgnoreCase)) ||
-                    (!string.IsNullOrEmpty(t.DriverId) && t.DriverId.Contains(query.Keyword, StringComparison.OrdinalIgnoreCase))
+                    (!string.IsNullOrEmpty(t.DriverId) && t.DriverId.Contains(query.Keyword, StringComparison.OrdinalIgnoreCase))||
+                      (t.Route != null && t.Route.RouteName != null && t.Route.RouteName.Contains(query.Keyword, StringComparison.OrdinalIgnoreCase)) ||
+            (t.Date != null && t.Date.Contains(query.Keyword))
                     );
 
             }

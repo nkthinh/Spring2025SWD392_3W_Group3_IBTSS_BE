@@ -381,6 +381,31 @@ namespace IBTSS.Service.Services.TicketService
 
             return (result, total);
         }
+        //Lọc vé theo tuyến đường
+        public async Task<List<RouteBookingStatisticResponse>> GetRouteBookingStatisticsAsync(int year, int? month, string sortOrder)
+        {
+            var tickets = await _unitOfWork.Tickets.GetAllAsync();
+
+            var filteredTickets = tickets.Where(t =>
+                t.CreatedAt.Year == year &&
+                (!month.HasValue || t.CreatedAt.Month == month.Value)
+            ).ToList();
+
+            var groupedData = filteredTickets
+                .GroupBy(t => t.Trip != null && t.Trip.Route != null ? t.Trip.Route.RouteName : "Unknown Route")
+                .Select(g => new RouteBookingStatisticResponse
+                {
+                    RouterName = g.Key,
+                    Count = g.Count()
+                });
+
+            var sortedData = sortOrder.ToLower() == "asc"
+                ? groupedData.OrderBy(x => x.Count).ToList()
+                : groupedData.OrderByDescending(x => x.Count).ToList();
+
+            return sortedData;
+        }
+
 
     }
 }

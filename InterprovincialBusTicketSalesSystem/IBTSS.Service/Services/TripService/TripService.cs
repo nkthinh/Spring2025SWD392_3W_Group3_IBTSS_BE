@@ -80,7 +80,7 @@ namespace IBTSS.Service.Services.TripService
             var driver = await _unitOfWork.Users.GetByIdAsync(request.DriverId);
             if (driver == null || driver.Role != UserRole.Driver)
                 throw new Exception($"User with ID {request.DriverId} is invalid or not a driver.");
-
+            //Cùng xe,cùng tài xế, cùng RouteName ????
             var trip = new Trip
             {
                 RouteId = request.RouteId,
@@ -150,6 +150,7 @@ namespace IBTSS.Service.Services.TripService
             var existing = await _unitOfWork.Trips.GetByIdAsync(id);
             if (existing == null) return null;
 
+            // Update thông tin chuyến
             existing.RouteId = request.RouteId;
             existing.BusId = request.BusId;
             existing.DriverId = request.DriverId;
@@ -159,23 +160,62 @@ namespace IBTSS.Service.Services.TripService
             existing.Price = request.Price;
             existing.Status = request.Status;
 
-            var updated = await _unitOfWork.Trips.UpdateAsync(existing);
+            // Update Trip entity
+            var updatedTrip = await _unitOfWork.Trips.UpdateAsync(existing);
+
+            // Xử lý LocationRoutes
+            var oldLocationRoutes = await _unitOfWork.LocationRoutes.GetByRouteIdAsync(request.RouteId);
+
+            // Xóa hết các LocationRoute cũ
+            foreach (var lr in oldLocationRoutes)
+            {
+                await _unitOfWork.LocationRoutes.DeleteAsync(lr.LocationRouteId);
+            }
+
+            // Thêm mới LocationRoutes từ request
+            int stopOrder = 1;
+            foreach (var lr in request.LocationRoutes)
+            {
+                var locationRoute = new LocationRoute
+                {
+                    LocationRouteId = Guid.NewGuid().ToString(),
+                    RouteId = request.RouteId,
+                    LocationId = lr.LocationId,
+                    StopOrder = stopOrder++,
+                    StopDuration = TimeSpan.FromMinutes(lr.StopDurationMinutes)
+                };
+
+                await _unitOfWork.LocationRoutes.AddAsync(locationRoute);
+            }
+
             await _unitOfWork.CompleteAsync();
+
+            var locationRouteList = await _unitOfWork.LocationRoutes.GetByRouteIdAsync(updatedTrip.RouteId);
+
+            var locationRoutes = locationRouteList.Select(lr => new LocationRouteResponse
+            {
+                LocationId = lr.LocationId,
+                LocationName = lr.Location?.LocationName ?? "",
+                StopOrder = lr.StopOrder,
+                StopDuration = lr.StopDuration
+            }).OrderBy(lr => lr.StopOrder).ToList();
 
             return new TripResponse
             {
-                TripId = updated.TripId,
-                RouteId = updated.RouteId,
-                BusId = updated.BusId,
-                DriverId = updated.DriverId,
-                DepartureTime = updated.DepartureTime.ToString("HH:mm"),
-                Date = updated.Date,
-                Direction = updated.Direction,
-                IsDelete = updated.IsDelete,
-                Price = updated.Price,
-                Status = updated.Status,
+                TripId = updatedTrip.TripId,
+                RouteId = updatedTrip.RouteId,
+                BusId = updatedTrip.BusId,
+                DriverId = updatedTrip.DriverId,
+                DepartureTime = updatedTrip.DepartureTime.ToString("HH:mm"),
+                Date = updatedTrip.Date,
+                Direction = updatedTrip.Direction,
+                IsDelete = updatedTrip.IsDelete,
+                Price = updatedTrip.Price,
+                Status = updatedTrip.Status,
+                LocationRoutes = locationRoutes
             };
         }
+
 
         public async Task<bool> DeleteAsync(string id)
         {

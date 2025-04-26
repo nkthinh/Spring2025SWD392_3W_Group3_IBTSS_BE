@@ -23,6 +23,6 @@ namespace IBTSS.Service.Services.TicketService
         Task<bool> ConfirmBoardingAsync(string ticketId);
         Task<bool> ChangeSeatAsync(string ticketId, string newSeatId);
         Task<(List<TicketResponse>, int)> GetFilteredAsync(QueryParameters query);
-
+        Task<List<RouteBookingStatisticResponse>> GetRouteBookingStatisticsAsync(int year, int? month, string sortOrder);
     }
 }

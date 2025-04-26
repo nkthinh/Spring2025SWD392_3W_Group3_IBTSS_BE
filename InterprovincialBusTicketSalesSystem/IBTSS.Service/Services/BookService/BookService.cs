@@ -56,6 +56,9 @@ namespace IBTSS.Service.Services.BookService
             {
                 var membership = await _unitOfWork.Memberships.GetByIdAsync(customer.MembershipId);
                 discountRate = membership?.DiscountRate ?? 0;
+
+                // ✅ Thêm kiểm tra discountRate nằm trong [0, 1]
+                discountRate = (discountRate >= 0 && discountRate <= 1) ? discountRate : 0;
             }
 
             var tickets = new List<Ticket>();
@@ -66,11 +69,12 @@ namespace IBTSS.Service.Services.BookService
                 {
                     throw new Exception($"Seat {seatId} is not available");
                 }
-                //seat.IsBooked = true; //chưa thanh toán thì isBooked của seat vẫn bằng false
+                // seat.IsBooked = true; // chưa thanh toán thì isBooked vẫn để false
                 await _unitOfWork.Seats.UpdateAsync(seat);
 
                 bool applyDiscount = hasDiscount && discountQuotaLeft > 0;
                 int discountedPrice = applyDiscount ? (int)(trip.Price * (1 - discountRate)) : trip.Price;
+                discountedPrice = Math.Max(discountedPrice, 0); // ✅ Không cho giá âm
 
                 if (applyDiscount)
                     discountQuotaLeft--;
@@ -97,7 +101,7 @@ namespace IBTSS.Service.Services.BookService
 
             await _unitOfWork.Tickets.AddRangeAsync(tickets);
 
-            // ✅ cập nhật quota còn lại của khách nếu có áp dụng giảm giá
+            // ✅ Cập nhật quota còn lại nếu có discount
             if (hasDiscount && customer != null)
             {
                 customer.DiscountQuotaLeft = discountQuotaLeft;
@@ -108,6 +112,7 @@ namespace IBTSS.Service.Services.BookService
 
             return _mapper.Map<BookResponse>(book);
         }
+
 
         public async Task<Book?> UpdateAsync(string id, CreateBookRequest request)
         {

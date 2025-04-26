@@ -18,6 +18,7 @@ namespace IBTSS.Service.DTO.Response.Ticket
         public int OriginalPrice { get; set; } // ✅ Thêm giá gốc
         public bool IsCancelled { get; set; }
         public string? CustomerId { get; set; }
+        public string? CustomerName { get; set; }
         public DateTime CreatedAt { get; set; }
         public string Status { get; set; } = string.Empty;
     }

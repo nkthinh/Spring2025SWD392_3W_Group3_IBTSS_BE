@@ -38,6 +38,7 @@ namespace IBTSS.Service.Services.TicketService
                 BusType = t.Trip?.Bus?.BusType ?? "Unknown",
                 CreatedAt = t.Book?.CreatedAt ?? DateTime.MinValue,
                 CustomerId = t.Book?.CustomerId ?? string.Empty,
+                CustomerName = t.Book?.Customer?.Name ?? "",
                 IsCancelled = t.isCancelled,
                 Price = t.Price,
                 Status = t.Status
@@ -59,6 +60,7 @@ namespace IBTSS.Service.Services.TicketService
                 BusType = t.Trip?.Bus?.BusType ?? "Unknown",
                 CreatedAt = t.Book?.CreatedAt ?? DateTime.MinValue,
                 CustomerId = t.Book?.CustomerId ?? string.Empty,
+                CustomerName = t.Book?.Customer?.Name ?? "",
                 IsCancelled = t.isCancelled,
                 Price = t.Price,
                 Status = t.Status
@@ -106,6 +108,7 @@ namespace IBTSS.Service.Services.TicketService
                 BusType = ticket.Trip?.Bus?.BusType ?? "Unknown",
                 CreatedAt = ticket.CreatedAt,
                 CustomerId = book.CustomerId,
+                CustomerName = book?.Customer?.Name ?? "",
                 IsCancelled = ticket.isCancelled,
                 Price = ticket.Price,
                 Status = ticket.Status
@@ -136,6 +139,7 @@ namespace IBTSS.Service.Services.TicketService
                 BusType = existing.Trip?.Bus?.BusType ?? "Unknown",
                 CreatedAt = book?.CreatedAt ?? DateTime.MinValue,
                 CustomerId = book?.CustomerId ?? string.Empty,
+                CustomerName = book?.Customer?.Name ?? "",
                 IsCancelled = existing.isCancelled,
                 Price = existing.Price,
                 Status = existing.Status
@@ -194,6 +198,7 @@ namespace IBTSS.Service.Services.TicketService
                 RouteName = t.Trip?.Route?.RouteName ?? "N/A",
                 BusType = t.Trip?.Bus?.BusType ?? "Unknown",
                 CustomerId = book.CustomerId,
+                CustomerName = book?.Customer?.Name ?? "",
                 CreatedAt = t.CreatedAt,
                 Price = t.Price,
                 IsCancelled = t.isCancelled,
@@ -218,6 +223,7 @@ namespace IBTSS.Service.Services.TicketService
                 BusType = t.Trip?.Bus?.BusType ?? "Unknown",
                 CreatedAt = t.CreatedAt,
                 CustomerId = customerId,
+                CustomerName = t.Book?.Customer?.Name ?? "",
                 IsCancelled = t.isCancelled,
                 Price = t.Price,
                 Status = t.Status
@@ -257,6 +263,7 @@ namespace IBTSS.Service.Services.TicketService
                 BusType = ticket.Trip?.Bus?.BusType ?? "Unknown",
                 CreatedAt = ticket.CreatedAt,
                 CustomerId = book?.CustomerId ?? "",
+                CustomerName = book?.Customer?.Name ?? "",
                 IsCancelled = ticket.isCancelled,
                 Price = ticket.Price,
                 Status = ticket.Status
@@ -351,6 +358,7 @@ namespace IBTSS.Service.Services.TicketService
                     BusType = t.Trip?.Bus?.BusType ?? "Unknown",
                     CreatedAt = t.Book?.CreatedAt ?? DateTime.MinValue,
                     CustomerId = t.Book?.CustomerId ?? string.Empty,
+                    CustomerName = t.Book?.Customer?.Name ?? "",
                     IsCancelled = t.isCancelled,
                     Price = t.Price,
                     Status = t.Status
@@ -374,6 +382,7 @@ namespace IBTSS.Service.Services.TicketService
                 BusType = t.Trip?.Bus?.BusType ?? "Unknown",
                 CreatedAt = t.Book?.CreatedAt ?? DateTime.MinValue,
                 CustomerId = t.Book?.CustomerId ?? string.Empty,
+                CustomerName = t.Book?.Customer?.Name ?? "",
                 IsCancelled = t.isCancelled,
                 Price = t.Price,
                 Status = t.Status

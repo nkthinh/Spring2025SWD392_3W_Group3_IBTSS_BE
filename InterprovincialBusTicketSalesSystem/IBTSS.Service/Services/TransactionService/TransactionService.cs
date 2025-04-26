@@ -102,8 +102,8 @@ namespace IBTSS.Service.Services.TransactionService
 
             filtered = query.SortBy switch
             {
-                "amount_desc" => filtered.OrderByDescending(t => t.Amount),
-                "amount_asc" => filtered.OrderBy(t => t.Amount),
+                "price_desc" => filtered.OrderByDescending(t => t.Amount),
+                "price_asc" => filtered.OrderBy(t => t.Amount),
                 _ => filtered.OrderByDescending(t => t.CreatedAt),
             };
 

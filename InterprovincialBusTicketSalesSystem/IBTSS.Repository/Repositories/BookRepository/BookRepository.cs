@@ -18,10 +18,16 @@ namespace IBTSS.Repository.Repositories.BookRepository
         }
 
         public async Task<List<Book>> GetAllAsync() =>
-            await _context.Books.Include(b => b.Tickets).ToListAsync();
+              await _context.Books
+                  .Include(b => b.Tickets)
+                  .Include(b => b.Customer) // ✅ thêm Include Customer
+                  .ToListAsync();
 
         public async Task<Book?> GetByIdAsync(string id) =>
-            await _context.Books.Include(b => b.Tickets).FirstOrDefaultAsync(b => b.BookId == id);
+            await _context.Books
+                .Include(b => b.Tickets)
+                .Include(b => b.Customer) // ✅ thêm Include Customer
+                .FirstOrDefaultAsync(b => b.BookId == id);
 
         public async Task AddAsync(Book book)
         {

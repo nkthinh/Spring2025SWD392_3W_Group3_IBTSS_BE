@@ -21,8 +21,7 @@ namespace IBTSS.API
             builder.Services.AddEndpointsApiExplorer();
             //builder.Services.AddSwaggerGen();
 
-            builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(
-                builder.Configuration.GetConnectionString("IBTSSDatabase")));
+            builder.Services.AddDbContext<AppDbContext>();
 
             builder.Services.AddAuthorization();
             builder.Services.AddAutoMapper(typeof(AutoMapperProfile));

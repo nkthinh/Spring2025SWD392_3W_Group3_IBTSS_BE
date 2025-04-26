@@ -16,7 +16,12 @@ namespace IBTSS.Repository.Repositories.TripRepository
             _context = context;
         }
         public async Task<List<Trip>> GetAllAsync() =>
-          await _context.Trips.ToListAsync();
+    await _context.Trips
+        .Include(t => t.Route)
+        .Include(t => t.Bus)
+        .Include(t => t.Driver)
+        .ToListAsync();
+
 
         public async Task<Trip?> GetByIdAsync(string id) =>
       await _context.Trips

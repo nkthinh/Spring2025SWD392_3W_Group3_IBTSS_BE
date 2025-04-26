@@ -1,5 +1,6 @@
 ﻿using IBTSS.Repository.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 namespace IBTSS.Repository
 {
@@ -7,6 +8,26 @@ namespace IBTSS.Repository
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            // Chỉ cấu hình nếu chưa có options nào được đăng ký từ ngoài
+            if (!optionsBuilder.IsConfigured)
+            {
+                optionsBuilder.UseSqlServer(GetConnectionString());
+            }
+        }
+
+        private string GetConnectionString()
+        {
+            // Tự load file appsettings.json từ thư mục chạy ứng dụng
+            IConfiguration config = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                .Build();
+
+            // Lấy chuỗi kết nối theo key
+            return config.GetConnectionString("IBTSSDatabase")!;
+        }
         public DbSet<User> Users { get; set; }
         public DbSet<Customer> Customers { get; set; }
         public DbSet<Bus> Buses { get; set; }

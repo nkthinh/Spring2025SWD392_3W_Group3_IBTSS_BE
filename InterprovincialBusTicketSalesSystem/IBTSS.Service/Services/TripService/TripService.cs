@@ -362,7 +362,7 @@ namespace IBTSS.Service.Services.TripService
         {
             var trips = await _unitOfWork.Trips.GetAllAsync();
             return trips
-                .Where(t => t.DriverId == driverId && t.Status != "Hoàn Thành")
+                .Where(t => t.DriverId == driverId)
                 .Select(t => new TripResponse
                 {
                     TripId = t.TripId,

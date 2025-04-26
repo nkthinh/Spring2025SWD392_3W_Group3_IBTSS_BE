@@ -21,11 +21,12 @@ namespace IBTSS.Repository.Repositories.TicketRepository
         {
             return await _context.Tickets
                 .Include(t => t.Trip)
-                    .ThenInclude(tr => tr.Route)
-                .Include(t => t.Book)
+                    .ThenInclude(trip => trip.Route) // Load Route trong Trip
+                .Include(t => t.Trip)
+                    .ThenInclude(trip => trip.Bus) // Load Bus trong Trip
+                .Include(t => t.Book) // Load Book để lấy CreatedAt, CustomerId
                 .ToListAsync();
         }
-
         public async Task<Ticket?> GetByIdAsync(string id) =>
             await _context.Tickets.Include(t => t.Trip) // Nạp Trip
         .ThenInclude(trip => trip.Route) // Nạp Route cho Trip

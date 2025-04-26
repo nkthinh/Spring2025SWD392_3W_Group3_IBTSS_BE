@@ -12,6 +12,8 @@ namespace IBTSS.Service.DTO.Response.Ticket
         public string BookId { get; set; }
         public string? TripId { get; set; }
         public string? SeatId { get; set; }
+        public string? RouteName { get; set; }
+        public string? BusType { get; set; }
         public int Price { get; set; }
         public int OriginalPrice { get; set; } // ✅ Thêm giá gốc
         public bool IsCancelled { get; set; }

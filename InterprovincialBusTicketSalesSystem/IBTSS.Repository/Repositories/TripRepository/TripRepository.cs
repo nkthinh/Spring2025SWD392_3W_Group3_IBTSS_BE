@@ -16,7 +16,12 @@ namespace IBTSS.Repository.Repositories.TripRepository
             _context = context;
         }
         public async Task<List<Trip>> GetAllAsync() =>
-          await _context.Trips.ToListAsync();
+    await _context.Trips
+        .Include(t => t.Route)
+        .Include(t => t.Bus)
+        .Include(t => t.Driver)
+        .ToListAsync();
+
 
         public async Task<Trip?> GetByIdAsync(string id) =>
       await _context.Trips
@@ -113,6 +118,7 @@ namespace IBTSS.Repository.Repositories.TripRepository
             return await _context.Trips
                 .Where(t => !t.IsDelete &&
                             t.Route.LocationRoutes.Any(lr => lr.Location.LocationName.Contains(locationName)))
+                .Include(t => t.Bus)
                 .Include(t => t.Route)
                     .ThenInclude(r => r.LocationRoutes)
                         .ThenInclude(lr => lr.Location)
@@ -122,6 +128,7 @@ namespace IBTSS.Repository.Repositories.TripRepository
         public async Task<List<Trip>> SearchTripsByKeywordAndDateAsync(string keyword, string? date)
         {
             var query = _context.Trips
+                .Include(t => t.Bus)
                 .Include(t => t.Route)
                     .ThenInclude(r => r.LocationRoutes)
                         .ThenInclude(lr => lr.Location)

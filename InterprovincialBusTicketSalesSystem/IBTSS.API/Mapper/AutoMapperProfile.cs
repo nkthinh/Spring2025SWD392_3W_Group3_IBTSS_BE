@@ -21,7 +21,9 @@ namespace IBTSS.API.Mapper
     {
         public AutoMapperProfile()
         {
-            CreateMap<Customer, CustomerResponse>();
+            CreateMap<Customer, CustomerResponse>()
+            .ForMember(dest => dest.RankName,
+                       opt => opt.MapFrom(src => src.Membership != null ? src.Membership.RankName : null));
             CreateMap<CustomerRequest, Customer>()
                 .ForMember(dest => dest.Score, opt => opt.MapFrom(src => 0))
                 .ForMember(dest => dest.MembershipId, opt => opt.MapFrom(src => "001"));

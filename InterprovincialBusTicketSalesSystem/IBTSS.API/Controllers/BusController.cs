@@ -34,7 +34,6 @@ namespace IBTSS.API.Controllers
             }
         }
 
-        [Authorize(Roles = "Admin")]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetBusById(string id)
         {

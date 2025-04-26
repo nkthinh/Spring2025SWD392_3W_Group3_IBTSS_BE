@@ -77,56 +77,94 @@ namespace IBTSS.Service.Services.TripService
 
         public async Task<TripResponse> AddAsync(TripRequest request)
         {
+            // 1. Check driver hợp lệ
             var driver = await _unitOfWork.Users.GetByIdAsync(request.DriverId);
             if (driver == null || driver.Role != UserRole.Driver)
                 throw new Exception($"User with ID {request.DriverId} is invalid or not a driver.");
-            //Cùng xe,cùng tài xế, cùng RouteName ????
+
+            // 2. Parse thời gian khởi hành mới
+            var newDeparture = TimeOnly.ParseExact(request.DepartureTime, "HH:mm", null);
+
+            // 3. Lấy tất cả trips cùng ngày của driver để kiểm tra xung đột
+            var existingTrips = await _unitOfWork.Trips.GetAllAsync();
+
+            // 3a. Xung đột nếu cùng bus & driver, chênh lệch < 60 phút
+            bool conflictBusDriver = existingTrips.Any(t =>
+                t.BusId == request.BusId &&
+                t.DriverId == request.DriverId &&
+                t.Date == request.Date &&
+                Math.Abs((t.DepartureTime.ToTimeSpan() - newDeparture.ToTimeSpan()).TotalHours) < 6
+            );
+
+            // 3b. Xung đột nếu cùng driver, cùng ngày, cùng giờ (dù khác bus)
+            bool conflictDriverTime = existingTrips.Any(t =>
+                t.DriverId == request.DriverId &&
+                t.Date == request.Date &&
+                Math.Abs((t.DepartureTime.ToTimeSpan() - newDeparture.ToTimeSpan()).TotalHours) < 6
+            );
+            // 3c. Xung đột nếu cùng bus, cùng ngày, cùng giờ (dù khác driver)
+            bool conflictBusTime = existingTrips.Any(t =>
+                t.BusId == request.BusId &&
+                t.Date == request.Date &&
+                Math.Abs((t.DepartureTime.ToTimeSpan() - newDeparture.ToTimeSpan()).TotalHours) < 6
+            );
+
+            if (conflictBusDriver || conflictDriverTime || conflictBusTime)
+                throw new Exception(
+                    "Cannot create trip: conflict detected (either same bus & driver within 6h, or same driver at exact same time)."
+                );
+
+            // 4. Tạo entity Trip
             var trip = new Trip
             {
+                TripId = Guid.NewGuid().ToString(),
                 RouteId = request.RouteId,
                 BusId = request.BusId,
                 DriverId = request.DriverId,
-                DepartureTime = TimeOnly.ParseExact(request.DepartureTime, "HH:mm", null),
+                DepartureTime = newDeparture,
                 Date = request.Date,
                 Direction = request.Direction,
                 IsDelete = false,
                 Price = request.Price,
                 Status = request.Status,
-                Tickets = new List<Ticket>() // nếu cần
+                Tickets = new List<Ticket>()
             };
 
             var createdTrip = await _unitOfWork.Trips.AddAsync(trip);
 
+            // 5. Tạo các LocationRoute
             int stopOrder = 1;
             foreach (var lr in request.LocationRoutes)
             {
-                var locationExists = await _unitOfWork.Locations.GetByIdAsync(lr.LocationId);
-                if (locationExists == null)
+                var loc = await _unitOfWork.Locations.GetByIdAsync(lr.LocationId);
+                if (loc == null)
                     throw new Exception($"Location with ID {lr.LocationId} does not exist.");
 
                 var locationRoute = new LocationRoute
                 {
-                    LocationRouteId = Guid.NewGuid().ToString(), // đảm bảo luôn mới
+                    LocationRouteId = Guid.NewGuid().ToString(),
                     RouteId = createdTrip.RouteId,
                     LocationId = lr.LocationId,
                     StopOrder = stopOrder++,
                     StopDuration = TimeSpan.FromMinutes(lr.StopDurationMinutes)
                 };
-
                 await _unitOfWork.LocationRoutes.AddAsync(locationRoute);
             }
 
+            // 6. Lưu và trả về response
             await _unitOfWork.CompleteAsync();
 
-            var locationRouteList = await _unitOfWork.LocationRoutes.GetByRouteIdAsync(createdTrip.RouteId);
-
-            var locationRoutes = locationRouteList.Select(lr => new LocationRouteResponse
-            {
-                LocationId = lr.LocationId,
-                LocationName = lr.Location?.LocationName ?? "",
-                StopOrder = lr.StopOrder,
-                StopDuration = lr.StopDuration
-            }).OrderBy(lr => lr.StopOrder).ToList();
+            var lrList = await _unitOfWork.LocationRoutes.GetByRouteIdAsync(createdTrip.RouteId);
+            var locationRoutes = lrList
+                .OrderBy(lr => lr.StopOrder)
+                .Select(lr => new LocationRouteResponse
+                {
+                    LocationId = lr.LocationId,
+                    LocationName = lr.Location?.LocationName ?? "",
+                    StopOrder = lr.StopOrder,
+                    StopDuration = lr.StopDuration
+                })
+                .ToList();
 
             return new TripResponse
             {
@@ -330,7 +368,10 @@ namespace IBTSS.Service.Services.TripService
                     TripId = t.TripId,
                     RouteId = t.RouteId,
                     BusId = t.BusId,
+                    BusType = t.Bus != null ? t.Bus.BusType : "Unknown",
+                    RouteName = t.Route.RouteName,
                     DriverId = t.DriverId,
+                    DriverName = t.Driver != null ? t.Driver.Name : "Unknown",
                     DepartureTime = t.DepartureTime.ToString("HH:mm"),
                     Date = t.Date,
                     Direction = t.Direction,

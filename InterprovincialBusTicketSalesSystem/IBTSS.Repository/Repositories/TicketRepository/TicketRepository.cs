@@ -18,10 +18,16 @@ namespace IBTSS.Repository.Repositories.TicketRepository
         }
 
         public async Task<List<Ticket>> GetAllAsync() =>
-            await _context.Tickets.Where(t => !t.IsDelete).ToListAsync();
+            await _context.Tickets.Include(t => t.Trip) // Nạp Trip
+        .ThenInclude(trip => trip.Route) // Nạp Route cho Trip
+        .Include(t => t.Trip.Bus) // Nạp Bus cho Trip
+        .ToListAsync();
 
         public async Task<Ticket?> GetByIdAsync(string id) =>
-            await _context.Tickets.FirstOrDefaultAsync(t => t.TicketId == id);
+            await _context.Tickets.Include(t => t.Trip) // Nạp Trip
+        .ThenInclude(trip => trip.Route) // Nạp Route cho Trip
+        .Include(t => t.Trip.Bus) // Nạp Bus cho Trip
+        .FirstOrDefaultAsync(t => t.TicketId == id);
 
         public async Task AddAsync(Ticket ticket)
         {

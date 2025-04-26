@@ -57,7 +57,6 @@ namespace IBTSS.API.Controllers
             return Ok(customerResponse);
         }
 
-        [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(string id, [FromBody] CustomerRequest request)
         {

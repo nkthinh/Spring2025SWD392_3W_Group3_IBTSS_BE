@@ -13,6 +13,7 @@ namespace IBTSS.Service.DTO.Response.Customer
         public int Score { get; set; }
 
         public string? MembershipId { get; set; }
+        public string? RankName { get; set; }
 
         public string PhoneNumber { get; set; } = string.Empty;
 

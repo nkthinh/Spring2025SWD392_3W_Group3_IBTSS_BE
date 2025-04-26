@@ -7,6 +7,7 @@ using IBTSS.Service.DTO.Response.Book;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace IBTSS.Service.Services.BookService
@@ -65,7 +66,7 @@ namespace IBTSS.Service.Services.BookService
                 {
                     throw new Exception($"Seat {seatId} is not available");
                 }
-                seat.IsBooked = true;
+                //seat.IsBooked = true; //chưa thanh toán thì isBooked của seat vẫn bằng false
                 await _unitOfWork.Seats.UpdateAsync(seat);
 
                 bool applyDiscount = hasDiscount && discountQuotaLeft > 0;

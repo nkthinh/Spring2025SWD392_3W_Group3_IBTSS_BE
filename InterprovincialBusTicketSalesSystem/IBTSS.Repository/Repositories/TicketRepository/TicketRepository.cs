@@ -17,8 +17,14 @@ namespace IBTSS.Repository.Repositories.TicketRepository
             _context = context;
         }
 
-        public async Task<List<Ticket>> GetAllAsync() =>
-            await _context.Tickets.Where(t => !t.IsDelete).ToListAsync();
+        public async Task<List<Ticket>> GetAllAsync()
+        {
+            return await _context.Tickets
+                .Include(t => t.Trip)
+                    .ThenInclude(tr => tr.Route)
+                .Include(t => t.Book)
+                .ToListAsync();
+        }
 
         public async Task<Ticket?> GetByIdAsync(string id) =>
             await _context.Tickets.FirstOrDefaultAsync(t => t.TicketId == id);

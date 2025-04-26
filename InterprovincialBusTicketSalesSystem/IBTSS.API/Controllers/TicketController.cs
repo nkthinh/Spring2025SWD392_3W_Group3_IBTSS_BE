@@ -161,6 +161,20 @@ namespace IBTSS.API.Controllers
             {
                 return StatusCode(500, new { message = ex.Message });
             }
+        } 
+        //Thống kê lượt đặt vé theo Route
+        [HttpGet("route-statistics")]
+        public async Task<IActionResult> GetRouteBookingStatistics([FromQuery] int year, [FromQuery] int? month, [FromQuery] string sortOrder = "desc")
+        {
+            try
+            {
+                var result = await _ticketService.GetRouteBookingStatisticsAsync(year, month, sortOrder);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
         }
     }
 }

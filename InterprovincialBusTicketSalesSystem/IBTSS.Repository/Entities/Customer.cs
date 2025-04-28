@@ -13,6 +13,8 @@ namespace IBTSS.Repository.Entities
     {
         [Key]
         public string CustomerId { get; set; } = string.Empty;
+        [Required]
+        public string PasswordHash { get; set; } = string.Empty;
 
         public int Score { get; set; }
 

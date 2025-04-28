@@ -17,9 +17,11 @@ namespace IBTSS.Service.Services.CustomerService
         Task UpdateAsync(Customer c);
         Task DeleteAsync(string id);
         Task<bool> GetByPhoneNumberAsync(string phoneNumber);
-        Task<Customer?> LoginByPhoneAsync(string phoneNumber);
+        Task<Customer?> LoginByPhoneAsync(string phoneNumber, string password);
         Task<(List<CustomerResponse>, int)> GetFilteredAsync(CustomerQueryParameters query);
+        Task<Customer?> AuthenticateAsync(string phoneNumber, string password);
 
+        string HashPassword(string password);
     }
 
 }

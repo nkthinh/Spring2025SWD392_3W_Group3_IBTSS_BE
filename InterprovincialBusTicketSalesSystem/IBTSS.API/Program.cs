@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using IBTSS.Service.Services.Payment;
 
 namespace IBTSS.API
 {
@@ -20,6 +21,8 @@ namespace IBTSS.API
 
             builder.Services.AddEndpointsApiExplorer();
             //builder.Services.AddSwaggerGen();
+
+            builder.Services.AddScoped<IVnPayService, VnPayService>();
 
             builder.Services.AddDbContext<AppDbContext>();
 

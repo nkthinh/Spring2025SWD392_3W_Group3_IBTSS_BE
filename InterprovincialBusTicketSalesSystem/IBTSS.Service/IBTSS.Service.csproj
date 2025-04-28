@@ -6,6 +6,12 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Compile Remove="Services\Staff\**" />
+    <EmbeddedResource Remove="Services\Staff\**" />
+    <None Remove="Services\Staff\**" />
+  </ItemGroup>
+
 	<ItemGroup>
 		<PackageReference Include="AutoMapper" Version="14.0.0" />
 		<PackageReference Include="MailKit" Version="4.10.0" />
@@ -16,10 +22,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\IBTSS.Repository\IBTSS.Repository.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Services\Staff\" />
   </ItemGroup>
 
 </Project>

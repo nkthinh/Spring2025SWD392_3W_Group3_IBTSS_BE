@@ -122,13 +122,16 @@ namespace IBTSS.Service.Services.TripService
                 BusId = request.BusId,
                 DriverId = request.DriverId,
                 DepartureTime = newDeparture,
-                Date = request.Date,
+                Date = string.IsNullOrEmpty(request.Date)
+            ? DateTime.UtcNow.ToString("yyyy-MM-dd") // ✅ Nếu rỗng thì tự động gán ngày hiện tại
+            : request.Date,
                 Direction = request.Direction,
                 IsDelete = false,
                 Price = request.Price,
                 Status = request.Status,
                 Tickets = new List<Ticket>()
             };
+
 
             var createdTrip = await _unitOfWork.Trips.AddAsync(trip);
 
@@ -193,7 +196,9 @@ namespace IBTSS.Service.Services.TripService
             existing.BusId = request.BusId;
             existing.DriverId = request.DriverId;
             existing.DepartureTime = TimeOnly.ParseExact(request.DepartureTime, "HH:mm", null);
-            existing.Date = request.Date;
+            existing.Date = string.IsNullOrEmpty(request.Date)
+                ? DateTime.UtcNow.ToString("yyyy-MM-dd")
+                : request.Date;
             existing.Direction = request.Direction;
             existing.Price = request.Price;
             existing.Status = request.Status;
@@ -461,6 +466,7 @@ namespace IBTSS.Service.Services.TripService
                 BusId = updated.BusId,
                 DriverId = updated.DriverId,
                 DepartureTime = updated.DepartureTime.ToString("HH:mm"),
+                //Date = TryFormatDate(updated.Date),
                 Date = updated.Date,
                 Direction = updated.Direction,
                 IsDelete = updated.IsDelete,
@@ -577,6 +583,7 @@ namespace IBTSS.Service.Services.TripService
                 DriverId = t.DriverId ?? "",
                 DriverName = t.Driver?.Name ?? "",
                 DepartureTime = t.DepartureTime.ToString("HH:mm"),
+                //Date = TryFormatDate(t.Date),
                 Date = t.Date,
                 Direction = t.Direction,
                 IsDelete = t.IsDelete,
@@ -585,6 +592,24 @@ namespace IBTSS.Service.Services.TripService
                 LocationRoutes = locationRoutes
             };
         }
+
+        //private string TryFormatDate(string date)
+        //{
+        //    if (string.IsNullOrEmpty(date))
+        //        return "01/01/2000"; // ✅ Nếu null => trả ngày cố định để FE đọc an toàn
+
+        //    if (DateTime.TryParseExact(date,
+        //        new[] { "yyyy-MM-dd", "yyyy-MM-ddTHH:mm:ss" },
+        //        CultureInfo.InvariantCulture,
+        //        DateTimeStyles.None,
+        //        out DateTime parsedDate))
+        //    {
+        //        return parsedDate.ToString("dd/MM/yyyy"); // ✅ Nếu parse được => format đẹp
+        //    }
+
+        //    return "01/01/2000"; // ✅ Nếu parse lỗi => cũng trả 01/01/2000
+        //}
+
 
 
     }

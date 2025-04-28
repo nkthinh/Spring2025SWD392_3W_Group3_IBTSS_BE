@@ -7,6 +7,7 @@ using IBTSS.Service.Services.CustomerService;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -35,6 +36,8 @@ namespace IBTSS.Service.Services.TicketService
                 TripId = t.TripId,
                 SeatId = t.SeatId,
                 RouteName = t.Trip?.Route?.RouteName ?? "N/A",
+                DepartureTime = t.Trip?.DepartureTime.ToString("HH:mm") ?? "N/A",
+                Date = t.Trip?.Date,
                 BusType = t.Trip?.Bus?.BusType ?? "Unknown",
                 CreatedAt = t.Book?.CreatedAt ?? DateTime.MinValue,
                 CustomerId = t.Book?.CustomerId ?? string.Empty,
@@ -57,6 +60,8 @@ namespace IBTSS.Service.Services.TicketService
                 TripId = t.TripId,
                 SeatId = t.SeatId,
                 RouteName = t.Trip?.Route?.RouteName ?? "N/A",
+                DepartureTime = t.Trip?.DepartureTime.ToString("HH:mm") ?? "N/A",
+                Date = t.Trip?.Date,
                 BusType = t.Trip?.Bus?.BusType ?? "Unknown",
                 CreatedAt = t.Book?.CreatedAt ?? DateTime.MinValue,
                 CustomerId = t.Book?.CustomerId ?? string.Empty,
@@ -220,6 +225,8 @@ namespace IBTSS.Service.Services.TicketService
                 TripId = t.TripId,
                 SeatId = t.SeatId,
                 RouteName = t.Trip?.Route?.RouteName ?? "N/A",
+                DepartureTime = t.Trip?.DepartureTime.ToString("HH:mm") ?? "N/A",
+                Date = t.Trip?.Date,
                 BusType = t.Trip?.Bus?.BusType ?? "Unknown",
                 CreatedAt = t.CreatedAt,
                 CustomerId = customerId,
@@ -274,7 +281,7 @@ namespace IBTSS.Service.Services.TicketService
             var ticket = await _unitOfWork.Tickets.GetByIdAsync(ticketId);
             if (ticket == null) return false;
 
-            ticket.Status = "Boarded";
+            ticket.Status = "Đã lên xe";
             await _unitOfWork.Tickets.UpdateAsync(ticket);
             await _unitOfWork.CompleteAsync();
 
@@ -284,13 +291,13 @@ namespace IBTSS.Service.Services.TicketService
         public async Task<bool> ChangeSeatAsync(string ticketId, string newSeatId)
         {
             var ticket = await _unitOfWork.Tickets.GetByIdAsync(ticketId);
-            if (ticket == null || ticket.Status != "Complete") return false;
+            if (ticket == null || ticket.Status != "Hoàn Thành") return false;
 
             var book = await _unitOfWork.Books.GetByIdAsync(ticket.BookId);
             if (book == null) return false;
 
             var transaction = await _unitOfWork.Transactions.GetByIdAsync(book.TransactionId ?? "");
-            if (transaction == null || transaction.PaymentStatus != "Paid") return false;
+            if (transaction == null || transaction.PaymentStatus != "Đã Thanh Toán") return false;
 
             var newSeat = await _unitOfWork.Seats.GetByIdAsync(newSeatId);
             if (newSeat == null || newSeat.IsBooked) return false;
@@ -355,6 +362,8 @@ namespace IBTSS.Service.Services.TicketService
                     TripId = t.TripId,
                     SeatId = t.SeatId,
                     RouteName = t.Trip?.Route?.RouteName ?? "N/A",
+                    DepartureTime = t.Trip?.DepartureTime.ToString("HH:mm") ?? "N/A",
+                    Date = t.Trip?.Date,
                     BusType = t.Trip?.Bus?.BusType ?? "Unknown",
                     CreatedAt = t.Book?.CreatedAt ?? DateTime.MinValue,
                     CustomerId = t.Book?.CustomerId ?? string.Empty,
@@ -379,6 +388,8 @@ namespace IBTSS.Service.Services.TicketService
                 TripId = t.TripId,
                 SeatId = t.SeatId,
                 RouteName = t.Trip?.Route?.RouteName ?? "N/A",
+                DepartureTime = t.Trip?.DepartureTime.ToString("HH:mm") ?? "N/A",
+                Date = t.Trip?.Date,
                 BusType = t.Trip?.Bus?.BusType ?? "Unknown",
                 CreatedAt = t.Book?.CreatedAt ?? DateTime.MinValue,
                 CustomerId = t.Book?.CustomerId ?? string.Empty,

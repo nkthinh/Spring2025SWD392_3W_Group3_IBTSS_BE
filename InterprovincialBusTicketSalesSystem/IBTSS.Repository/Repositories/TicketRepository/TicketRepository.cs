@@ -25,6 +25,7 @@ namespace IBTSS.Repository.Repositories.TicketRepository
                 .Include(t => t.Trip)
                     .ThenInclude(trip => trip.Bus) // Load Bus trong Trip
                 .Include(t => t.Book) // Load Book để lấy CreatedAt, CustomerId
+                    .ThenInclude(book => book.Customer)
                 .ToListAsync();
         }
         public async Task<Ticket?> GetByIdAsync(string id) =>

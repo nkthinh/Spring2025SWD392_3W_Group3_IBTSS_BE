@@ -9,6 +9,7 @@ namespace IBTSS.Service.DTO.Response.Customer
     public class CustomerResponse
     {
         public string CustomerId { get; set; } = string.Empty;
+        public string PasswordHash { get; set; } = string.Empty;
 
         public int Score { get; set; }
 

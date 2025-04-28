@@ -4,6 +4,8 @@ using IBTSS.Repository.UnitOfWork;
 using IBTSS.Service.DTO.Request.Customer;
 using IBTSS.Service.DTO.Response.Customer;
 using Microsoft.Extensions.Logging;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace IBTSS.Service.Services.CustomerService
 {
@@ -136,7 +138,7 @@ namespace IBTSS.Service.Services.CustomerService
             }
         }
 
-        public async Task<Customer?> LoginByPhoneAsync(string phoneNumber)
+        public async Task<Customer?> LoginByPhoneAsync(string phoneNumber, string password)
         {
             try
             {
@@ -147,6 +149,31 @@ namespace IBTSS.Service.Services.CustomerService
                 _logger.LogError(ex, "PhoneNumber is not exist!");
                 throw;
             }
+        }
+        public async Task<Customer?> AuthenticateAsync(string phoneNumber, string password)
+        {
+            try
+            {
+                var customer = await _unitOfWork.Customers
+                    .LoginByPhoneAsync(phoneNumber);
+
+                if (customer == null) return null;
+
+                var hash = HashPassword(password);
+                return customer.PasswordHash == hash ? customer : null;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Authentication failed");
+                throw;
+            }
+        }
+        public string HashPassword(string password)
+        {
+            using var sha256 = SHA256.Create();
+            var bytes = Encoding.UTF8.GetBytes(password);
+            var hash = sha256.ComputeHash(bytes);
+            return Convert.ToBase64String(hash);
         }
 
         public async Task<(List<CustomerResponse>, int)> GetFilteredAsync(CustomerQueryParameters query)

@@ -11,6 +11,8 @@ namespace IBTSS.Service.DTO.Response.Ticket
         public string TicketId { get; set; }
         public string BookId { get; set; }
         public string? TripId { get; set; }
+        public string DepartureTime { get; set; }
+        public string Date { get; set; }
         public string? SeatId { get; set; }
         public string? RouteName { get; set; }
         public string? BusType { get; set; }

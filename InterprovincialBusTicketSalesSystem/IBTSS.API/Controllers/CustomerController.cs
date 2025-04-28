@@ -12,7 +12,6 @@ namespace IBTSS.API.Controllers
     [Route("api/[controller]")]
     public class CustomerController(IMapper mapper, ICustomerService customerService) : ControllerBase
     {
-        [Authorize(Roles = "Admin")]
         [HttpGet]
         public async Task<IActionResult> GetFiltered([FromQuery] CustomerQueryParameters? query)
         {
@@ -82,24 +81,22 @@ namespace IBTSS.API.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] CustomerRequest customerRequest)
+        public async Task<IActionResult> Register([FromBody] CustomerRequest request)
         {
             try
             {
-                var customer = mapper.Map<Customer>(customerRequest);
-                if (customer == null)
-                {
-                    return BadRequest(new { message = "Customer data is invalid." });
-                }
-
-                var isUnique = await customerService.GetByPhoneNumberAsync(customer.PhoneNumber);
+                var isUnique = await customerService.GetByPhoneNumberAsync(request.PhoneNumber);
                 if (!isUnique)
-                {
                     return BadRequest(new { message = "Phone number already exists." });
-                }
 
+                var customer = mapper.Map<Customer>(request);
+                customer.PasswordHash = customerService.HashPassword(request.Password);
                 await customerService.AddAsync(customer);
-                var customerResponse = mapper.Map<CustomerResponse>(customer);
+
+                // ✅ Load lại từ database kèm Membership
+                var createdCustomer = await customerService.GetByIdAsync(customer.CustomerId);
+
+                var customerResponse = mapper.Map<CustomerResponse>(createdCustomer);
                 return Ok(customerResponse);
             }
             catch (Exception ex)
@@ -113,12 +110,13 @@ namespace IBTSS.API.Controllers
         {
             try
             {
-                var customer = await customerService.LoginByPhoneAsync(customerLoginRequest.PhoneNumber);
+                var customer = await customerService.AuthenticateAsync(customerLoginRequest.PhoneNumber, customerLoginRequest.Password);
                 if (customer == null)
                 {
-                    return Unauthorized(new { message = "Invalid phone number." });
+                    return Unauthorized(new { message = "Invalid phone number or password." });
                 }
-
+                // ✅ Load lại từ database kèm Membership
+                var createdCustomer = await customerService.GetByIdAsync(customer.CustomerId);
                 var customerResponse = mapper.Map<CustomerResponse>(customer);
                 return Ok(customerResponse);
             }
@@ -127,6 +125,7 @@ namespace IBTSS.API.Controllers
                 return StatusCode(500, new { message = ex.Message });
             }
         }
+
 
         [HttpGet("membership/{customerId}")]
         public async Task<IActionResult> GetCustomerMembership(string customerId)

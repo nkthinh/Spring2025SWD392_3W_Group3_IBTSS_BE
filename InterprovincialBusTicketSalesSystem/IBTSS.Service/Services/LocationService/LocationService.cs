@@ -46,6 +46,10 @@ namespace IBTSS.Service.Services.LocationService
 
         public async Task<LocationResponse> AddAsync(LocationRequest request)
         {
+            var exists = (await _unitOfWork.Locations.GetAllAsync())
+      .Any(x => x.LocationName.Equals(request.LocationName, StringComparison.OrdinalIgnoreCase));
+            if (exists)
+                throw new Exception("Location name already exists.");
             var entity = new Location
             {
                 LocationName = request.LocationName,           

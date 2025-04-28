@@ -593,24 +593,6 @@ namespace IBTSS.Service.Services.TripService
             };
         }
 
-        //private string TryFormatDate(string date)
-        //{
-        //    if (string.IsNullOrEmpty(date))
-        //        return "01/01/2000"; // ✅ Nếu null => trả ngày cố định để FE đọc an toàn
-
-        //    if (DateTime.TryParseExact(date,
-        //        new[] { "yyyy-MM-dd", "yyyy-MM-ddTHH:mm:ss" },
-        //        CultureInfo.InvariantCulture,
-        //        DateTimeStyles.None,
-        //        out DateTime parsedDate))
-        //    {
-        //        return parsedDate.ToString("dd/MM/yyyy"); // ✅ Nếu parse được => format đẹp
-        //    }
-
-        //    return "01/01/2000"; // ✅ Nếu parse lỗi => cũng trả 01/01/2000
-        //}
-
-
 
     }
 }

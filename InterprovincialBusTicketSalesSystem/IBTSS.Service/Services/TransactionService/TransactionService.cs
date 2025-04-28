@@ -64,13 +64,13 @@ namespace IBTSS.Service.Services.TransactionService
         {
             return await _repository.DeleteAsync(id);
         }
-        //thong ke doanh thu thro thang
+        //thong ke doanh thu theo thang
         public async Task<List<object>> GetRevenueByMonthAsync(int year, int month)
         {
             var transactions = await _repository.GetAllAsync();
 
             var filtered = transactions
-                .Where(t => t.CreatedAt.Year == year && t.CreatedAt.Month == month && t.PaymentStatus == "Paid")
+                .Where(t => t.CreatedAt.Year == year && t.CreatedAt.Month == month && t.PaymentStatus == "Đã thanh toán")
                 .GroupBy(t => t.CreatedAt.Day)
                 .ToDictionary(g => g.Key, g => g.Sum(t => t.Amount));
 

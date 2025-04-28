@@ -51,6 +51,11 @@ namespace IBTSS.Service.Services.MembershipService
 
         public async Task<MembershipResponse> AddAsync(MembershipRequest request)
         {
+            var exists = (await _unitOfWork.Memberships.GetAllAsync())
+      .Any(m => m.RankName.Equals(request.RankName, StringComparison.OrdinalIgnoreCase));
+            if (exists)
+                throw new Exception("Rank name already exists.");
+
             var m = new Membership
             {
                 RankName = request.RankName,

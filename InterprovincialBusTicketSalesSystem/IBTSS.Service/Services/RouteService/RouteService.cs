@@ -35,6 +35,11 @@ namespace IBTSS.Service.Services.RouteService
         }
         public async Task<RouteResponse> AddAsync(RouteRequest request)
         {
+            var exists = (await _repository.GetAllAsync())
+        .Any(r => r.RouteName.Equals(request.RouteName, StringComparison.OrdinalIgnoreCase));
+            if (exists)
+                throw new Exception("Route name already exists.");
+
             var route = _mapper.Map<Route>(request);
             var newRoute = await _repository.AddAsync(route);
             return _mapper.Map<RouteResponse>(newRoute);

@@ -19,17 +19,17 @@ namespace IBTSS.Repository.Repositories.UserRepository
 
         public User? GetByUsername(string username)
         {
-            return _context.Users.FirstOrDefault(u => u.Username == username && !u.IsDelete);
+            return _context.Users.FirstOrDefault(u => u.Username == username);
         }
 
         public async Task<User?> GetByIdAsync(string userId)
         {
-            return await _context.Users.FirstOrDefaultAsync(u => u.UserId == userId && !u.IsDelete);
+            return await _context.Users.FirstOrDefaultAsync(u => u.UserId == userId);
         }
 
         public async Task<IEnumerable<User>> GetAllAsync()
         {
-            return await _context.Users.Where(u => !u.IsDelete).ToListAsync();
+            return await _context.Users.ToListAsync();
         }
 
         public async Task AddUserAsync(User user)

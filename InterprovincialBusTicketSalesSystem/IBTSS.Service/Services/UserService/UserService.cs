@@ -1,13 +1,13 @@
 ﻿using AutoMapper;
 using IBTSS.Repository.Entities;
+using IBTSS.Repository.Enum;
 using IBTSS.Repository.UnitOfWork;
-using IBTSS.Service.DTO.Request.Customer;
-using IBTSS.Service.DTO.Request.Trip;
-using IBTSS.Service.DTO.Response.Customer;
 using IBTSS.Service.DTO.Response.User;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using System.Linq;
+using IBTSS.Service.DTO.Request.Trip;
 
 namespace IBTSS.Service.Services.UserService
 {
@@ -15,40 +15,62 @@ namespace IBTSS.Service.Services.UserService
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+
         public UserService(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
-
         public async Task AddUserAsync(User user)
         {
             user.PasswordHash = HashPassword(user.PasswordHash);
+
+            // ❗ Không cho tạo Admin account mới
+            if (user.Role == UserRole.Admin)
+                throw new Exception("Cannot create another Admin account.");
+
             await _unitOfWork.Users.AddUserAsync(user);
             await _unitOfWork.CompleteAsync();
         }
 
+
         public async Task<IEnumerable<User>> GetAllAsync()
         {
-            return await _unitOfWork.Users.GetAllAsync();
+            var users = await _unitOfWork.Users.GetAllAsync();
+            return users.Where(u => u.Role != UserRole.Admin); 
         }
+
 
         public async Task<User?> GetByIdAsync(string userId)
         {
-            return await _unitOfWork.Users.GetByIdAsync(userId);
+            var user = await _unitOfWork.Users.GetByIdAsync(userId);
+            if (user == null || user.Role == UserRole.Admin) return null; //Không được lấy Admin
+            return user;
         }
+
 
         public User? GetByUsername(string username)
         {
-            return _unitOfWork.Users.GetByUsername(username);
+            var user = _unitOfWork.Users.GetByUsername(username);
+            if (user == null || user.Role == UserRole.Admin) return null; //Không được lấy Admin
+            return user;
         }
+
 
         public async Task UpdateUserAsync(User user)
         {
+            var existingUser = await _unitOfWork.Users.GetByIdAsync(user.UserId);
+            if (existingUser == null || existingUser.Role == UserRole.Admin)
+                throw new Exception("Cannot update Admin account.");
+
             if (!string.IsNullOrEmpty(user.PasswordHash))
             {
                 user.PasswordHash = HashPassword(user.PasswordHash);
             }
+
+            // ❗ Không cho phép thay đổi Role thành Admin
+            if (user.Role == UserRole.Admin)
+                throw new Exception("Cannot update role to Admin.");
 
             await _unitOfWork.Users.UpdateUserAsync(user);
             await _unitOfWork.CompleteAsync();
@@ -57,30 +79,29 @@ namespace IBTSS.Service.Services.UserService
 
         public async Task DeleteUserAsync(string userId)
         {
-            await _unitOfWork.Users.DeleteUserAsync(userId);
+            var user = await _unitOfWork.Users.GetByIdAsync(userId);
+            if (user == null || user.Role == UserRole.Admin)
+                throw new Exception("Cannot delete Admin account.");
+
+            user.IsDelete = true;
+            await _unitOfWork.Users.UpdateUserAsync(user);
             await _unitOfWork.CompleteAsync();
         }
 
         public User? Authenticate(string username, string password)
         {
-            var user = GetByUsername(username);
+            var user = _unitOfWork.Users.GetByUsername(username);
             if (user == null || user.IsDelete) return null;
 
             var hash = HashPassword(password);
             return user.PasswordHash == hash ? user : null;
         }
 
-        private string HashPassword(string password)
-        {
-            using var sha256 = SHA256.Create();
-            var bytes = Encoding.UTF8.GetBytes(password);
-            var hash = sha256.ComputeHash(bytes);
-            return Convert.ToBase64String(hash);
-        }
+
         public async Task<(List<AddUserResponse>, int)> GetFilteredAsync(QueryParameters query)
         {
             var users = await _unitOfWork.Users.GetAllAsync();
-            var filtered = users.AsQueryable();
+            var filtered = users.Where(u => u.Role != UserRole.Admin).AsQueryable(); // ❗ Không lấy Admin
 
             if (!string.IsNullOrEmpty(query.Keyword))
             {
@@ -107,5 +128,13 @@ namespace IBTSS.Service.Services.UserService
             return (mapped, total);
         }
 
+
+        private string HashPassword(string password)
+        {
+            using var sha256 = SHA256.Create();
+            var bytes = Encoding.UTF8.GetBytes(password);
+            var hash = sha256.ComputeHash(bytes);
+            return Convert.ToBase64String(hash);
+        }
     }
 }

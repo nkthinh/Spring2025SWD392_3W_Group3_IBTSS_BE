@@ -22,5 +22,7 @@ namespace IBTSS.Service.DTO.Response.User
 
         public string Name { get; set; } = string.Empty;
         public UserRole Role { get; set; }
+        public bool IsDelete { get; set; }
+
     }
 }

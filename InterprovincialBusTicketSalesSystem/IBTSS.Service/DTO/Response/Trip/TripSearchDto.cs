@@ -12,8 +12,8 @@ namespace IBTSS.Service.DTO.Response.Trip
         public string RouteName { get; set; } = string.Empty;
 
         // Sử dụng DateTime cho DepartureTime và Date
-        public DateTime DepartureTime { get; set; }
-        public DateTime Date { get; set; } = DateTime.MinValue;
+        public string DepartureTime { get; set; } = string.Empty; // ✅ chuyển TimeOnly -> string
+        public string Date { get; set; } = string.Empty;
 
         public decimal Price { get; set; }
 
@@ -21,14 +21,14 @@ namespace IBTSS.Service.DTO.Response.Trip
         public List<LocationStopDto> Stops { get; set; } = new List<LocationStopDto>();
 
         // Phương thức để trả về chuỗi đã định dạng cho DepartureTime và Date
-        public string GetFormattedDepartureTime()
-        {
-            return DepartureTime.ToString("HH:mm");  // Ví dụ định dạng: 00:00
-        }
+        //public string GetFormattedDepartureTime()
+        //{
+        //    return DepartureTime.ToString("HH:mm");  // Ví dụ định dạng: 00:00
+        //}
 
-        public string GetFormattedDate()
-        {
-            return Date.ToString("dd-MM-yyyy");  // Ví dụ định dạng: 25-04-2025
-        }
+        //public string GetFormattedDate()
+        //{
+        //    return Date.ToString("dd-MM-yyyy");  // Ví dụ định dạng: 25-04-2025
+        //}
     }
 }

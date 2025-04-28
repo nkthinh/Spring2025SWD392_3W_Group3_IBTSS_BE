@@ -81,7 +81,21 @@ namespace IBTSS.Service.Services.TripService
             var driver = await _unitOfWork.Users.GetByIdAsync(request.DriverId);
             if (driver == null || driver.Role != UserRole.Driver)
                 throw new Exception($"User with ID {request.DriverId} is invalid or not a driver.");
+            // ➡️ 1A. Check BusId phải có toàn bộ Seat IsBooked = false
+            var seats = await _unitOfWork.Seats.GetAllAsync();
+            var seatsOfBus = seats.Where(s => s.BusId == request.BusId && !s.IsDelete).ToList();
 
+            // Nếu bus không có seat => báo lỗi luôn
+            if (!seatsOfBus.Any())
+            {
+                throw new Exception($"Bus with ID {request.BusId} does not have any seats assigned.");
+            }
+
+            // Nếu có bất kỳ ghế nào IsBooked = true => báo lỗi
+            if (seatsOfBus.Any(s => s.IsBooked))
+            {
+                throw new Exception($"Bus with ID {request.BusId} has seats already booked. Cannot create trip.");
+            }
             // 2. Parse thời gian khởi hành mới
             var newDeparture = TimeOnly.ParseExact(request.DepartureTime, "HH:mm", null);
 
@@ -277,8 +291,10 @@ namespace IBTSS.Service.Services.TripService
                 BusId = t.BusId,    // Ánh xạ BusId
                 BusType = t.Bus != null ? t.Bus.BusType : "Unknown", // Ánh xạ BusType từ Bus nếu có
                 RouteName = t.Route.RouteName,  // Ánh xạ RouteName
-                DepartureTime = DateTime.Today.Add(t.DepartureTime.ToTimeSpan()), // Chuyển TimeOnly sang DateTime
-                Date = DateTime.TryParse(t.Date, out DateTime parsedDate) ? parsedDate : DateTime.MinValue, // Chuyển từ string sang DateTime
+                //DepartureTime = DateTime.Today.Add(t.DepartureTime.ToTimeSpan()), // Chuyển TimeOnly sang DateTime
+                //Date = DateTime.TryParse(t.Date, out DateTime parsedDate) ? parsedDate : DateTime.MinValue, // Chuyển từ string sang DateTime
+                DepartureTime = t.DepartureTime.ToString("HH:mm"),
+                Date = t.Date,
                 Price = t.Price, // Ánh xạ Price
                 Stops = t.Route.LocationRoutes
                     .Where(lr => lr.Location != null)  // Kiểm tra để đảm bảo Location không phải null
@@ -307,6 +323,7 @@ namespace IBTSS.Service.Services.TripService
         {
             // Tìm chuyến đi theo từ khóa và ngày
             var trips = await _unitOfWork.Trips.SearchTripsByKeywordAndDateAsync(keyword, date);
+            trips = trips.Where(t => t.Status != "Hoàn Thành").ToList();
 
             // Áp dụng sắp xếp theo yêu cầu
             trips = type switch
@@ -325,8 +342,10 @@ namespace IBTSS.Service.Services.TripService
                 BusId = t.BusId,    // Ánh xạ BusId
                 BusType = t.Bus != null ? t.Bus.BusType : "Unknown", // Ánh xạ BusType từ Bus nếu có
                 RouteName = t.Route.RouteName,  // Ánh xạ RouteName
-                DepartureTime = DateTime.Today.Add(t.DepartureTime.ToTimeSpan()), // Chuyển TimeOnly sang DateTime
-                Date = DateTime.TryParse(t.Date, out DateTime parsedDate) ? parsedDate : DateTime.MinValue, // Chuyển từ string sang DateTime
+                //DepartureTime = DateTime.Today.Add(t.DepartureTime.ToTimeSpan()), // Chuyển TimeOnly sang DateTime
+                //Date = DateTime.TryParse(t.Date, out DateTime parsedDate) ? parsedDate : DateTime.MinValue, // Chuyển từ string sang DateTime
+                DepartureTime = t.DepartureTime.ToString("HH:mm"),
+                Date = t.Date,
                 Price = t.Price, // Ánh xạ Price
                 Stops = t.Route.LocationRoutes
                     .Where(lr => lr.Location != null)  // Kiểm tra để đảm bảo Location không phải null
@@ -350,8 +369,10 @@ namespace IBTSS.Service.Services.TripService
                 BusId = t.BusId,    // Ánh xạ BusId
                 BusType = t.Bus != null ? t.Bus.BusType : "Unknown", // Ánh xạ BusType từ Bus nếu có
                 RouteName = t.Route.RouteName,  // Ánh xạ RouteName
-                DepartureTime = DateTime.Today.Add(t.DepartureTime.ToTimeSpan()), // Chuyển TimeOnly sang DateTime
-                Date = DateTime.TryParse(t.Date, out DateTime parsedDate) ? parsedDate : DateTime.MinValue, // Chuyển từ string sang DateTime
+                //DepartureTime = DateTime.Today.Add(t.DepartureTime.ToTimeSpan()), // Chuyển TimeOnly sang DateTime
+                //Date = DateTime.TryParse(t.Date, out DateTime parsedDate) ? parsedDate : DateTime.MinValue, // Chuyển từ string sang DateTime
+                DepartureTime = t.DepartureTime.ToString("HH:mm"),
+                Date = t.Date,
                 Price = t.Price, // Ánh xạ Price
                 Stops = t.Route.LocationRoutes
                     .Where(lr => lr.Location != null)  // Kiểm tra để đảm bảo Location không phải null
@@ -507,7 +528,6 @@ namespace IBTSS.Service.Services.TripService
         public async Task<(List<TripResponse>, int)> GetFilteredAsync(QueryParameters query)
         {
             var trips = await _unitOfWork.Trips.GetAllAsync();
-
             foreach (var t in trips)
             {
                 t.Route ??= await _unitOfWork.Routes.GetByIdAsync(t.RouteId);

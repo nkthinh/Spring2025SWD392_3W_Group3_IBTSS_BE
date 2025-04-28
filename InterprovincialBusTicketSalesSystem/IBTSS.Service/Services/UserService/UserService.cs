@@ -25,9 +25,9 @@ namespace IBTSS.Service.Services.UserService
         {
             user.PasswordHash = HashPassword(user.PasswordHash);
 
-            // ❗ Không cho tạo Admin account mới
-            if (user.Role == UserRole.Admin)
-                throw new Exception("Cannot create another Admin account.");
+            //// Không cho tạo Admin account mới
+            //if (user.Role == UserRole.Admin)
+            //    throw new Exception("Cannot create another Admin account.");
 
             await _unitOfWork.Users.AddUserAsync(user);
             await _unitOfWork.CompleteAsync();

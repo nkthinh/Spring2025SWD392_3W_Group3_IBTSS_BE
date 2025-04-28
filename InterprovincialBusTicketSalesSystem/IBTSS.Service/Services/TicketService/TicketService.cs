@@ -233,13 +233,14 @@ namespace IBTSS.Service.Services.TicketService
                 CustomerName = t.Book?.Customer?.Name ?? "",
                 IsCancelled = t.isCancelled,
                 Price = t.Price,
+                OriginalPrice = t.OriginalPrice ?? 0,
                 Status = t.Status
             }).ToList();
         }
         public async Task<TicketResponse?> CancelTicketAsync(string ticketId)
         {
             var ticket = await _unitOfWork.Tickets.GetByIdAsync(ticketId);
-            if (ticket == null) return null;
+            if (ticket == null || ticket.Status == "Đã lên xe") return null;
 
             ticket.Status = "Vé Đã Hủy";
             ticket.isCancelled = true;

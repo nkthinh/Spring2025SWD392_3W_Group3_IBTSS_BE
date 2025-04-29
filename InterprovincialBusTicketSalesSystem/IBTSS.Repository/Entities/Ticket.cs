@@ -19,7 +19,6 @@ namespace IBTSS.Repository.Entities
         [ForeignKey("Trip")]
         public string? TripId { get; set; }
 
-        [ForeignKey("Seat")]
         public string? SeatId { get; set; }
 
         public bool isCancelled { get; set; }

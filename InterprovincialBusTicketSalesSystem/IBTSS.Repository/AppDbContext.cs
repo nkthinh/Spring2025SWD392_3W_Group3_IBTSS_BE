@@ -105,10 +105,12 @@ namespace IBTSS.Repository
 
 
             modelBuilder.Entity<Ticket>()
-                .HasOne(t => t.Seat)
-                .WithOne(s => s.Ticket)
-                .HasForeignKey<Ticket>(t => t.SeatId)
-                .OnDelete(DeleteBehavior.Cascade);
+    .HasOne(t => t.Seat)
+    .WithMany(s => s.Tickets) // ✅ Một Seat nhiều Ticket
+    .HasForeignKey(t => t.SeatId) // ✅ Ticket có 1 SeatId
+    .OnDelete(DeleteBehavior.Cascade);
+
+
 
             modelBuilder.Entity<LocationRoute>()
                 .HasOne(lr => lr.Route)

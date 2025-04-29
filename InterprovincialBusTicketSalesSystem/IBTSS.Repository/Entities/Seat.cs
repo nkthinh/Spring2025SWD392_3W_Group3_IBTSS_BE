@@ -20,7 +20,8 @@ namespace IBTSS.Repository.Entities
         public bool IsBooked { get; set; }
 
         public virtual Bus? Bus { get; set; }
-        public virtual Ticket? Ticket { get; set; }
+        public virtual ICollection<Ticket> Tickets { get; set; } = new List<Ticket>();
+
 
 
     }

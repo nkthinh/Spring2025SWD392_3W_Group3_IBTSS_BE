@@ -129,6 +129,7 @@ namespace IBTSS.API.Controllers
             try
             {
                 var user = userService.Authenticate(request.Username, request.Password);
+            
                 if (user == null)
                     return Unauthorized(new { message = "Invalid username or password." });
 

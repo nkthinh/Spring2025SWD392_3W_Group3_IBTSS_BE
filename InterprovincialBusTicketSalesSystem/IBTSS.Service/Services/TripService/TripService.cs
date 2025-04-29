@@ -151,11 +151,25 @@ namespace IBTSS.Service.Services.TripService
 
             // 5. Tạo các LocationRoute
             int stopOrder = 1;
+
+            // ✅ Load sẵn tất cả LocationRoute của Route này ra trước
+            var existingLocationRoutes = await _unitOfWork.LocationRoutes.GetByRouteIdAsync(createdTrip.RouteId);
+
             foreach (var lr in request.LocationRoutes)
             {
                 var loc = await _unitOfWork.Locations.GetByIdAsync(lr.LocationId);
                 if (loc == null)
                     throw new Exception($"Location with ID {lr.LocationId} does not exist.");
+
+                // ➡️ Check trong bộ existingLocationRoutes (in-memory)
+                bool alreadyExists = existingLocationRoutes
+                    .Any(x => x.LocationId == lr.LocationId);
+
+                if (alreadyExists)
+                {
+                    // ✅ Đã có => bỏ qua không thêm
+                    continue;
+                }
 
                 var locationRoute = new LocationRoute
                 {
@@ -165,8 +179,10 @@ namespace IBTSS.Service.Services.TripService
                     StopOrder = stopOrder++,
                     StopDuration = TimeSpan.FromMinutes(lr.StopDurationMinutes)
                 };
+
                 await _unitOfWork.LocationRoutes.AddAsync(locationRoute);
             }
+
 
             // 6. Lưu và trả về response
             await _unitOfWork.CompleteAsync();

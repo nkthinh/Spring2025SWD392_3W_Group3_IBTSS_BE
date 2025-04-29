@@ -33,6 +33,7 @@ namespace IBTSS.Repository.Repositories.TransactionRepository
         {
             var pendingBook = await _context.Books
                 .Include(b => b.Tickets)
+                .ThenInclude(b => b.Seat)
                 .FirstOrDefaultAsync(b =>
                     b.CustomerId == transaction.CustomerId &&
                     b.Status == "Đang xử lý");
@@ -44,7 +45,7 @@ namespace IBTSS.Repository.Repositories.TransactionRepository
 
             transaction.TransactionId = Guid.NewGuid().ToString();
             transaction.CreatedAt = DateTime.UtcNow;
-            transaction.PaymentStatus = "Paid";
+            transaction.PaymentStatus = "Đã Thanh Toán";
             transaction.Amount = pendingBook.TotalPrice;
             pendingBook.Status = "Hoàn Thành";
             pendingBook.TransactionId = transaction.TransactionId;
@@ -58,28 +59,54 @@ namespace IBTSS.Repository.Repositories.TransactionRepository
                 ticket.IsDelete = false;
                 ticket.isCancelled = false;
                 ticketCount++; // ✅ Đếm số vé đã xử lý
+
+                //if (ticket.Seat != null)
+                //{
+                //    ticket.Seat.IsBooked = true;
+                //}
             }
 
             // ✅ Cập nhật điểm + membership cho customer
             var customer = await _context.Customers
                 .FirstOrDefaultAsync(c => c.CustomerId == transaction.CustomerId);
 
-            if (customer != null && transaction.PaymentStatus == "Paid")
+            if (customer != null && transaction.PaymentStatus == "Đã Thanh Toán")
             {
                 customer.Score += ticketCount;
 
-                // ✅ Cập nhật Membership nếu đủ điều kiện
+                //// ✅ Cập nhật Membership nếu đủ điều kiện
+                //var memberships = await _context.Memberships
+                //    .Where(m => !m.IsDelete)
+                //    .OrderByDescending(m => m.MinTicketsRequired)
+                //    .ToListAsync();
+
+                //foreach (var member in memberships)
+                //{
+                //    if (customer.Score >= member.MinTicketsRequired)
+                //    {
+                //        customer.MembershipId = member.MembershipId;
+                //        break;
+                //    }
+                //}
+
                 var memberships = await _context.Memberships
                     .Where(m => !m.IsDelete)
                     .OrderByDescending(m => m.MinTicketsRequired)
                     .ToListAsync();
 
-                foreach (var member in memberships)
+                var eligibleMembership = memberships
+                    .FirstOrDefault(m => customer.Score >= m.MinTicketsRequired);
+
+                if (eligibleMembership != null)
                 {
-                    if (customer.Score >= member.MinTicketsRequired)
+                    if (customer.MembershipId == null || customer.MembershipId != eligibleMembership.MembershipId)
                     {
-                        customer.MembershipId = member.MembershipId;
-                        break;
+                        customer.MembershipId = eligibleMembership.MembershipId;
+                        customer.DiscountQuotaLeft = 5;
+                    }
+                    else if (customer.DiscountQuotaLeft == null)
+                    {
+                        customer.DiscountQuotaLeft = 5;
                     }
                 }
             }

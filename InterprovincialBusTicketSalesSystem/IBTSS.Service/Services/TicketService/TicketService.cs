@@ -280,7 +280,12 @@ namespace IBTSS.Service.Services.TicketService
         public async Task<bool> ConfirmBoardingAsync(string ticketId)
         {
             var ticket = await _unitOfWork.Tickets.GetByIdAsync(ticketId);
-            if (ticket == null) return false;
+            if (ticket == null)
+                throw new Exception("Ticket not found.");
+
+            // ✅ Check nếu đã lên xe rồi
+            if (ticket.Status == "Đã lên xe")
+                throw new Exception("Khách đã lên xe, không thể xác nhận lại.");
 
             ticket.Status = "Đã lên xe";
             await _unitOfWork.Tickets.UpdateAsync(ticket);
@@ -288,6 +293,7 @@ namespace IBTSS.Service.Services.TicketService
 
             return true;
         }
+
 
         public async Task<bool> ChangeSeatAsync(string ticketId, string newSeatId)
         {

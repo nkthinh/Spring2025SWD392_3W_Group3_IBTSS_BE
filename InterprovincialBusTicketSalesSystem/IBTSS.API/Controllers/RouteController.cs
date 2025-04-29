@@ -24,8 +24,10 @@ namespace IBTSS.API.Controllers
             _routeService = routeService;
             _mapper = mapper;
         }
+        
 
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetFiltered([FromQuery] QueryParameters? query)
         {
             try

@@ -70,7 +70,7 @@ namespace IBTSS.Service.Services.TransactionService
             var transactions = await _repository.GetAllAsync();
 
             var filtered = transactions
-                .Where(t => t.CreatedAt.Year == year && t.CreatedAt.Month == month && t.PaymentStatus == "Đã thanh toán")
+                .Where(t => t.CreatedAt.Year == year && t.CreatedAt.Month == month && t.PaymentStatus == "Đã Thanh Toán")
                 .GroupBy(t => t.CreatedAt.Day)
                 .ToDictionary(g => g.Key, g => g.Sum(t => t.Amount));
 

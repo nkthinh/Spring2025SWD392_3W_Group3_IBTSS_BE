@@ -87,7 +87,7 @@ namespace IBTSS.Repository.Repositories.TransactionRepository
 
                         if (highestRank != null && eligibleMembership.MembershipId == highestRank.MembershipId)
                         {
-                            customer.DiscountQuotaLeft = null; // ✅ Hạng cao nhất -> Giảm giá vĩnh viễn
+                            customer.DiscountQuotaLeft = 100; // ✅ Hạng cao nhất -> Giảm giá vĩnh viễn
                         }
                         else
                         {

@@ -506,7 +506,7 @@ namespace IBTSS.Service.Services.TripService
                 {
                     trips = trips.Where(t =>
                     {
-                        if (DateTime.TryParseExact(t.Date, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime date))
+                        if (DateTime.TryParseExact(t.Date, "dd-MM-yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime date))
                         {
                             return date.Month == m && date.Year == y;
                         }
@@ -515,15 +515,25 @@ namespace IBTSS.Service.Services.TripService
                 }
             }
 
-            return trips.Select(t => new
+            return trips.Select(t =>
             {
-                id = t.TripId,
-                title = $"{t.Route?.RouteName ?? "Chuyến"} ({t.DepartureTime:hh\\:mm})",
-                start = DateTime.ParseExact(t.Date, "yyyy-MM-dd", CultureInfo.InvariantCulture).ToString("dd/MM/yyyy"),
-                end = DateTime.ParseExact(t.Date, "yyyy-MM-dd", CultureInfo.InvariantCulture).ToString("dd/MM/yyyy"),
-                hasDriver = !string.IsNullOrEmpty(t.DriverId)
+                DateTime parsedDate = DateTime.MinValue;
+                if (DateTime.TryParseExact(t.Date, "dd-MM-yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out var date))
+                {
+                    parsedDate = date;
+                }
+
+                return new
+                {
+                    id = t.TripId,
+                    title = $"{t.Route?.RouteName ?? "Chuyến"} ({t.DepartureTime:hh\\:mm})",
+                    start = parsedDate.ToString("dd-MM-yyyy"),
+                    end = parsedDate.ToString("dd-MM-yyyy"),
+                    hasDriver = !string.IsNullOrEmpty(t.DriverId)
+                };
             }).Cast<object>().ToList();
         }
+
         //phan trang
         public async Task<(List<TripResponse>, int)> GetFilteredAsync(QueryParameters query)
         {

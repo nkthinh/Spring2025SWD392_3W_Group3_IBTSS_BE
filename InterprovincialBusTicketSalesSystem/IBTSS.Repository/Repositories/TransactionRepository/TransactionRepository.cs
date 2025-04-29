@@ -54,7 +54,7 @@ namespace IBTSS.Repository.Repositories.TransactionRepository
             // ✅ Cập nhật trạng thái của từng Ticket
             foreach (var ticket in pendingBook.Tickets)
             {
-                ticket.Status = "Complete";
+                ticket.Status = "Hoàn Thành";
                 ticket.IsDelete = false;
                 ticket.isCancelled = false;
                 ticketCount++; // ✅ Đếm số vé đã xử lý
